@@ -41,11 +41,22 @@ so that I don't have to fill each parameter every time
 	- simulation input parameter values saved in .data output file and partially also in .txt log file
 	- maybe save different sets of results for several simulations that for example relate to the same type of simulation or parameter sweep in different directories (but how do I do that consistently with the cluster?)
 	- keep daily notes about simulations that I am running and about results
-	- create one separate notebook for postprocessing and analysis and save postprocessed data in file whose name connects to the simulation output files and to the code file that was used for postprocessing
+	- create one separate notebook for postprocessing and analysis/inference and save postprocessed data in file whose name connects to the simulation output files and to the code file that was used for postprocessing
 
 ## To Do:
-- [ ] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.)
-- [ ] write basic code for simulation
+[ ] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.)
+
+[ ] write basic code for simulation
+
+[ ] write basic code for simulation postprocessing and analysis
+
+[ ] test simulation and analysis on small example (on my pc)
+
+[ ] submit simulation to cluster (lymphocyte or engaging)
+
+[ ] think about which parameters to vary for sensitivity analysis
+
+[ ] submit several simulations to do parameter analysis
 
 
 

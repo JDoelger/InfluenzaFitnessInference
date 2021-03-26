@@ -34,7 +34,7 @@ so that I don't have to fill each parameter every time
 - save small functions in separate .py file(s)
 - for each function include comprehensive documentation with function description, parameters (description + type/dimension), return values (description + type/dimension)
 - for each function write a test function for unit testing, for example using pytest like J Vanderplas
-- regularly test updated functions with pytest and update test functions if new functionalities are added or errors are identified
+- regularly test updated functions with pytest and update test functions if new functionalities are added or errors are identified and fixed (make sure that same error does not happen twice and if it does, let it be detected by test function)
 - regularly update git and github repository by using git add/commit/push
 - keep file overview: 
 	- automatic naming of simulation output files: each file with at least current date and simulation file name that it is based on, maybe additional identifiers to find data later?

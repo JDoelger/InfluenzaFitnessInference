@@ -43,6 +43,10 @@ so that I don't have to fill each parameter every time
 	- keep daily notes about simulations that I am running and about results
 	- create one separate notebook for postprocessing and analysis and save postprocessed data in file whose name connects to the simulation output files and to the code file that was used for postprocessing
 
+## To Do:
+- [ ] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.)
+- [ ] write basic code for simulation
+
 
 
 

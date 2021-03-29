@@ -1,4 +1,4 @@
-# log 25 March 2021
+# log 25 March 2021 (simulation of flu evolution, summary of method, coding practices)
 
 ## simulation of artificial data for flu antigenic evolution (inputs and outputs, best coding practice)
 
@@ -16,7 +16,7 @@
 - N_simu : number of time steps to simulate (default: 200)
 
 ### simulation output:
-- running and final pickled .data file (one file with intermediate output that is updated/newly created every or every few time steps, one file with final output):
+- running and final pickled .data file (one file with intermediate output that is updated/newly created every or every few time steps + one file with final output):
 	- strain_yearly: list [[list of unique sequences (strains)] for each time step] with strains from most to least prevalent at each time
 	- strain_frequency_yearly:[[list of frequencies of strains] for each time step] in same order as in strain_yearly  
 	- tree_yearly: list [[[parent strain index, child strain index] for each ancestrial pair] for each time step], each unique parent-child strain combination is added once
@@ -43,7 +43,20 @@ so that I don't have to fill each parameter every time
 	- keep daily notes about simulations that I am running and about results
 	- create one separate notebook for postprocessing and analysis/inference and save postprocessed data in file whose name connects to the simulation output files and to the code file that was used for postprocessing
 
-## To Do:
+# log 29 March 2021 (coding/simulation practices)
+
+- I could base my simulation on a dictionary of strains/sequences that are instances of selfdefined classes, where the dictionary gets updated every time step, losing some members and adding others
+	- but I have to read more and think more, how much I would have to change in my current simu and if this makes the simulation better/more efficient
+	- for now I will keep more closely to my previous simulations
+
+##  data and file management for simulation results
+### HDF5 file structures and python package h5py
+ 
+
+
+
+
+# To Do:
 [ ] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.)
 
 [ ] write basic code for simulation

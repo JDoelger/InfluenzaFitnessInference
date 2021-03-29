@@ -50,8 +50,10 @@ so that I don't have to fill each parameter every time
 	- for now I will keep more closely to my previous simulations
 
 ##  data and file management for simulation results
-### HDF5 file structures and python package h5py
- 
+- python package h5py to create and manage HDF5 file structures 
+- python package pypet (uses h5py and sumatra (electronic lab notebook)) for parameter exploration and comprehensible simulation data storage in hdf5 format [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
+
+
 
 
 

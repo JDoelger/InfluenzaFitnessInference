@@ -130,3 +130,6 @@ dmypy.json
 
 # figure directory
 figures/
+
+# results directory
+results/

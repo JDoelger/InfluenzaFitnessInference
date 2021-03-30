@@ -43,7 +43,7 @@ so that I don't have to fill each parameter every time
 	- keep daily notes about simulations that I am running and about results
 	- create one separate notebook for postprocessing and analysis/inference and save postprocessed data in file whose name connects to the simulation output files and to the code file that was used for postprocessing
 
-# log 29 March 2021 (coding/simulation practices)
+# log 29 March 2021 (coding/simulation good practices)
 
 - I could base my simulation on a dictionary of strains/sequences that are instances of selfdefined classes, where the dictionary gets updated every time step, losing some members and adding others
 	- but I have to read more and think more, how much I would have to change in my current simu and if this makes the simulation better/more efficient
@@ -53,13 +53,17 @@ so that I don't have to fill each parameter every time
 - python package h5py to create and manage HDF5 file structures 
 - python package pypet (uses h5py and sumatra (electronic lab notebook)) for parameter exploration and comprehensible simulation data storage in hdf5 format [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
 
+# log 30 March 2021 (pypet test and simulation set up)
+- test simulation for pypet (cellular automata) 
 
 
 
 
 
-# To Do:
-[ ] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.)
+# To Do (March 29 - April 1):
+[x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
+
+[ ] test pypet with cellular automata simulation [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
 
 [ ] write basic code for simulation
 

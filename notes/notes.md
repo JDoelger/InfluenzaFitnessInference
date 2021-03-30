@@ -54,16 +54,22 @@ so that I don't have to fill each parameter every time
 - python package pypet (uses h5py and sumatra (electronic lab notebook)) for parameter exploration and comprehensible simulation data storage in hdf5 format [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
 
 # log 30 March 2021 (pypet test and simulation set up)
-- test simulation for pypet (cellular automata) 
+- test simulations for pypet (cellular automata etc.) are saved in new miscellaneous_code_experiments directory
+- used pypet user manual https://pypet.readthedocs.io/en/latest/manual/manual_toc.html to find test code that I could try out
+- downloaded HDFView to inspect HDF5 files (desktop shortcut for .bat batch file, since .exe file doesn't work correctly)
+- didn't find so far how to store and retrieve intermediate results of simulation, but I could maybe add the intermediate results as additional results in the hdf5 file
 
 
 
 
 
-# To Do (March 29 - April 1):
+
+
+
+# To Do (March 29 - April 2):
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 
-[ ] test pypet with cellular automata simulation [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
+[x] test pypet with cellular automata simulation [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
 
 [ ] write basic code for simulation
 

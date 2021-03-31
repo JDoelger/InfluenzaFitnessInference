@@ -57,7 +57,9 @@ so that I don't have to fill each parameter every time
 - test simulations for pypet (cellular automata etc.) are saved in new miscellaneous_code_experiments directory
 - used pypet user manual https://pypet.readthedocs.io/en/latest/manual/manual_toc.html to find test code that I could try out
 - downloaded HDFView to inspect HDF5 files (desktop shortcut for .bat batch file, since .exe file doesn't work correctly)
-- didn't find so far how to store and retrieve intermediate results of simulation, but I could maybe add the intermediate results as additional results in the hdf5 file
+- didn't find so far how to store and retrieve intermediate results of simulation
+	- but I could maybe add the intermediate results as additional results in the hdf5 file
+	- or I could write out intermediate results (into the log file or as separate files like plots etc.) separately from the hdf5 output, which I then can easily delete or overwrite afterwards
 
 
 

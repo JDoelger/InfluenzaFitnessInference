@@ -1,2 +1,0 @@
-2021-03-30 18:16:51,044 pypet.storageservice.HDF5StorageService INFO     I will use the hdf5 file `C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/InfluenzaFitnessInference\results\simulations\2021Mar30.hdf5`.
-2021-03-30 18:16:51,052 pypet.environment.Environment INFO     Environment initialized.

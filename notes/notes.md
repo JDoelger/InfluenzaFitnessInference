@@ -61,7 +61,8 @@ so that I don't have to fill each parameter every time
 	- but I could maybe add the intermediate results as additional results in the hdf5 file
 	- or I could write out intermediate results (into the log file or as separate files like plots etc.) separately from the hdf5 output, which I then can easily delete or overwrite afterwards
 
-
+# log 31 March 2021 (simulation coding)
+- for my sdelf-defined package fitnessinference, in which I added an __init__.py file I can for now only import it from the same directory, where the package folder is located
 
 
 

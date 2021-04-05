@@ -23,7 +23,7 @@ def test_add_parameters():
 def test_fitness_coeff_constant():
     """ test fitness_coeff_constant
     """
-    # define which parameters I want to test
+    # define test parameters
     N_site = 5
     N_state = 2
     h_0 = -7
@@ -37,3 +37,20 @@ def test_fitness_coeff_constant():
     assert isinstance(J_list, np.ndarray)
     assert h_list[0][0]==h_0
     assert J_list[0][0][0]==J_0
+    
+def test_mutate_seqs():
+    """ test mutate_seqs
+    """
+    # define test parameters so that it is very likely to have at least a few mutations
+    seqs = np.random.randint(0, 2, size=(10**6, 5))
+    N_state = 2
+    mu = 10**(-3)
+    
+    # use the function to create mutated sequences
+    seqs_m = simu.mutate_seqs(seqs, N_state, mu)
+    
+    # assert various things
+    assert isinstance(seqs_m, np.ndarray) # is the data type preserved?
+    assert seqs_m.shape==seqs.shape # is the shape of the array unchanged?
+    assert np.any(seqs_m!=seqs) # are there any mutations?
+    

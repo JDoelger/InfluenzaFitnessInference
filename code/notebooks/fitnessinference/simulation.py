@@ -65,3 +65,37 @@ def fitness_coeff_constant(N_site,N_state,h_0,J_0):
     h_list=np.ones((N_site,N_state-1))*h_0
     
     return h_list, J_list
+
+def mutate_seqs(seqs, N_state, mu):
+    """
+    mutate list of sequences according to given mutation probability and number of states,
+    
+    Parameters:
+    
+    seqs: numpy.ndarray
+            list of sequences
+    
+    N_state: int
+            number of states per site
+            
+    mu: float
+        probability to mutate from the current state to any one of the other states <<1
+            
+    Returns:
+    
+    seqs_m: numpy.ndarray
+            list of mutated sequences
+    
+    Dependencies:
+    
+    import numpy as np
+    """
+    # first choose randomly how far in the state space each site is shifted
+    shift_ind = np.random.choice(N_state, size=seqs.shape, replace=True, p=[1-mu*(N_state-1)]+[mu]*(N_state-1))
+    # from this calculate the new state index (which can be negative)
+    new_ind = np.array(- N_state + shift_ind + seqs, dtype=int)
+    # set the new state
+    state_list = np.arange(N_state)
+    seqs_m = state_list[new_ind]
+    
+    return seqs_m

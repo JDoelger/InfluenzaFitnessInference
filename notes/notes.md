@@ -64,12 +64,14 @@ so that I don't have to fill each parameter every time
 # log 31 March 2021 (simulation coding)
 - for my sdelf-defined package fitnessinference, in which I added an __init__.py file I can for now only import it from the same directory, where the package folder is located
 
+# log April 6 (simulation coding)
+- I am able to use unit tests for my different functions by typing 'python -m pytest fitnessinference' in anaconda prompt when in same directory, where package fitnessinference is located
 
 
 
 
 
-# To Do (March 29 - April 2):
+# To Do (March 29 - April 9):
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 
 [x] test pypet with cellular automata simulation [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]

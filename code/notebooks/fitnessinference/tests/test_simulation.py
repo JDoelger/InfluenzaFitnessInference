@@ -41,7 +41,7 @@ def test_fitness_coeff_constant():
 def test_mutate_seqs():
     """ test mutate_seqs
     """
-    # define test parameters so that it is very likely to have at least a few mutations
+    # define test parameters
     seqs = np.random.randint(0, 2, size=(10**6, 5))
     N_state = 2
     mu = 10**(-3)
@@ -54,3 +54,33 @@ def test_mutate_seqs():
     assert seqs_m.shape==seqs.shape # is the shape of the array unchanged?
     assert np.any(seqs_m!=seqs) # are there any mutations?
     
+def test_fitness_int():
+    """ test fitness_int
+    """
+    # define test parameters
+    seq = np.random.randint(0, 2, size=(20, ))
+    N_state = 2
+    h_model, J_model = simu.fitness_coeff_constant(20, N_state, -7, -1)
+    
+    # use the function to calculate intrinsic fitness
+    f_int = simu.fitness_int(seq, N_state, h_model, J_model)
+    
+    # assert various things
+    assert isinstance(f_int, float) # datatype?
+    assert f_int <= 0 # not positive, since we choose coeffs negative
+    
+def test_fitness_int_list():
+    """ test fitness_int_list
+    """
+    # define test parameters
+    strain_current = np.random.randint(0, 2, size=(10**3, 20))
+    N_state = 2
+    h_model, J_model = simu.fitness_coeff_constant(20, N_state, -7, -1)
+    
+    # use the function to calculate intrinsic fitness list
+    f_int_list = simu.fitness_int_list(strain_current, N_state, h_model, J_model)
+    
+    # assert various things
+    assert isinstance(f_int_list, np.ndarray)
+    assert np.any(f_int_list < 0) # check that some elements are negative
+    assert np.all(f_int_list <= 0) # check that all elements are not positive 

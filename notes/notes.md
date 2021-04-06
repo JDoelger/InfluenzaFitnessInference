@@ -70,12 +70,13 @@ so that I don't have to fill each parameter every time
 
 
 
+
 # To Do (March 29 - April 9):
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 
 [x] test pypet with cellular automata simulation [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
 
-[ ] write basic code for simulation
+[x] write basic code for simulation
 
 [ ] write basic code for simulation postprocessing and analysis
 

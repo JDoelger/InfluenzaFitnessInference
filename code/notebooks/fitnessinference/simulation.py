@@ -184,6 +184,84 @@ def fitness_int_list(strain_current, N_state, h_model, J_model):
         
     return f_int_list
 
-def fitness_host():
+def fitness_host(seq, st_yearly, st_freq_yearly, sigma_h, D0):
+    """
+    calculate the host population-dependent fitness contribution for one sequence
+    at the current time
     
+    Parameters:
+    
+    seq: numpy.ndarray
+            sequence
+            
+    st_yearly: list
+            list of strains for each time step up to t-1
+            
+    st_freq_yearly: list
+            list of strain frequencies for each time step up to t-1
+            
+    sigma_h: float
+            coefficient modulating f_host
+            
+    D0: float
+            cross-immunity distance
+    
+    Returns:
+    
+    f_host: float
+            host-dependent fitness for the sequence at the current time
+    
+    Dependencies:
+    
+    import numpy as np
+    """
+    f_host_noSig = 0 # host fitness without sigma_h factor
+    
+    for t in range(len(st_yearly)): # iterate through all prev. time steps
+        strains = st_yearly[t]
+        # create array of same dimension as strain list at t
+        seq_arr = np.repeat([seq], len(strains), axis=0)
+        # calculate mutational distances between seq_arr and strains
+        mut_dist = np.sum(seq_arr!=strains, axis=1)
+        f_host_noSig += -np.dot(st_freq_yearly[t], np.exp(-mut_dist/D0))
+    
+    f_host = sigma_h*f_host_noSig
+        
     return f_host
+
+def fitness_host_list(strain_current, st_yearly, st_freq_yearly, sigma_h, D0):
+    """
+    calculate the host population-dependent fitness contribution for all strains
+    at the current time
+    
+    Parameters:
+    
+    strain_current: numpy.ndarray
+            list of current strains (=unique sequences)
+            
+    st_yearly: list
+            list of strains for each time step up to t-1
+            
+    st_freq_yearly: list
+            list of strain frequencies for each time step up to t-1
+            
+    sigma_h: float
+            coefficient modulating f_host
+            
+    D0: float
+            cross-immunity distance
+    
+    Returns:
+    
+    f_host_list: numpy.ndarray
+            host-dependent fitness for each strain at the current time
+    
+    Dependencies:
+    
+    import numpy as np
+    """
+
+    f_host_list = np.array([fitness_host(seq, st_yearly, st_freq_yearly, sigma_h, D0) 
+                            for seq in strain_current])
+        
+    return f_host_list

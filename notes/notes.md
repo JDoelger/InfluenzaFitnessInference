@@ -66,8 +66,7 @@ so that I don't have to fill each parameter every time
 
 # log April 6 (simulation coding)
 - I am able to use unit tests for my different functions by typing 'python -m pytest fitnessinference' in anaconda prompt when in same directory, where package fitnessinference is located
-
-
+- I can test individual function with 'python -m pytest fitnessinference/tests/test_simulation.py::test_fitness_int' (in this example test function fitness_int)
 
 
 

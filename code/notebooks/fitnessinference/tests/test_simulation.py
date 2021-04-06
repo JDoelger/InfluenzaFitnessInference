@@ -61,9 +61,11 @@ def test_fitness_int():
     seq = np.random.randint(0, 2, size=(20, ))
     N_state = 2
     h_model, J_model = simu.fitness_coeff_constant(20, N_state, -7, -1)
+    statevec_list = np.array([[int(i==j) for j in range(1,N_state)] 
+                        for i in range(N_state)])
     
     # use the function to calculate intrinsic fitness
-    f_int = simu.fitness_int(seq, N_state, h_model, J_model)
+    f_int = simu.fitness_int(seq, N_state, h_model, J_model, statevec_list)
     
     # assert various things
     assert isinstance(f_int, float) # datatype?

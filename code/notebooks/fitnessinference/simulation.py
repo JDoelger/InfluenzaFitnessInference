@@ -100,7 +100,7 @@ def mutate_seqs(seqs, N_state, mu):
     
     return seqs_m
 
-def fitness_int(seq, N_state, h_model, J_model):
+def fitness_int(seq, N_state, h_model, J_model, statevec_list):
     """
     calculate the intrinsic fitness for one sequence
     
@@ -118,6 +118,9 @@ def fitness_int(seq, N_state, h_model, J_model):
     J_model: numpy.ndarray
             added fitness change due to couplings of 
             two specific mutations to each state at each site
+            
+    statevec_list: numpy.ndarray
+            list of vectors that represent the states of a sequence site
     
     Returns:
     
@@ -128,9 +131,7 @@ def fitness_int(seq, N_state, h_model, J_model):
     
     import numpy as np
     
-    """
-    statevec_list=np.array([[int(i==j) for j in range(1,N_state)] 
-                        for i in range(N_state)]) 
+    """ 
     f_int = 0
     k = 0
     for i in range(len(seq)): # for each state 1
@@ -175,7 +176,14 @@ def fitness_int_list(strain_current, N_state, h_model, J_model):
     
     import numpy as np
     """
-    f_int_list = np.array([fitness_int(seq, N_state, h_model, J_model) 
+    statevec_list=np.array([[int(i==j) for j in range(1,N_state)] 
+                        for i in range(N_state)])
+    
+    f_int_list = np.array([fitness_int(seq, N_state, h_model, J_model, statevec_list) 
                            for seq in strain_current])
         
     return f_int_list
+
+def fitness_host():
+    
+    return f_host

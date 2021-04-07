@@ -69,6 +69,13 @@ so that I don't have to fill each parameter every time
 - I can test individual function with 'python -m pytest fitnessinference/tests/test_simulation.py::test_fitness_int' (in this example test function fitness_int)
 - finished basic set up of simulation and ran minimal test
 
+# log April 7 (simulation and inference)
+- finished simulation set up and started first trial simulation,
+in which I set parameter values as standard from last year
+and vary population size
+- storing of results in pypet file didn't work yet,
+so far I am working with the stored intermediate results
+
 
 
 # To Do (March 29 - April 9):

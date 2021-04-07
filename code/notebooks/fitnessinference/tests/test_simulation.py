@@ -1,7 +1,9 @@
-import fitnessinference.simulation as simu
-from pypet import Environment
+from fitnessinference import simulation as simu
+from pypet import Environment, Parameter
 import pytest
 import numpy as np
+import csv
+import os
 
 def test_add_parameters():
     """ test add_parameter function 
@@ -37,6 +39,26 @@ def test_fitness_coeff_constant():
     assert isinstance(J_list, np.ndarray)
     assert h_list[0][0]==h_0
     assert J_list[0][0][0]==J_0
+    
+def test_fitness_coeff_p24():
+    """ test fitness_coeff_p24
+    """
+    # test parameters
+    N_site = 20
+    N_state = 2
+#     filefolder = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
+    
+    # use the function to create h_list and J_list
+    h_list, J_list = simu.fitness_coeff_p24(N_site, N_state)
+    
+    # assert various things
+    assert isinstance(h_list, np.ndarray)
+    assert isinstance(J_list, np.ndarray)
+    assert J_list.shape==(N_site*(N_site-1)/2, 1, 1)
+    assert np.min(h_list)==-9
+    assert np.max(h_list)==-1.
+    assert np.min(J_list)==-0.5
+    assert np.max(J_list)==2
     
 def test_mutate_seqs():
     """ test mutate_seqs
@@ -136,5 +158,40 @@ def test_fitness_host_list():
     assert isinstance(f_host_list, np.ndarray) # type?
     assert np.all(f_host_list <= 0) # values non-positive?
     
-
+def test_flu_antigen_simulation():
+    """ test flu_antigen_simulation
+    """
+    # test parameters
+    # create environment
+    env = Environment()
+    traj = env.traj
+    # add parameters (test with small population size)
+    traj.par.N_pop = Parameter('N_pop', 10**2, 'population size')
+    traj.par.N_site = Parameter('N_site', 20, 'sequence length')
+    traj.par.N_state = Parameter('N_state', 2, 'number of states per site')
+    traj.par.mu = Parameter('mu', 10**(-4), 'mutation prob. per site per time step')
+    traj.par.sigma_h = Parameter('sigma_h', 1, 'host fitness coefficient')
+    traj.par.D0 = Parameter('D0', 5, 'cross-immunity distance')
+    traj.par.h_0 = Parameter('h_0', -7, 'typical single mutation fitness cost')
+    traj.par.J_0 = Parameter('J_0', 0, 'typical mutation coupling coefficient')
+    traj.par.hJ_coeffs = Parameter('hJ_coeffs', 'p24',
+                                   'fitness coefficients')
+    traj.par.seed = Parameter('seed', 123456, 'RNG seed')
+    traj.par.N_simu = Parameter('N_simu', 200, 'number of time steps to simulate')
+    # filepath for intermediate results
+    temp_folder = os.path.join(os.getcwd(), 'test_temp')
+    if not os.path.isdir(temp_folder):
+        os.makedirs(temp_folder)
     
+    # use the simulation function to calculate the test results
+    simu.flu_antigen_simulation(traj, temp_folder)
+    
+    # find out how to store and access results with pypet before uncommenting this!!
+#     strain_yearly = results['strain_yearly']
+#     strain_frequency_yearly = results['strain_frequency_yearly']
+    
+#     # assert various things
+#     assert len(strain_yearly)==len(strain_frequency_yearly)
+#     assert np.all(strain_frequency_yearly!=0)
+#     assert isinstance(strain_yearly, list)
+#     assert isinstance(strain_yearly[0], np.ndarray)

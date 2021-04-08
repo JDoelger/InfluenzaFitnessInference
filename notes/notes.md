@@ -78,22 +78,28 @@ so far I am working with the stored intermediate results
 
 
 
-# To Do (March 29 - April 9):
+# To Do (March 29 - ):
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 
 [x] test pypet with cellular automata simulation [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
 
 [x] write basic code for simulation
 
+[x] test simulation and analysis on small example (on my pc)
+
 [ ] write basic code for simulation postprocessing and analysis
 
-[ ] test simulation and analysis on small example (on my pc)
+[ ] add weights x(Si, t) into inference (features and response) and think more about correct linear regression (normalization etc.)
+
+[ ] plan for figures/sections for paper to better decide, how I do different analyses and what is missing
+
+[ ] write discussion in manuscript about challenges for adaptation to real flu data, indications for stringent selection regime, comparison with Barton inference method 
 
 [ ] submit simulation to cluster (lymphocyte or engaging)
 
-[ ] think about which parameters to vary for sensitivity analysis
+[ ] vary parameters for analysis of inference performance and dependence on selection regime (sensitivity analysis), submit simulation to sweep params
 
-[ ] submit several simulations to do parameter analysis
+
 
 
 

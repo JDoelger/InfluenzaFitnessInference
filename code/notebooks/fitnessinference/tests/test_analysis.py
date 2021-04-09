@@ -30,9 +30,62 @@ def test_sample_seqs():
 def test_inference_features_Ising():
     """ test inference_features_Ising
     """
-    # ana.inference_features_Ising(strain_samp_yearly, strain_samp_count_yearly)
+    # test parameters
+    
+    N_steps = 10
+    N_seqs = 10**3
+    N_site = 20
+    N_state = 2
+    # sequences
+    seq_samp_yearly = [np.random.randint(0, N_state, size=(N_seqs, N_site)) for t in range(N_steps)]
+    # unique sequences (strains)
+    strain_samp_yearly = [np.unique(seqs, axis=0) for seqs in seq_samp_yearly]
+    
+    # use function to calculate the feature matrix
+    
+    X = ana.inference_features_Ising(strain_samp_yearly)
+    
+    # assert various things
+    
+    assert isinstance(X, np.ndarray)
     
 def test_inference_response_FhostPrediction():
     """test inference_response_FhostPrediction
     """
-    # ana.inference_response_FhostPrediction(minus_fhost_yearly, strain_samp_count_yearly)
+    # test parameters
+    N_strains = 10**2
+    N_steps = 10
+    minus_fhost_yearly = [np.random.uniform(0, 100, size=N_strains) for t in range(N_steps)]
+    
+    # use the function to calculate the response vector
+    Y = ana.inference_response_FhostPrediction(minus_fhost_yearly)
+    
+    # assert various things
+    assert isinstance(Y, np.ndarray)
+    assert isinstance(Y[0], float)
+    
+def test_infer_ridge():
+    """ test infer_ridge
+    """
+    # test parameters
+    inf_start = 0
+    inf_end = 50
+    num_h = 10
+    num_J = int(num_h*(num_h-1)/2)
+    num_f = int(inf_end - inf_start - 1)
+    num_parameters = num_h + num_J + num_f
+    num_samples = 10**4
+    lambda_h = 0
+    lambda_J = 1
+    lambda_f = 0
+    X = np.random.randint(0, 2, size=(num_samples, num_parameters))
+    Y = np.random.uniform(0, 100, size=num_samples)
+    
+    # use the function to calculate the infered parameters 
+    # from linear regression with regularization (ridge regression)
+    M, M_std = ana.infer_ridge(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end)
+    
+    # assert various things
+    assert isinstance(M, np.ndarray)
+    assert M.shape==M_std.shape
+    assert len(M)==num_parameters

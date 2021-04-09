@@ -61,7 +61,7 @@ def sample_seqs(strain_yearly, strain_freq_yearly, seed, B, inf_end):
         
     return strain_samp_yearly, strain_samp_count_yearly, strain_samp_freq_yearly
 
-def inference_features_Ising(strain_samp_yearly, strain_samp_count_yearly):
+def inference_features_Ising(strain_samp_yearly):
     """
     calculate the feature matrix for inference (for Ising strains)
     
@@ -69,8 +69,6 @@ def inference_features_Ising(strain_samp_yearly, strain_samp_count_yearly):
     
     strain_samp_yearly: list
             list of strains for each inference time step (between inf_start and inf_end)
-    strain_samp_count_yearly: list
-            list of strain counts
     
     Returns: 
     
@@ -84,7 +82,6 @@ def inference_features_Ising(strain_samp_yearly, strain_samp_count_yearly):
     X = []
     for t in range(len(strain_samp_yearly)-1):
         strains_next = strain_samp_yearly[t+1]
-        strain_counts_next = strain_samp_count_yearly[t+1]
         # features (for time-dependent coefficient f)
         gen_features = [0]*(len(strain_samp_yearly)-1)
         gen_features[t] = 1
@@ -95,16 +92,17 @@ def inference_features_Ising(strain_samp_yearly, strain_samp_count_yearly):
             for i in range(len(strain)):
                 for j in range(i):
                     X_sample.append(strain[i]*strain[j])
-            X_sample = np.concatenate((X_sample, gen_features), axis=0)
-            X.append(X_sample)
-#             X_next.append(X_sample)
-#         # create one sample per sampled sequence by repeating strains
-#         X_next = np.repeat(X_next, strain_counts_next, axis=0)
+            X_sample = np.concatenate((X_sample, gen_features))
+            X_next.append(X_sample)
+        if len(X) != 0:
+            X = np.concatenate((X, X_next), axis=0)
+        else:
+            X = copy.deepcopy(X_next)
     X = np.array(X)
-    
+
     return X
 
-def inference_response_FhostPrediction(minus_fhost_yearly, strain_samp_count_yearly):
+def inference_response_FhostPrediction(minus_fhost_yearly):
     """
     calculate response function from -F_host
     
@@ -112,8 +110,6 @@ def inference_response_FhostPrediction(minus_fhost_yearly, strain_samp_count_yea
     
     minus_fhost_yearly: list
             list of -F_host for each strain at each time step between inf_start and inf_end
-    strain_samp_count_yearly: list
-            list of strain counts
     
     Returns:
     
@@ -126,12 +122,10 @@ def inference_response_FhostPrediction(minus_fhost_yearly, strain_samp_count_yea
     """
     Y = []
     for t in range(len(minus_fhost_yearly)-1):
-        strain_counts_next = strain_samp_count_yearly[t+1]
         minus_fhosts_next = minus_fhost_yearly[t+1]
-#         # create one sample per sampled sequence by repeating strains
-#         Y_next = np.repeat(minus_fhosts_next, strain_counts_next) 
-        Y = np.concatenate((Y, minus_fhosts_next))
-         
+        Y_next = minus_fhosts_next
+        Y = np.concatenate((Y, Y_next))  
+
     Y = np.array(Y)
     
     return Y
@@ -155,7 +149,7 @@ def infer_ridge(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end):
     M: numpy.ndarray
             list of inferred coefficients
     M_std: numpy.ndarray
-            list of standard errors for inferred coefficients
+            list of standard deviation for inferred coefficients
             
     Dependencies:
     
@@ -194,10 +188,14 @@ def infer_ridge(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end):
     M_full = np.zeros(num_param)
     M_full[param_included] = M_inf
     
-    # remaining variance
-    sigma_res = np.sqrt(np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+    # unbiased estimator of variance
+    sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
     v_vec = np.diag(XTX_reg_inv)
-    M_std = np.zeros(M_full.shape)
+    # use std of prior distribution 
+    #for parameters that are not informed by model
+    M_std = copy.deepcopy(np.diag(reg_mat)) 
+    # standard deviation of the parameter distribution 
+    # from diagonal of the covariance matrix 
     M_std[param_included] = np.sqrt(v_vec) * sigma_res
     
     return M_full, M_std

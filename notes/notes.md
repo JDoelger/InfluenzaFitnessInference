@@ -76,6 +76,11 @@ and vary population size
 - storing of results in pypet file didn't work yet,
 so far I am working with the stored intermediate results
 
+# log April 10 (inference and manuscript outline)
+- when using each observed sequence at each time step as independent sample,
+the inference gives poorer results (correlations) than when using each observed unique sequence (strain) at each time as a sample (as before)
+- when weighting the feature matrix of each strain with its observation count, the inference also gives poorer results (correlations) than when using the previous approach without weighting
+- therefore I have more confidence in the inference approach that I used so far
 
 
 # To Do (March 29 - ):
@@ -89,7 +94,10 @@ so far I am working with the stored intermediate results
 
 [ ] write basic code for simulation postprocessing and analysis
 
-[ ] add weights x(Si, t) into inference (features and response) and think more about correct linear regression (normalization etc.)
+[x] add weights x(Si, t) into inference (features and response) and think more about correct linear regression (normalization etc.) 
+- book by Hastie et al. 2009, p. 45
+- tried different inference but previous methods without strain weighting gives best results
+
 
 [ ] plan for figures/sections for paper to better decide, how I do different analyses and what is missing
 

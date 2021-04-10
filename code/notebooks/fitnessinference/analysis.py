@@ -1,5 +1,71 @@
 import numpy as np
 import copy
+import os 
+from pypet import Trajectory
+import pickle
+
+
+def load_simu_data(single_simu_filename, simu_name,
+                   result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
+                                    'NewApproachFromMarch2021/InfluenzaFitnessInference'):
+    """
+    load simulation results from a single simulation
+    
+    Parameters:
+    
+    single_simu_filename: str
+            name including extension .data of the result file for the
+            single param combo I want to analyze        
+    simu_name: str
+            name of the whole pypet based simulation
+            usually as date like '2021Apr07'
+    result_directory (optional): str
+            path (as os.path.normpath) to the directory 
+            where results are stored 
+            (in general: path to the InfluenzaFitnessInference repository)
+            
+    Returns:
+    
+    strain_yearly: list
+            [[list of unique sequences (strains)] 
+            for each time step] 
+            with strains from most to least prevalent at each time
+    strain_frequency_yearly: list
+            [[list of frequencies of strains] 
+            for each time step] 
+            in same order as in strain_yearly
+    traj: Trajectory (pypet.trajectory.Trajectory)
+            trajectory with the parameters of this
+            single simulation loaded
+    
+    Dependencies:
+    
+    import os
+    from pypet import Trajectory
+    import pickle
+    """
+    # make sure that file path is in norm path format:
+    result_directory = os.path.normpath(result_directory)
+    # load parameters from the pypet file
+    simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name + '.hdf5')
+    # only need trajectory, not environment to look at parameters and results:
+    traj = Trajectory(simu_name, add_time=False)
+    # load the trajectory from the file with only parameters but not results loaded
+    traj.f_load(filename=simu_file, load_parameters=2,
+                load_results=0, load_derived_parameters=0)
+
+    # load data from the pickled files
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    test_filepath = os.path.join(temp_folder, single_simu_filename)
+
+    with open(test_filepath, 'rb') as f:
+        resulting_data = pickle.load(f)
+
+    # load information from pypet trajectory or from stored result files:
+    strain_yearly = resulting_data['strain_yearly']
+    strain_frequency_yearly = resulting_data['strain_frequency_yearly']
+                   
+    return strain_yearly, strain_frequency_yearly, traj
 
 def sample_seqs(strain_yearly, strain_freq_yearly, seed, B, inf_end):
     """
@@ -200,3 +266,120 @@ def infer_ridge(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end):
     
     return M_full, M_std
     
+def hJ_model_lists(h_model, J_model):
+    """
+    calculate the model fitness coefficients as simple unnested lists
+    from h_model, J_model used in simulation (for Ising model)
+    
+    Parameters:
+    
+    h_model: numpy.ndarray
+            single-mutation fitness coefficients
+    J_model: numpy.ndarray
+            double-mutation fitness couplings
+            
+    Returns:
+    
+    h_list: numpy.ndarray
+            simple list of single-mut. fitness coeffs
+    J_list: numpy.ndarray
+            simple list of fitness coupling coeffs
+    hJ_list: numpy.ndarray
+            simple list of total fitness effects
+            due to double mutations
+            
+    Dependencies:
+    
+    import numpy as np
+    """
+    h_list = h_model.flatten()
+    J_list = J_model.flatten()
+    hJ_list = []
+    k=0
+    for i in range(len(h_model)):
+        for j in range(i):
+            hJ_list.append(h_list[i]+h_list[j]+J_list[k])
+            k+=1
+    hJ_list = np.array(hJ_list)
+    
+    return h_list, J_list, hJ_list
+
+def hJ_inf_lists(M, N_site):
+    """
+    calculate the inferred fitness coefficients as simple unnested lists
+    from the inferred parameter vector M (for Ising model)
+    
+    Parameters:
+    
+    M: numpy.ndarray
+            list of inferred parameter values
+    N_site: int
+            sequence length
+            
+    Returns: 
+    
+    h_list: numpy.ndarray
+            simple list of single-mut. fitness coeffs
+    J_list: numpy.ndarray
+            simple list of fitness coupling coeffs
+    hJ_list: numpy.ndarray
+            simple list of total fitness effects
+            due to double mutations
+            
+    Dependencies:
+    
+    import numpy as np       
+    """
+    num_h = N_site
+    num_J = int(N_site*(N_site - 1)/2)
+    h_list = M[:num_h]
+    J_list = M[num_h: num_h+num_J]
+    hJ_list = []
+    k=0
+    for i in range(N_site):
+        for j in range(i):
+            hJ_list.append(h_list[i]+h_list[j]+J_list[k])
+            k+=1
+    hJ_list = np.array(hJ_list)
+    
+    return h_list, J_list, hJ_list
+
+def hJ_inf_std_lists(M_std, N_site):
+    """
+    calculate the stds of the inferred fitness coefficients as simple unnested lists
+    from the inferred parameter std vector M_std (for Ising model)
+    
+    Parameters:
+    
+    M_std: numpy.ndarray
+            list of stds for inferred parameter values
+    N_site: int
+            sequence length
+            
+    Returns: 
+    
+    std_h_list: numpy.ndarray
+            simple list of stds for single-mut. fitness coeffs
+    std_J_list: numpy.ndarray
+            simple list of stds for fitness coupling coeffs
+    std_hJ_list: numpy.ndarray
+            simple list of stds for total fitness effects
+            due to double mutations
+            
+    Dependencies:
+    
+    import numpy as np       
+    """
+    num_h = N_site
+    num_J = int(N_site*(N_site - 1)/2)
+    std_h_list = M_std[:num_h]
+    std_J_list = M_std[num_h: num_h+num_J]
+    std_hJ_list = []
+    k=0
+    for i in range(N_site):
+        for j in range(i):
+            std_hJ_list.append(np.sqrt(std_h_list[i]**2+std_h_list[j]**2+std_J_list[k]**2))
+            k+=1
+    std_hJ_list = np.array(std_hJ_list)
+    
+    return std_h_list, std_J_list, std_hJ_list

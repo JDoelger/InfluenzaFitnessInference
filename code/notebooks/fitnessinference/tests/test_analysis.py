@@ -1,5 +1,23 @@
 import numpy as np
 from fitnessinference import analysis as ana
+from pypet import Trajectory
+
+def test_load_simu_data():
+    """ test load_simu_data
+    """
+    # test parameters
+    single_simu_filename = ('running_N_pop_1e+06N_site_20N_state_2mu_'
+                            '1e-04sigma_h_1D0_5h_0_-7J_0_0seed_123456N_simu_2e+02.data')
+    simu_name = '2021Apr07' 
+    
+    # use function to load simulation results
+    strain_yearly, strain_frequency_yearly, traj = ana.load_simu_data(single_simu_filename, simu_name)
+    
+    # assert various things
+    assert isinstance(strain_yearly, list)
+    assert len(strain_yearly)==len(strain_frequency_yearly)
+    assert isinstance(traj, Trajectory)
+    assert isinstance(traj.N_pop, int)
 
 def test_sample_seqs():
     """ test sample_seqs
@@ -89,3 +107,15 @@ def test_infer_ridge():
     assert isinstance(M, np.ndarray)
     assert M.shape==M_std.shape
     assert len(M)==num_parameters
+    
+def test_hJ_model_lists():
+    
+    # ana.hJ_model_lists(h_model, J_model)
+    
+def test_hJ_inf_lists():
+    
+    # ana.hJ_inf_lists(M, N_site)
+    
+def test_hJ_inf_std_lists():
+    
+    # ana.hJ_inf_std_lists(M_std, N_site)

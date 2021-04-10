@@ -184,14 +184,14 @@ def test_flu_antigen_simulation():
         os.makedirs(temp_folder)
     
     # use the simulation function to calculate the test results
-    simu.flu_antigen_simulation(traj, temp_folder)
+    strain_yearly, strain_frequency_yearly = simu.flu_antigen_simulation(traj, temp_folder)
     
     # find out how to store and access results with pypet before uncommenting this!!
 #     strain_yearly = results['strain_yearly']
 #     strain_frequency_yearly = results['strain_frequency_yearly']
     
-#     # assert various things
-#     assert len(strain_yearly)==len(strain_frequency_yearly)
-#     assert np.all(strain_frequency_yearly!=0)
-#     assert isinstance(strain_yearly, list)
-#     assert isinstance(strain_yearly[0], np.ndarray)
+    # assert various things
+    assert len(strain_yearly)==len(strain_frequency_yearly)
+    assert np.all(strain_frequency_yearly!=0)
+    assert isinstance(strain_yearly, list)
+    assert isinstance(strain_yearly[0], np.ndarray)

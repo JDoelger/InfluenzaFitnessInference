@@ -383,11 +383,12 @@ def flu_antigen_simulation(traj, filepath):
             
     Returns:
     
-    None
+    strain_yearly: list
+    strain_frequency_yearly: list
               
     Dependencies:
     
-    other functions in this file
+    other functions in this module
     import numpy as np
     from pypet import Environment, Parameter
     import os
@@ -423,7 +424,7 @@ def flu_antigen_simulation(traj, filepath):
             params += key[name_drop:] + '_%.i' % value 
         elif isinstance(value, float) or (isinstance(value, int) and value>=100):
             params += key[name_drop:] + '_%.e' % value
-        elif isinstance(value, type(str)):
+        elif isinstance(value, str):
             params += key[name_drop:] + '_' + value + '_'
             
     filename = os.path.join(filepath, 'running_' + params + '.data')
@@ -485,6 +486,7 @@ def flu_antigen_simulation(traj, filepath):
             pickle.dump(resulting_data, filehandle)
             
 #     return resulting_data
+    return strain_yearly, strain_frequency_yearly
     
 #     # turn results into simple lists so they can be saved as pypet results
 #     strain_yearly = [strains.tolist() for strains in strain_yearly]
@@ -503,7 +505,7 @@ def main():
     
     Dependencies:
     
-    other functions in this file
+    other functions in this module
     import logging
     from pypet import Environment, cartesian_product, progressbar
     from datetime import date

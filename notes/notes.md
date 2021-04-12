@@ -76,14 +76,17 @@ and vary population size
 - storing of results in pypet file didn't work yet,
 so far I am working with the stored intermediate results
 
-# log April 10 (inference and manuscript outline)
+# log April 9 (inference)
 - when using each observed sequence at each time step as independent sample,
 the inference gives poorer results (correlations) than when using each observed unique sequence (strain) at each time as a sample (as before)
 - when weighting the feature matrix of each strain with its observation count, the inference also gives poorer results (correlations) than when using the previous approach without weighting
 - therefore I have more confidence in the inference approach that I used so far
 
+# log April 10 (analysis pipeline)
+- I am still not very comfortable with pypet
+- But made progress with analysis pipeline
 
-# To Do (March 29 - ):
+# To Do :
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 
 [x] test pypet with cellular automata simulation [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]

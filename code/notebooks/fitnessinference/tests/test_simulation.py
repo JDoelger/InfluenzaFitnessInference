@@ -186,7 +186,8 @@ def test_flu_antigen_simulation():
     # use the simulation function to calculate the test results
     strain_yearly, strain_frequency_yearly = simu.flu_antigen_simulation(traj, temp_folder)
     
-    # find out how to store and access results with pypet before uncommenting this!!
+#     # find out how to store and access results with pypet before uncommenting this!!
+#     # results = traj.results.?
 #     strain_yearly = results['strain_yearly']
 #     strain_frequency_yearly = results['strain_frequency_yearly']
     

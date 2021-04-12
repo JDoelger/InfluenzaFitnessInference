@@ -484,18 +484,11 @@ def flu_antigen_simulation(traj, filepath):
                   'strain_frequency_yearly': strain_frequency_yearly}
         with open(filename, 'wb') as filehandle:
             pickle.dump(resulting_data, filehandle)
-            
-#     return resulting_data
-    return strain_yearly, strain_frequency_yearly
     
-#     # turn results into simple lists so they can be saved as pypet results
-#     strain_yearly = [strains.tolist() for strains in strain_yearly]
-#     strain_frequency_yearly = [freqs.tolist() for freqs in strain_frequency_yearly]
-#     # add simulation results to the trajectory         
-#     traj.f_add_result('strain_yearly', strain_yearly, 
-#                       comment='list of yearly strains')
-#     traj.f_add_result('strain_frequency_yearly', strain_frequency_yearly, 
-#                       comment='list of yearly strain frequencies')
+    # add simulation results to the trajectory         
+#     traj.f_add_result('test_result', {'list': [[1,2,3,4]]}, comment='test result for testing pypet results')
+            
+    return strain_yearly, strain_frequency_yearly
 
 def main():
     """

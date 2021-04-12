@@ -3,9 +3,11 @@ import copy
 import os 
 from pypet import Trajectory
 import pickle
+import scipy
+from fitnessinference import simulation as simu
 
 
-def load_simu_data(single_simu_filename, simu_name,
+def load_simu_data(single_simu_filename, simu_name, exp_idx,
                    result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                                     'NewApproachFromMarch2021/InfluenzaFitnessInference'):
     """
@@ -19,8 +21,11 @@ def load_simu_data(single_simu_filename, simu_name,
     simu_name: str
             name of the whole pypet based simulation
             usually as date like '2021Apr07'
+    exp_idx: int
+            run index = index in exp_dict (dictionary)
+            for the specific run (parameter combo) that I want to analyze
     result_directory (optional): str
-            path (as os.path.normpath) to the directory 
+            path to the directory 
             where results are stored 
             (in general: path to the InfluenzaFitnessInference repository)
             
@@ -52,7 +57,9 @@ def load_simu_data(single_simu_filename, simu_name,
     traj = Trajectory(simu_name, add_time=False)
     # load the trajectory from the file with only parameters but not results loaded
     traj.f_load(filename=simu_file, load_parameters=2,
-                load_results=0, load_derived_parameters=0)
+                load_results=2, load_derived_parameters=0)
+    # load the parameter values of this specific run
+    traj.v_idx = exp_idx
 
     # load data from the pickled files
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
@@ -82,6 +89,15 @@ def sample_seqs(strain_yearly, strain_freq_yearly, seed, B, inf_end):
             [[list of frequencies of strains] 
             for each time step] 
             in same order as in strain_yearly
+            
+    seed: int
+            RNG seed for sampling
+            
+    B: int
+            sample size
+            
+    inf_end: int
+            last time step used for inference
     
     Returns:
     
@@ -383,3 +399,265 @@ def hJ_inf_std_lists(M_std, N_site):
     std_hJ_list = np.array(std_hJ_list)
     
     return std_h_list, std_J_list, std_hJ_list
+
+def single_simu_analysis(single_simu_filename, simu_name, exp_idx,
+                        seed, B, inf_start, inf_end, lambda_h, lambda_J, lambda_f,
+                        result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
+                                    'NewApproachFromMarch2021/InfluenzaFitnessInference'):
+    """
+    run a single inference and analysis on an individual simulation 
+    with specific postprocessing parameters
+    
+    Parameters:
+    
+    single_simu_filename: str
+            name including extension .data of the result file for the
+            single param combo I want to analyze        
+    simu_name: str
+            name of the whole pypet based simulation
+            usually as date like '2021Apr07'
+            (giving the folder in which the simu file is located) 
+    exp_idx: int
+            index of single simu run
+    seed: int
+            RNG seed for sampling
+            
+    B: int
+            sample size
+            
+    inf_start: int
+            time step at which inference starts
+            
+    inf_end: int
+            last time step used for inference
+            
+    lambda_h, lambda_J, lambda_f: int (or float)
+            regularization coefficients, if 0 no regularization
+    result_directory (optional): str
+            path to the directory 
+            where results are stored 
+            (in general: path to the InfluenzaFitnessInference repository)
+    
+    Results:
+    
+    strain_sample_yearly, strain_sample_count_yearly, strain_sample_frequency_yearly: lists
+            randomly sampled strains with respective counts and frequencies
+    
+    minus_fhost_yearly: list
+            list of -F_host for each sampled strain in each time step
+            calculated from all sampled data up to inf_end (incl. before inf_start) 
+            
+    fint_yearly: list
+            list of F_int for each sampled strain in each time step
+            calculated with fitness coeffs that were used in the simulation
+            
+    ftot_yearly: list
+            list of total fitness F_int + F_host for each sampled strain
+            in each time step
+    
+    M, M_std:  numpy.ndarray
+            inferred parameters
+            
+    summary_stats: dict
+            summary statistics for this analysis
+            mean stds of fitnesses w. standard errors
+            correlation coefficients w. standard errors
+    
+    dictionary with all above results: dict
+    
+    pickled .data file
+            file named after used parameter values for simu and analysis 
+            with inference/analysis results saved
+    
+    Returns:
+    
+    summary_stats: dict
+            summary statistics for this analysis
+            mean stds of fitnesses w. standard errors
+            correlation coefficients w. standard errors
+    
+    Dependencies:
+    
+    import pickle
+    import numpy as np
+    import scipy
+    from fitnessinference import simulation as simu
+    other functions in this module
+    """
+    # load data from the simulation
+    
+    strain_yearly, strain_frequency_yearly, traj =\
+            load_simu_data(single_simu_filename, simu_name, exp_idx, result_directory=result_directory)
+
+    # fitness landscape (model input):
+    if traj.hJ_coeffs=='constant':
+        h_model, J_model = simu.fitness_coeff_constant(traj.N_site, traj.N_state, traj.h_0, traj.J_0)
+    elif traj.hJ_coeffs=='p24':
+        h_model, J_model = simu.fitness_coeff_p24(traj.N_site, traj.N_state)
+        
+    
+    # take random samples from each time step up to inf_end:
+    strain_sample_yearly, strain_sample_count_yearly, strain_sample_frequency_yearly=\
+            sample_seqs(strain_yearly, strain_frequency_yearly, seed, B, inf_end)
+
+    # calculate -F_host for each sampled strain at each inference time step
+    minus_fhost_yearly = [-simu.fitness_host_list(strain_sample_yearly[t], strain_sample_yearly[:t], 
+                                                  strain_sample_frequency_yearly[:t], traj.sigma_h, traj.D0)
+                        for t in range(inf_start, inf_end)]
+
+    # calculate F_int for each sampled strain at each inference time step
+    fint_yearly = [simu.fitness_int_list(strain_sample_yearly[t], traj.N_state, h_model, J_model)
+                        for t in range(inf_start, inf_end)]
+
+    # calculate F_tot= F_int + F_host for each sampled strain at each inference time step
+    ftot_yearly = [[fint_yearly[t][i] - minus_fhost_yearly[t][i] for i in range(len(minus_fhost_yearly[t]))] 
+                   for t in range(len(minus_fhost_yearly))]
+    
+    # process data for inference:
+
+    # calculation of features matrix X
+    X = inference_features_Ising(strain_sample_yearly[inf_start:inf_end])
+
+    # calculation of response vector Y
+    Y = inference_response_FhostPrediction(minus_fhost_yearly)
+
+    # inference (parameter vector M and standard error M_std of inferred params):
+    M, M_std = infer_ridge(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end)
+    
+    # calculate summary statistics for observed fitnesses
+    
+    f_host_std = np.mean([np.std(fs) for fs in minus_fhost_yearly])
+    f_int_std = np.mean([np.std(fs) for fs in fint_yearly])
+    f_tot_std = np.mean([np.std(fs) for fs in ftot_yearly])
+    # mean selection stringency
+    mean_string = np.mean([(np.std(ftot)/np.std(mfhost)) for mfhost, ftot in zip(minus_fhost_yearly, ftot_yearly)])
+    # standard error of selection stringency
+    SE_string = np.std([(np.std(ftot)/np.std(mfhost)) for mfhost, ftot in zip(minus_fhost_yearly, ftot_yearly)])/len(ftot_yearly)
+    
+    # compare model fitness coeffs against inferred coeffs
+
+    # model coefficients
+    h_model_list, J_model_list, hJ_model_list = hJ_model_lists(h_model, J_model)
+    # inferred coefficients
+    h_inf_list, J_inf_list, hJ_inf_list = hJ_inf_lists(M, traj.N_site)
+    # std of inferred coefficients
+    std_h_inf_list, std_J_inf_list, std_hJ_inf_list = hJ_inf_std_lists(M_std, traj.N_site)
+    
+    # pearson linear correlations:
+    
+    r_h, pr_h = scipy.stats.pearsonr(h_model_list, h_inf_list)
+    # standard error of corr. coeff.
+    SE_r_h = np.sqrt(1 - r_h**2)/np.sqrt(len(h_model_list) - 2)
+    r_J, pr_J = scipy.stats.pearsonr(J_model_list, J_inf_list)
+    SE_r_J = np.sqrt(1-r_J**2)/np.sqrt(len(J_model_list)-2)
+    r_hJ, pr_hJ = scipy.stats.pearsonr(hJ_model_list, hJ_inf_list)
+    SE_r_hJ = np.sqrt(1-r_hJ**2)/np.sqrt(len(hJ_model_list)-2)
+    
+    # spearman rank correlations:
+    
+    rho_h, prho_h = scipy.stats.spearmanr(h_model_list, h_inf_list)
+    # standard error of corr. coeff.
+    SE_rho_h = np.sqrt(1 - rho_h**2)/np.sqrt(len(h_model_list) - 2)
+    rho_J, prho_J = scipy.stats.spearmanr(J_model_list, J_inf_list)
+    SE_rho_J = np.sqrt(1 - rho_J**2)/np.sqrt(len(J_model_list) - 2)
+    rho_hJ, prho_hJ = scipy.stats.spearmanr(hJ_model_list, hJ_inf_list)
+    SE_rho_hJ = np.sqrt(1 - rho_hJ**2)/np.sqrt(len(hJ_model_list) - 2)
+    
+    summary_stats = {
+        'r_h': r_h,
+        'pr_h': pr_h,
+        'SE_r_h': SE_r_h,
+        'r_J': r_J,
+        'pr_J': pr_J,
+        'SE_r_J': SE_r_J,
+        'r_hJ': r_hJ,
+        'pr_hJ': pr_hJ,
+        'SE_r_hJ': SE_r_hJ,
+        'rho_h': rho_h,
+        'prho_h': prho_h,
+        'SE_rho_h': SE_rho_h,
+        'rho_J': rho_J,
+        'prho_J': prho_J,
+        'SE_rho_J': SE_rho_J,
+        'rho_hJ': rho_hJ,
+        'prho_hJ': prho_hJ,
+        'SE_rho_hJ': SE_rho_hJ
+    }
+    
+    analysis_results = {
+        'strain_sample_yearly': strain_sample_yearly,
+        'strain_sample_count_yearly': strain_sample_count_yearly,
+        'strain_sample_frequency_yearly': strain_sample_frequency_yearly,
+        'minus_fhost_yearly': minus_fhost_yearly,
+        'fint_yearly': fint_yearly,
+        'ftot_yearly': ftot_yearly,
+        'M': M,
+        'M_std': M_std,
+        'summary_stats': summary_stats
+    }
+    
+    # save inference/analysis results in pickled file
+    analysis_filename = 'ana_B_%.e' %B + single_simu_filename
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    test_filepath = os.path.join(temp_folder, analysis_filename)
+    
+    with open(test_filepath, 'wb') as f:
+        pickle.dump(analysis_results, f)
+        
+#     result_path = 'idx_%.i.B_%.i' % (exp_idx, B) + '.summary_stats'
+#     traj.f_add_result(result_path, summary_stats,
+#                       comment='summary statistics')
+#     traj.f_store()
+        
+    return summary_stats
+
+def multi_simu_analysis(inf_dict,
+                        result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
+                                    'NewApproachFromMarch2021/InfluenzaFitnessInference'):
+    """
+    run inference and analysis for several individual simulations
+    with specific postprocessing parameters
+    
+    Parameters:
+    
+    inf_dict: dict
+            contains values for simu_name, exp_dict, 
+            seed, B, inf_start, inf_end, lambda_h, lambda_J, lambda_f
+            
+    result_directory (optional): str
+            path to the directory 
+            where results are stored 
+            (in general: path to the InfluenzaFitnessInference repository)
+    
+    Results:
+    
+    summary_stats_all: dict
+            lists of summary statistics for each single analysis
+            mean stds of fitnesses w. standard errors
+            correlation coefficients w. standard errors
+            summary stat lists are in the same order as runs in exp_dict
+    pickle .data file
+            stores dictionary
+            dict = {
+            'summary stats' = summary_stats,
+            'inf_dict' = inf_dict}
+    
+    Returns:
+    
+    summary_stats_all: dict
+            lists of summary statistics for each single analysis
+            mean stds of fitnesses w. standard errors
+            correlation coefficients w. standard errors
+            summary stat lists are in the same order as runs in exp_dict
+    
+    Dependencies:
+    
+    import pickle
+    import numpy as np
+    import scipy
+    from fitnessinference import simulation as simu
+    other functions in this module
+    """
+    for key, val in exp_dict.items():
+        
+        

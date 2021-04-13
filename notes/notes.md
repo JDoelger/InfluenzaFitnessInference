@@ -82,9 +82,13 @@ the inference gives poorer results (correlations) than when using each observed 
 - when weighting the feature matrix of each strain with its observation count, the inference also gives poorer results (correlations) than when using the previous approach without weighting
 - therefore I have more confidence in the inference approach that I used so far
 
-# log April 10 (analysis pipeline)
+# log April 12 (analysis pipeline)
 - I am still not very comfortable with pypet
 - But made progress with analysis pipeline
+
+# log April 13 (analysis)
+- work on reproducible simu and analysis pipeline
+	- for each simu and each analysis create info_file with settings and description
 
 # To Do :
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet

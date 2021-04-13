@@ -400,8 +400,25 @@ def hJ_inf_std_lists(M_std, N_site):
     
     return std_h_list, std_J_list, std_hJ_list
 
-def single_simu_analysis(single_simu_filename, simu_name, exp_idx,
-                        seed, B, inf_start, inf_end, lambda_h, lambda_J, lambda_f,
+def this_filepath():
+    """
+    prints the absolute path to this file
+    
+    Returns:
+    
+    filepath: str
+            absolute path to file
+    
+    Dependencies:
+    
+    import os
+    """
+    filepath = os.path.normpath(__file__)
+    
+    return filepath
+    
+
+def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dict,
                         result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                                     'NewApproachFromMarch2021/InfluenzaFitnessInference'):
     """
@@ -409,6 +426,7 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx,
     with specific postprocessing parameters
     
     Parameters:
+    
     
     single_simu_filename: str
             name including extension .data of the result file for the
@@ -419,20 +437,8 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx,
             (giving the folder in which the simu file is located) 
     exp_idx: int
             index of single simu run
-    seed: int
-            RNG seed for sampling
-            
-    B: int
-            sample size
-            
-    inf_start: int
-            time step at which inference starts
-            
-    inf_end: int
-            last time step used for inference
-            
-    lambda_h, lambda_J, lambda_f: int (or float)
-            regularization coefficients, if 0 no regularization
+    ana_param_dict: dict
+            parameters for inference/analysis
     result_directory (optional): str
             path to the directory 
             where results are stored 
@@ -463,18 +469,12 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx,
             mean stds of fitnesses w. standard errors
             correlation coefficients w. standard errors
     
-    dictionary with all above results: dict
-    
-    pickled .data file
-            file named after used parameter values for simu and analysis 
-            with inference/analysis results saved
+    analysis_results: dict
+            all the above results combined
     
     Returns:
     
-    summary_stats: dict
-            summary statistics for this analysis
-            mean stds of fitnesses w. standard errors
-            correlation coefficients w. standard errors
+    analysis_results: dict
     
     Dependencies:
     
@@ -484,6 +484,17 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx,
     from fitnessinference import simulation as simu
     other functions in this module
     """
+    # unpack analysis params
+    seed = ana_param_dict['seed'] # RNG seed
+    B = ana_param_dict['B'] # sampling size
+    inf_start = ana_param_dict['inf_start'] # first time step for inference
+    inf_end = ana_param_dict['inf_end']
+    # regularization coeffs, if 0 no regularization
+    # if !=0, number gives width of gaussian prior around 0
+    lambda_h = ana_param_dict['lambda_h']
+    lambda_J = ana_param_dict['lambda_J']
+    lambda_f = ana_param_dict['lambda_f']
+    
     # load data from the simulation
     
     strain_yearly, strain_frequency_yearly, traj =\
@@ -596,20 +607,20 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx,
         'summary_stats': summary_stats
     }
     
-    # save inference/analysis results in pickled file
-    analysis_filename = 'ana_B_%.e' %B + single_simu_filename
-    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
-    test_filepath = os.path.join(temp_folder, analysis_filename)
+#     # save inference/analysis results in pickled file
+#     analysis_filename = 'ana_B_%.e' %B + single_simu_filename
+#     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+#     test_filepath = os.path.join(temp_folder, analysis_filename)
     
-    with open(test_filepath, 'wb') as f:
-        pickle.dump(analysis_results, f)
+#     with open(test_filepath, 'wb') as f:
+#         pickle.dump(analysis_results, f)
         
 #     result_path = 'idx_%.i.B_%.i' % (exp_idx, B) + '.summary_stats'
 #     traj.f_add_result(result_path, summary_stats,
 #                       comment='summary statistics')
 #     traj.f_store()
         
-    return summary_stats
+    return analysis_results
 
 def multi_simu_analysis(inf_dict,
                         result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
@@ -658,6 +669,6 @@ def multi_simu_analysis(inf_dict,
     from fitnessinference import simulation as simu
     other functions in this module
     """
-    for key, val in exp_dict.items():
+#     for key, val in exp_dict.items():
         
         

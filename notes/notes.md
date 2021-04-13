@@ -87,8 +87,10 @@ the inference gives poorer results (correlations) than when using each observed 
 - But made progress with analysis pipeline
 
 # log April 13 (analysis)
-- work on reproducible simu and analysis pipeline
-	- for each simu and each analysis create info_file with settings and description
+- worked on reproducible simu and analysis pipeline
+	- for each simu and each analysis created info_file with settings and description
+	- moved away from pypet data, decided to only used it for parameter sweep for now
+- need to still complete implementing the simu and analysis pipeline neatly
 
 # To Do :
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet

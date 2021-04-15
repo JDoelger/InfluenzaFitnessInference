@@ -115,6 +115,8 @@ the inference gives poorer results (correlations) than when using each observed 
 
 [ ] plan for figures/sections for paper to better decide, how I do different analyses and what is missing
 
+[ ] write down analytical estimates for selection stringency
+
 [ ] write discussion in manuscript about challenges for adaptation to real flu data, indications for stringent selection regime, comparison with Barton inference method 
 
 [ ] submit simulation to cluster (lymphocyte or engaging)

@@ -592,7 +592,12 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
         'SE_rho_J': SE_rho_J,
         'rho_hJ': rho_hJ,
         'prho_hJ': prho_hJ,
-        'SE_rho_hJ': SE_rho_hJ
+        'SE_rho_hJ': SE_rho_hJ,
+        'f_host_std': f_host_std,
+        'f_int_std': f_int_std,
+        'f_tot_std': f_tot_std,
+        'mean_string': mean_string,
+        'SE_string': SE_string
     }
     
     analysis_results = {

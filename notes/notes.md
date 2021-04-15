@@ -86,11 +86,15 @@ the inference gives poorer results (correlations) than when using each observed 
 - I am still not very comfortable with pypet
 - But made progress with analysis pipeline
 
-# log April 13 (analysis)
+# log April 13 (analysis pipeline)
 - worked on reproducible simu and analysis pipeline
 	- for each simu and each analysis created info_file with settings and description
 	- moved away from pypet data, decided to only used it for parameter sweep for now
 - need to still complete implementing the simu and analysis pipeline neatly
+
+# log April 14 (manuscript outline and example figures)
+- thought of types of figures for manuscript, filled some example figures
+- wrote some rough comparison with MPL method in discussion of manuscript
 
 # To Do :
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
@@ -101,12 +105,13 @@ the inference gives poorer results (correlations) than when using each observed 
 
 [x] test simulation and analysis on small example (on my pc)
 
-[ ] write basic code for simulation postprocessing and analysis
+[x] write basic code for simulation postprocessing and analysis
 
 [x] add weights x(Si, t) into inference (features and response) and think more about correct linear regression (normalization etc.) 
 - book by Hastie et al. 2009, p. 45
 - tried different inference but previous methods without strain weighting gives best results
 
+[ ] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
 
 [ ] plan for figures/sections for paper to better decide, how I do different analyses and what is missing
 

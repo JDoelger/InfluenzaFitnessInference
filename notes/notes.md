@@ -96,6 +96,11 @@ the inference gives poorer results (correlations) than when using each observed 
 - thought of types of figures for manuscript, filled some example figures
 - wrote some rough comparison with MPL method in discussion of manuscript
 
+# log April 15 (manuscript outline and meeting w Arup and Mehran)
+- produced manuscript figure with plots of intrinsic, host, total fitness distributions for one example analysis
+- discussed manuscript outline and figures with A & M
+
+
 # To Do :
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 

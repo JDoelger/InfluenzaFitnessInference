@@ -354,7 +354,7 @@ def fitness_host_list(strain_current, st_yearly, st_freq_yearly, sigma_h, D0):
         
     return f_host_list
 
-def flu_antigen_simulation(traj, filepath):
+def flu_antigen_simulation(traj, filepath, varied_simu_params):
     """
     simulate the evolution of flu-like antigenic sequences
     
@@ -367,6 +367,10 @@ def flu_antigen_simulation(traj, filepath):
             path to folder 
             where results should be stored 
             
+    varied_simu_params: list
+            list of names of parameters that are varied
+            in the parameter sweep
+    
     Results:
     
     strain_yearly: list 
@@ -419,16 +423,18 @@ def flu_antigen_simulation(traj, filepath):
     # filenames for intermediate results:
     name_drop = len('parameters.') # from parameter names length of first part
     params = ''
-    # add each parameter with name and value into name:
+    # add each of the parameters that are varied in the parameter sweep simulation 
+    # with name and value into filename:
     for key, value in traj.f_get_parameters(1).items():
-        if isinstance(value, int) and (value<100 or key[name_drop:]=='seed'):
-            params += key[name_drop:] + '_%.i' % value 
-        elif isinstance(value, float) or (isinstance(value, int) and value>=100):
-            params += key[name_drop:] + '_%.e' % value
-        elif isinstance(value, str):
-            params += key[name_drop:] + '_' + value + '_'
+        if key[name_drop:] in varied_simu_params:
+            if isinstance(value, int) and (value<100 or key[name_drop:]=='seed'):
+                params += key[name_drop:] + '_%.i' % value 
+            elif isinstance(value, float) or (isinstance(value, int) and value>=100):
+                params += key[name_drop:] + '_%.e' % value
+            elif isinstance(value, str):
+                params += key[name_drop:] + '_' + value + '_'
             
-    filename = os.path.join(filepath, 'running_' + params + '.data')
+    filename = os.path.join(filepath, params + '.data')
     
     # simulation of sequence evolution:
     for t in range(traj.N_simu):
@@ -489,7 +495,7 @@ def flu_antigen_simulation(traj, filepath):
     # add simulation results to the trajectory         
 #     traj.f_add_result('test_result', {'list': [[1,2,3,4]]}, comment='test result for testing pypet results')
     # name of saved result file without file extension
-    run_name = 'running_' + params
+    run_name = params
     
     return run_name
 
@@ -505,7 +511,11 @@ def main():
     import logging
     from pypet import Environment, cartesian_product, progressbar
     from datetime import date
+    import pickle
     """
+    # this file, with which simulation is executed 
+    simu_code_file = os.path.basename(__file__)
+    
     today = date.today()
     strdate_today = today.strftime("%Y%b%d")
     repository_path = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
@@ -520,12 +530,15 @@ def main():
     # result folder:
     folder = os.path.join(result_directory, 'results', 'simulations')
     # subfolder to store results
-    simu_name = strdate_today
-    temp_folder = os.path.join(folder, simu_name +'_temp')
+    simu_name1 = strdate_today
+    simu_name = simu_name1
+    temp_folder = os.path.join(folder, simu_name + '_temp')
     if not os.path.isdir(folder):
         os.makedirs(folder)
+    simu_num = 1
     while os.path.isdir(temp_folder):
-        simu_name += 'i'
+        simu_num += 1
+        simu_name = simu_name1 + '_' + str(simu_num)
         temp_folder = os.path.join(folder, simu_name + '_temp')
     os.makedirs(temp_folder)
 
@@ -548,32 +561,64 @@ def main():
 
     # use the add_parameter function to add the default parameters
     add_parameters(traj)
+    
+    simu_param_dict = dict(N_pop = traj.N_pop,
+                          N_site = traj.N_site,
+                          N_state = traj.N_state,
+                          mu = traj.mu,
+                          sigma_h = traj.sigma_h,
+                          D0 = traj.D0,
+                          h_0 = traj.h_0,
+                           J_0 = traj.J_0,
+                           hJ_coeffs = traj.hJ_coeffs,
+                           seed = traj.seed,
+                           N_simu = traj.N_simu
+                          )
 
     # define the parameter exploration for this experiment
 #     exp_dict = {'N_pop' : [10, 100, 10**3, 10**4, 10**5, 10**6]}
-    exp_dict = {'N_site': [5, 5], 'N_pop': [10, 100]}
+    exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
     # if I want to run all parameter combinations, run cartesian product
     # exp_dict = cartesian_product(exp_dict) 
     # the entries in the final dictionary need to all have equal lengths
     # to tell the simulation which specific param combos to test
-
-    # add the exploration to the trajectory
-    traj.f_explore(exp_dict)
-    
-    # initialize dictionary to store params and run names
-    simu_dict = {}
-
-    # Run the simulation
-    logger.info('Starting Simulation')
-    run_names = env.run(flu_antigen_simulation, filepath)
     
     varied_simu_params = [key for key, val in exp_dict.items()]
     simu_comment = 'simulation with varying'
     for p in varied_simu_params:
         simu_comment += ' ' + p
-    run_names = dict(run_names)
-    simu_code_file = os.path.basename(__file__)
+
+    # add the exploration to the trajectory
+    traj.f_explore(exp_dict)
     
+    # store simulation info as dictionary
+    simu_dict = {}
+    # store the various params, which describe the simu, in the dictionary
+    simu_dict['simu_name'] = simu_name
+    simu_dict['simu_code_file'] = simu_code_file
+    simu_dict['simu_comment'] = simu_comment
+    simu_dict['varied_simu_params'] = varied_simu_params
+    simu_dict['simu_param_dict'] = simu_param_dict
+    simu_dict['exp_dict'] = exp_dict
+    
+    # save simu info before running simulations
+    simu_info_filename = 'simu_info.data'
+    simu_info_filepath = os.path.join(temp_folder, simu_info_filename)
+    with open(simu_info_filepath, 'wb') as f:
+        pickle.dump(simu_dict, f)
+
+    # Run the simulation
+    logger.info('Starting Simulation')
+    run_names = env.run(flu_antigen_simulation, filepath, varied_simu_params)
+    
+    run_names = dict(run_names)
+    run_list = [key for key, val in run_names.items()]
+    
+    # update simu info with list and names of runs and overwrite prev. simu info file with complete info dict
+    simu_dict['run_names'] = run_names
+    simu_dict['run_list'] = run_list
+    with open(simu_info_filepath, 'wb') as f:
+        pickle.dump(simu_dict, f)
     
 if __name__ == '__main__':
     main()

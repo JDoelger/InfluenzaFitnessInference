@@ -101,7 +101,10 @@ the inference gives poorer results (correlations) than when using each observed 
 - discussed manuscript outline and figures with A & M
 
 # log April 16 (manuscript plan and simulations)
-
+- implemented simulation which runs parameter sweep
+- submitted simulation (on my pc) for varying sequence length
+- so far I use no multiprocessing, so simus are run one after the other
+- logging output is automatically also saved in log directory under date and time folder names which is located in the current working directory, from where I run the simulation
 
 
 # To Do :
@@ -110,10 +113,12 @@ the inference gives poorer results (correlations) than when using each observed 
 
 [x] remove mean(std) from fitness dist plot
 
-[ ] submit simulation to sweep sequence length L=[5, 10, 20, 30, 50]
+[x] submit simulation to sweep sequence length L=[5, 10, 20, 30, 50, 100]
 
 [ ] think about/ explore appropriate indicator from sequence data (without additional info from simu) that correlates with selection stringency/inference performance, e.g. something about strain succession (avg./max. lifetime of strains)
 (might have to do few extra simus varying the selection regime like decreasing sigmah 1 to 0 in few steps, if sigmah=0 can I use MPL to infer exp(F)? only if F<<1 -> exp(F) approx 1+F)
+
+[ ] submit simulation to cluster (lymphocyte or engaging), before try out multiprocessing in pypet to make use of parallel computing
 
 [ ] submit simulation to sweep sigma_h=[0, 0.01, 0.1]
 
@@ -124,8 +129,6 @@ the inference gives poorer results (correlations) than when using each observed 
 [ ] vary sampling size and inf_end for inference param exploration (sensitivity analysis)
 
 [ ] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
-
-[ ] submit simulation to cluster (lymphocyte or engaging)
 
 [ ] write down analytical estimates for selection stringency
 

@@ -100,8 +100,35 @@ the inference gives poorer results (correlations) than when using each observed 
 - produced manuscript figure with plots of intrinsic, host, total fitness distributions for one example analysis
 - discussed manuscript outline and figures with A & M
 
+# log April 16 (manuscript plan and simulations)
+
+
 
 # To Do :
+
+[x] slightly modify discussion of MPL emphasizing disussed important points
+
+[x] remove mean(std) from fitness dist plot
+
+[ ] submit simulation to sweep sequence length L=[5, 10, 20, 30, 50]
+
+[ ] think about/ explore appropriate indicator from sequence data (without additional info from simu) that correlates with selection stringency/inference performance, e.g. something about strain succession (avg./max. lifetime of strains)
+(might have to do few extra simus varying the selection regime like decreasing sigmah 1 to 0 in few steps, if sigmah=0 can I use MPL to infer exp(F)? only if F<<1 -> exp(F) approx 1+F)
+
+[ ] submit simulation to sweep sigma_h=[0, 0.01, 0.1]
+
+[ ] submit simu to sweep fitness coefficients, 3 diff. h (most del., some neutral, some beneficial), 3 diff. J (few del.,few ben., most neutral), vary ben. J, ben. h, e.g. start with two simus with larger/smaller ben. J, two simus w larger/smaller ben. h
+
+[ ] make manuscript figures that A, M and I agreed on (update manuscript)
+
+[ ] vary sampling size and inf_end for inference param exploration (sensitivity analysis)
+
+[ ] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
+
+[ ] submit simulation to cluster (lymphocyte or engaging)
+
+[ ] write down analytical estimates for selection stringency
+
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 
 [x] test pypet with cellular automata simulation [Meyer & Obermayer 2016, Frontiers in Neuroinformatics]
@@ -116,17 +143,9 @@ the inference gives poorer results (correlations) than when using each observed 
 - book by Hastie et al. 2009, p. 45
 - tried different inference but previous methods without strain weighting gives best results
 
-[ ] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
+[x] plan for figures/sections for paper to better decide, how I do different analyses and what is missing
 
-[ ] plan for figures/sections for paper to better decide, how I do different analyses and what is missing
-
-[ ] write down analytical estimates for selection stringency
-
-[ ] write discussion in manuscript about challenges for adaptation to real flu data, indications for stringent selection regime, comparison with Barton inference method 
-
-[ ] submit simulation to cluster (lymphocyte or engaging)
-
-[ ] vary parameters for analysis of inference performance and dependence on selection regime (sensitivity analysis), submit simulation to sweep params
+[x] write discussion in manuscript about challenges for adaptation to real flu data, indications for stringent selection regime, comparison with Barton inference method 
 
 
 

@@ -1,0 +1,30 @@
+2021-04-16 11:45:18,475 pypet.storageservice.HDF5StorageService INFO     I will use the hdf5 file `C:\Users\julia\Documents\Resources\InfluenzaFitnessLandscape\NewApproachFromMarch2021\InfluenzaFitnessInference\results\simulations\2021Apr16i.hdf5`.
+2021-04-16 11:45:18,475 pypet.environment.Environment INFO     Environment initialized.
+2021-04-16 11:45:18,475 root INFO     Starting Simulation
+2021-04-16 11:45:18,475 pypet.environment.Environment INFO     I am preparing the Trajectory for the experiment and initialise the store.
+2021-04-16 11:45:18,475 pypet.environment.Environment INFO     Initialising the storage for the trajectory.
+2021-04-16 11:45:18,490 pypet.storageservice.HDF5StorageService INFO     Initialising storage or updating meta data of Trajectory `2021Apr16i`.
+2021-04-16 11:45:18,506 pypet.storageservice.HDF5StorageService INFO     Finished init or meta data update for `2021Apr16i`.
+2021-04-16 11:45:18,506 pypet.environment.Environment INFO     
+************************************************************
+STARTING runs of trajectory
+`2021Apr16i`.
+************************************************************
+
+2021-04-16 11:45:18,506 pypet INFO     PROGRESS: Finished 0/2 runs [                    ]  0.0%
+2021-04-16 11:45:18,506 pypet INFO     
+=========================================
+ Starting single run #0 of 2 
+=========================================
+
+2021-04-16 11:45:18,506 pypet ERROR    ERROR occurred during a single run! 
+Traceback (most recent call last):
+  File "C:\Users\julia\Anaconda3\lib\site-packages\pypet\environment.py", line 259, in _sigint_handling_single_run
+    return _single_run(kwargs)
+  File "C:\Users\julia\Anaconda3\lib\site-packages\pypet\environment.py", line 314, in _single_run
+    result = runfunc(traj, *runargs, **kwrunparams)
+  File "simulation.py", line 417, in flu_antigen_simulation
+    h_model, J_model = fitness_coeff_p24(traj.N_site, traj.N_state)
+  File "simulation.py", line 119, in fitness_coeff_p24
+    with open(filepath) as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\julia\\Documents\\Resources\\InfluenzaFitnessLandscape\\NewApproachFromMarch2021\\InfluenzaFitnessInference\\code\\notebooks\\fitnessinference\\p24-B-S0.90-Ising-reduced-out-learn.j'

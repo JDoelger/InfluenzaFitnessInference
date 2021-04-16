@@ -25,7 +25,7 @@ def add_parameters(traj):
     
     from pypet import Parameter
     """
-    traj.par.N_pop = Parameter('N_pop', 10**2, 'population size')
+    traj.par.N_pop = Parameter('N_pop', 10**5, 'population size')
     traj.par.N_site = Parameter('N_site', 20, 'sequence length')
     traj.par.N_state = Parameter('N_state', 2, 'number of states per site')
     traj.par.mu = Parameter('mu', 10**(-4), 'mutation prob. per site per time step')
@@ -80,7 +80,7 @@ def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Is
     Parameters:
     
     N_site: int
-            sequence length
+            sequence length (<=105)
     N_state: int
             number of states per site
     filefolder (optional): str
@@ -364,8 +364,8 @@ def flu_antigen_simulation(traj, filepath):
             trajectory container, which manages the parameters
             
     filepath: str
-            path to (temporary) folder 
-            where intermediate results should be stored 
+            path to folder 
+            where results should be stored 
             
     Results:
     
@@ -383,8 +383,9 @@ def flu_antigen_simulation(traj, filepath):
             
     Returns:
     
-    strain_yearly: list
-    strain_frequency_yearly: list
+    run_name: str
+            name of file without path or extension
+            in which the results of the single run are saved
               
     Dependencies:
     
@@ -487,8 +488,10 @@ def flu_antigen_simulation(traj, filepath):
     
     # add simulation results to the trajectory         
 #     traj.f_add_result('test_result', {'list': [[1,2,3,4]]}, comment='test result for testing pypet results')
-            
-    return strain_yearly, strain_frequency_yearly
+    # name of saved result file without file extension
+    run_name = 'running_' + params
+    
+    return run_name
 
 def main():
     """
@@ -514,16 +517,20 @@ def main():
     current_directory = os.getcwd() # current directory
     # result_directory = current_directory # use the current directory for cluster simulations
     result_directory = repository_path
-    # folder to store results:
+    # result folder:
     folder = os.path.join(result_directory, 'results', 'simulations')
-    # subfolder to store temporary results
-    temp_folder = os.path.join(folder, strdate_today+'_temp')
+    # subfolder to store results
+    simu_name = strdate_today
+    temp_folder = os.path.join(folder, simu_name +'_temp')
     if not os.path.isdir(folder):
         os.makedirs(folder)
-    if not os.path.isdir(temp_folder):
-        os.makedirs(temp_folder)
+    while os.path.isdir(temp_folder):
+        simu_name += 'i'
+        temp_folder = os.path.join(folder, simu_name + '_temp')
+    os.makedirs(temp_folder)
+
     # filename for final pypet results of the experiment
-    filename = os.path.join(folder, strdate_today+'.hdf5')
+    simu_file = os.path.join(folder, simu_name +'.hdf5')
     # filepath for logs and storage of intermediate files
     filepath = temp_folder
     
@@ -533,9 +540,8 @@ def main():
     logger = logging.getLogger()
 
     # Create an environment
-    env = Environment(trajectory=strdate_today,
-                     overwrite_file=True,
-                     filename=filename)
+    env = Environment(trajectory=simu_name,
+                     filename=simu_file)
 
     # Extract the trajectory
     traj = env.traj
@@ -544,7 +550,8 @@ def main():
     add_parameters(traj)
 
     # define the parameter exploration for this experiment
-    exp_dict = {'N_pop' : [10, 100, 10**3, 10**4, 10**5, 10**6]}
+#     exp_dict = {'N_pop' : [10, 100, 10**3, 10**4, 10**5, 10**6]}
+    exp_dict = {'N_site': [5, 5], 'N_pop': [10, 100]}
     # if I want to run all parameter combinations, run cartesian product
     # exp_dict = cartesian_product(exp_dict) 
     # the entries in the final dictionary need to all have equal lengths
@@ -552,10 +559,21 @@ def main():
 
     # add the exploration to the trajectory
     traj.f_explore(exp_dict)
+    
+    # initialize dictionary to store params and run names
+    simu_dict = {}
 
     # Run the simulation
     logger.info('Starting Simulation')
-    env.run(flu_antigen_simulation, filepath)
+    run_names = env.run(flu_antigen_simulation, filepath)
+    
+    varied_simu_params = [key for key, val in exp_dict.items()]
+    simu_comment = 'simulation with varying'
+    for p in varied_simu_params:
+        simu_comment += ' ' + p
+    run_names = dict(run_names)
+    simu_code_file = os.path.basename(__file__)
+    
     
 if __name__ == '__main__':
     main()

@@ -263,22 +263,27 @@ def infer_ridge(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end):
     # inference by solving X*M = Y for M
     XT = np.transpose(X_inf)
     XTX = np.matmul(XT, X_inf) # covariance
-    XTX_reg_inv = np.linalg.inv(XTX + reg_mat_reduced)
-    XTY = np.matmul(XT, Y)
-    M_inf = np.matmul(XTX_reg_inv, XTY)
-    
-    M_full = np.zeros(num_param)
-    M_full[param_included] = M_inf
-    
-    # unbiased estimator of variance
-    sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
-    v_vec = np.diag(XTX_reg_inv)
-    # use std of prior distribution 
-    #for parameters that are not informed by model
-    M_std = copy.deepcopy(np.diag(reg_mat)) 
-    # standard deviation of the parameter distribution 
-    # from diagonal of the covariance matrix 
-    M_std[param_included] = np.sqrt(v_vec) * sigma_res
+    try:
+        XTX_reg_inv = np.linalg.inv(XTX + reg_mat_reduced)
+        XTY = np.matmul(XT, Y)
+        M_inf = np.matmul(XTX_reg_inv, XTY)
+
+        M_full = np.zeros(num_param)
+        M_full[param_included] = M_inf
+
+        # unbiased estimator of variance
+        sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+        v_vec = np.diag(XTX_reg_inv)
+        # use std of prior distribution 
+        #for parameters that are not informed by model
+        M_std = copy.deepcopy(np.diag(reg_mat)) 
+        # standard deviation of the parameter distribution 
+        # from diagonal of the covariance matrix 
+        M_std[param_included] = np.sqrt(v_vec) * sigma_res
+    except:
+        print('exception error')
+        M_full = np.zeros(num_param)
+        M_std = np.zeros(num_param)
     
     return M_full, M_std
     

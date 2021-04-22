@@ -106,6 +106,11 @@ the inference gives poorer results (correlations) than when using each observed 
 - so far I use no multiprocessing, so simus are run one after the other
 - logging output is automatically also saved in log directory under date and time folder names which is located in the current working directory, from where I run the simulation
 
+# log April 22 (manuscript outline and figures)
+- produced all figures that I have thought of so far for manuscript 
+(example plots for one simulated data set, parameter explorations)
+- wrote down some things to discuss with A and M in next meeting
+
 
 # To Do :
 
@@ -115,7 +120,11 @@ the inference gives poorer results (correlations) than when using each observed 
 
 [x] submit simulation to sweep sequence length L=[5, 10, 20, 30, 50, 100]
 
-[ ] think about/ explore appropriate indicator from sequence data (without additional info from simu) that correlates with selection stringency/inference performance, e.g. something about strain succession (avg./max. lifetime of strains)
+[x] vary sampling size and inf_end for inference param exploration (sensitivity analysis)
+
+[ ] do replicate simulations (with different RNG seeds) to get robust inference performance (see Fig. 2 in Barton paper who did 100 replicate simus and calculated mean AUC)
+
+[ ] think about/ explore appropriate indicator from sequence data (without additional info from simu) that correlates with selection stringency/inference performance, e.g. something about strain succession (avg./max. lifetime of strains, log(x/x'),...)
 (might have to do few extra simus varying the selection regime like decreasing sigmah 1 to 0 in few steps, if sigmah=0 can I use MPL to infer exp(F)? only if F<<1 -> exp(F) approx 1+F)
 
 [ ] submit simulation to cluster (lymphocyte or engaging), before try out multiprocessing in pypet to make use of parallel computing
@@ -126,7 +135,13 @@ the inference gives poorer results (correlations) than when using each observed 
 
 [ ] make manuscript figures that A, M and I agreed on (update manuscript)
 
-[ ] vary sampling size and inf_end for inference param exploration (sensitivity analysis)
+[ ] tidy up code for figures -> write functions
+
+[ ] make sure that I get some inference result for each analysis,
+even where data are lacking, e.g. by small regularization coeffs for each param (corresponds to some wide gaussian prior)
+
+[ ] find out, why the strain labels in succession plots seem to increase linearly in simulation and exponentially in data
+
 
 [ ] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
 

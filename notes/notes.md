@@ -111,6 +111,7 @@ the inference gives poorer results (correlations) than when using each observed 
 (example plots for one simulated data set, parameter explorations)
 - wrote down some things to discuss with A and M in next meeting
 
+# log April 23 (manuscript outline)
 
 # To Do :
 

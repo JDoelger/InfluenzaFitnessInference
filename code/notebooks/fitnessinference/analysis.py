@@ -579,6 +579,16 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
     rho_hJ, prho_hJ = scipy.stats.spearmanr(hJ_model_list, hJ_inf_list)
     SE_rho_hJ = np.sqrt(1 - rho_hJ**2)/np.sqrt(len(hJ_model_list) - 2)
     
+    # classification of deleterious pair mutations:
+    
+    hJ_threshold = -10
+    #real classification of each pair according to known hJs
+    hJ_deleterious = np.int_(hJ_model_list<hJ_threshold)
+    # class imbalance: number in deleterious class/total number of pairs
+    positive_rate = sum(hJ_deleterious)/len(hJ_deleterious)
+    # classification of each pair according to inference
+    hJ_del_pred = np.int_(hJ_inf_list<hJ_threshold)
+    
     summary_stats = {
         'r_h': r_h,
         'pr_h': pr_h,

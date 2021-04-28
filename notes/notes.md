@@ -111,17 +111,16 @@ the inference gives poorer results (correlations) than when using each observed 
 (example plots for one simulated data set, parameter explorations)
 - wrote down some things to discuss with A and M in next meeting
 
-# log April 23 (manuscript outline)
+# log April 27 (manuscript outline)
+- Arup and Mehran are fine with figures that I have so far, want to wrap up study
+- added inference performance and error measure definitions on rocketbook page 
+
 
 # To Do :
 
-[x] slightly modify discussion of MPL emphasizing disussed important points
+[ ] write complete first manuscript draft and send to A and M
 
-[x] remove mean(std) from fitness dist plot
-
-[x] submit simulation to sweep sequence length L=[5, 10, 20, 30, 50, 100]
-
-[x] vary sampling size and inf_end for inference param exploration (sensitivity analysis)
+[ ] tidy up code for figures -> write functions
 
 [ ] do replicate simulations (with different RNG seeds) to get robust inference performance (see Fig. 2 in Barton paper who did 100 replicate simus and calculated mean AUC)
 
@@ -133,10 +132,6 @@ the inference gives poorer results (correlations) than when using each observed 
 [ ] submit simulation to sweep sigma_h=[0, 0.01, 0.1]
 
 [ ] submit simu to sweep fitness coefficients, 3 diff. h (most del., some neutral, some beneficial), 3 diff. J (few del.,few ben., most neutral), vary ben. J, ben. h, e.g. start with two simus with larger/smaller ben. J, two simus w larger/smaller ben. h
-
-[ ] make manuscript figures that A, M and I agreed on (update manuscript)
-
-[ ] tidy up code for figures -> write functions
 
 [ ] make sure that I get some inference result for each analysis,
 even where data are lacking, e.g. by small regularization coeffs for each param (corresponds to some wide gaussian prior)
@@ -165,6 +160,16 @@ even where data are lacking, e.g. by small regularization coeffs for each param 
 [x] plan for figures/sections for paper to better decide, how I do different analyses and what is missing
 
 [x] write discussion in manuscript about challenges for adaptation to real flu data, indications for stringent selection regime, comparison with Barton inference method 
+
+[x] slightly modify discussion of MPL emphasizing disussed important points
+
+[x] remove mean(std) from fitness dist plot
+
+[x] submit simulation to sweep sequence length L=[5, 10, 20, 30, 50, 100]
+
+[x] vary sampling size and inf_end for inference param exploration (sensitivity analysis)
+
+[x] make manuscript figures that A, M and I agreed on (update manuscript)
 
 
 

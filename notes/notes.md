@@ -113,12 +113,16 @@ the inference gives poorer results (correlations) than when using each observed 
 
 # log April 27 (manuscript outline)
 - Arup and Mehran are fine with figures that I have so far, want to wrap up study
-- added inference performance and error measure definitions on rocketbook page 
+- added inference performance and error measure definitions on rocketbook page
+
+# log May 3 (manuscript)
+- read manuscript draft and make small edits
+- sent draft with intro, model, inference, discussion sections to A and M
 
 
 # To Do :
 
-[ ] write complete first manuscript draft and send to A and M
+[ ] write abstract
 
 [ ] tidy up code for figures -> write functions
 
@@ -170,6 +174,8 @@ even where data are lacking, e.g. by small regularization coeffs for each param 
 [x] vary sampling size and inf_end for inference param exploration (sensitivity analysis)
 
 [x] make manuscript figures that A, M and I agreed on (update manuscript)
+
+[x] write complete first manuscript draft and send to A and M
 
 
 

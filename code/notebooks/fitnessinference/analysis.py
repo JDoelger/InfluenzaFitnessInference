@@ -4,7 +4,10 @@ import os
 from pypet import Trajectory
 import pickle
 import scipy
-from fitnessinference import simulation as simu
+# from fitnessinference import simulation as simu
+import simulation as simu
+from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
+from datetime import date
 
 
 def load_simu_data(single_simu_filename, simu_name, exp_idx,
@@ -405,9 +408,9 @@ def hJ_inf_std_lists(M_std, N_site):
     
     return std_h_list, std_J_list, std_hJ_list
 
-def this_filepath():
+def this_filename():
     """
-    prints the absolute path to this file
+    prints the name of this file
     
     Returns:
     
@@ -418,9 +421,9 @@ def this_filepath():
     
     import os
     """
-    filepath = os.path.normpath(__file__)
+    filename = __file__
     
-    return filepath
+    return filename
     
 
 def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dict,
@@ -469,13 +472,17 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
     M, M_std:  numpy.ndarray
             inferred parameters
             
+    precision, recall, tpr, fpr: numpy.ndarrays
+            lists of precision, recall, tpr, fpr for classification for making PRC and ROC curves
+            
     summary_stats: dict
-            summary statistics for this analysis
+            summary statistics for this analysis, includes:
             mean stds of fitnesses w. standard errors
             correlation coefficients w. standard errors
+            AUCs for classification
     
     analysis_results: dict
-            all the above results combined
+            all the above results combined plus ana_param_dict as info about analysis params
     
     Returns:
     
@@ -487,6 +494,7 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
     import numpy as np
     import scipy
     from fitnessinference import simulation as simu
+    from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
     other functions in this module
     """
     # unpack analysis params
@@ -499,6 +507,7 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
     lambda_h = ana_param_dict['lambda_h']
     lambda_J = ana_param_dict['lambda_J']
     lambda_f = ana_param_dict['lambda_f']
+    hJ_threshold = ana_param_dict['hJ_threshold']
     
     # load data from the simulation
     
@@ -581,13 +590,18 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
     
     # classification of deleterious pair mutations:
     
-    hJ_threshold = -10
     #real classification of each pair according to known hJs
     hJ_deleterious = np.int_(hJ_model_list<hJ_threshold)
     # class imbalance: number in deleterious class/total number of pairs
-    positive_rate = sum(hJ_deleterious)/len(hJ_deleterious)
+    fraction_positive = sum(hJ_deleterious)/len(hJ_deleterious)
     # classification of each pair according to inference
     hJ_del_pred = np.int_(hJ_inf_list<hJ_threshold)
+    # precision-recall
+    precision, recall, thresholds = precision_recall_curve(hJ_deleterious, hJ_del_pred)
+    AUC_prec_recall = auc(recall, precision)
+    # ROC curve
+    AUC_ROC = roc_auc_score(hJ_deleterious, hJ_del_pred)
+    fpr, tpr, _ = roc_curve(hJ_deleterious, hJ_del_pred)
     
     summary_stats = {
         'r_h': r_h,
@@ -612,10 +626,13 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
         'f_int_std': f_int_std,
         'f_tot_std': f_tot_std,
         'mean_string': mean_string,
-        'SE_string': SE_string
+        'SE_string': SE_string,
+        'AUC_prec_recall': AUC_prec_recall,
+        'AUC_ROC':AUC_ROC
     }
     
     analysis_results = {
+        'ana_param_dict': ana_param_dict,
         'strain_sample_yearly': strain_sample_yearly,
         'strain_sample_count_yearly': strain_sample_count_yearly,
         'strain_sample_frequency_yearly': strain_sample_frequency_yearly,
@@ -624,6 +641,10 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
         'ftot_yearly': ftot_yearly,
         'M': M,
         'M_std': M_std,
+        'fpr': fpr,
+        'tpr': tpr,
+        'precision': precision,
+        'recall': recall,
         'summary_stats': summary_stats
     }
     
@@ -642,19 +663,27 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
         
     return analysis_results
 
-def multi_simu_analysis(inf_dict,
+def multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, 
                         result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                                     'NewApproachFromMarch2021/InfluenzaFitnessInference'):
     """
     run inference and analysis for several individual simulations
-    with specific postprocessing parameters
+    with specific postprocessing parameters, save individual analysis results in separate files plus collected results and analysis info in summary file
     
     Parameters:
     
-    inf_dict: dict
-            contains values for simu_name, exp_dict, 
-            seed, B, inf_start, inf_end, lambda_h, lambda_J, lambda_f
-            
+    simu_name: str
+            name of the simulation
+            usually as date like '2021Apr07'
+            (this is the folder name in which the simu file is located) 
+    ana_param_dict: dict
+            contains values for the inference  simu_name, exp_dict, 
+            seed, B, inf_start, inf_end, lambda_h, lambda_J, lambda_f, hJ_threshold
+    varied_ana_params: list
+            list of parameter names that are varied in this analysis
+    exp_ana_dict: dict
+            for each varied param: list of values
+            lists for each param have equal length to define unique param combos that are tried
     result_directory (optional): str
             path to the directory 
             where results are stored 
@@ -662,24 +691,36 @@ def multi_simu_analysis(inf_dict,
     
     Results:
     
+    analysis_name: str
+            name of file with analysis info and collected summary statistics
+            includes date at which analysis is done
+    ana_code_file: str
+            name of this code file, with which analysis was created
+    ana_comment: str
+            short comment giving info about this analysis
+    simu_info_filepath: str 
+            file path to summary file, where collected results and analysis info
+            is stored
+    ana_list: list
+            assigns index to each single analysis from 0 to num_ana_tot-1
+    ana_names: dict
+            assigns to each index the file name (without ending)
+            of each individual analysis, which includes the analysis index (unique ana params) 
+            and the run index (unique simu params) as well as the analysis_name
     summary_stats_all: dict
-            lists of summary statistics for each single analysis
-            mean stds of fitnesses w. standard errors
-            correlation coefficients w. standard errors
-            summary stat lists are in the same order as runs in exp_dict
-    pickle .data file
-            stores dictionary
-            dict = {
-            'summary stats' = summary_stats,
-            'inf_dict' = inf_dict}
-    
+            collects the summary statistics as lists for each quantity
+            stored in summary_stats by the function single_simu_analysis
+    num_ana_tot: number of analyses
+    ana_dict: dict
+            dictionary with all the above results combined plus input params for
+            info about analysis
+    pickle .data files
+            one file for storing dictionary ana_dict
+            separate files for storing each individual analysis result in detail
+ 
     Returns:
     
-    summary_stats_all: dict
-            lists of summary statistics for each single analysis
-            mean stds of fitnesses w. standard errors
-            correlation coefficients w. standard errors
-            summary stat lists are in the same order as runs in exp_dict
+    None
     
     Dependencies:
     
@@ -687,8 +728,130 @@ def multi_simu_analysis(inf_dict,
     import numpy as np
     import scipy
     from fitnessinference import simulation as simu
+    from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
+    from datetime import date
+    import os
     other functions in this module
     """
-#     for key, val in exp_dict.items():
+    # initialize dictionary for saving collected analysis params and results
+    ana_dict = {}
+    
+    today = date.today()
+    strdate_today = today.strftime('%Y%b%d')
+    analysis_name = 'analysis_' + strdate_today
+    result_directory = os.path.normpath(result_directory)
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    analysis_info_path = os.path.join(temp_folder, analysis_name + '.data')
+    while os.path.exists(analysis_info_path):
+        # for several analyses done on same day, add 'i' to name
+        analysis_name = analysis_name + 'i'
+        analysis_info_filepath = os.path.join(temp_folder, analysis_name + '.data')
+    ana_code_file = this_filename()
+    ana_comment = 'analysis with varying'
+    for p in varied_ana_params:
+        ana_comment += ' ' + p
+    simu_info_filename = 'simu_info.data'
+    simu_info_filepath = os.path.join(temp_folder, simu_info_filename)
+    
+    # load info about simulation
+    
+    with open(simu_info_filepath, 'rb') as f:
+        simu_dict = pickle.load(f)
+    exp_dict = simu_dict['exp_dict']
+    run_list = simu_dict['run_list']
+    run_names = simu_dict['run_names']
+    
+    # create ana_list assigning indices for each single analysis
+    
+    for key, val in exp_ana_dict.items():
+        num_anas = len(val)
+        break
+    ana_list = np.arange(num_anas).tolist()
+    
+    # initialize dictionary for saving lists of summary statistics
+    
+    summary_stats_all = {
+    'r_h': [],
+    'pr_h': [],
+    'SE_r_h': [],
+    'r_J': [],
+    'pr_J': [],
+    'SE_r_J': [],
+    'r_hJ': [],
+    'pr_hJ': [],
+    'SE_r_hJ': [],
+    'rho_h': [],
+    'prho_h': [],
+    'SE_rho_h': [],
+    'rho_J': [],
+    'prho_J': [],
+    'SE_rho_J': [],
+    'rho_hJ': [],
+    'prho_hJ': [],
+    'SE_rho_hJ': [],
+    'f_host_std': [],
+    'f_int_std': [],
+    'f_tot_std': [],
+    'mean_string': [],
+    'SE_string': [],
+    'AUC_prec_recall': [],
+    'AUC_ROC': []
+    }  
+    
+    # run each analysis and save individual analysis results in separate files
+    
+    ana_names = {}
+    k = 0
+    for ananum in range(len(ana_list)):
+        ana_id = analysis_name + '_' + str(ananum)
+        for p in varied_ana_params:
+            ana_param_dict[p] = exp_ana_dict[p][ananum]
+        for run in run_list:
+            run_name_short = 'run_' + str(run)
+            ana_name = ana_id + run_name_short
+            ana_names[k] = ana_name
+            
+            # inference/analysis for this combo of ana and run params
+            
+            single_simu_filename = run_names[run] + '.data'
+            analysis_results = single_simu_analysis(single_simu_filename, simu_name, run, ana_param_dict)
+            single_ana_filename = ana_name + '.data'
+            single_ana_filepath = os.path.join(temp_folder, single_ana_filename)
+            with open(single_ana_filepath, 'wb') as f:
+                pickle.dump(analysis_results, f)
+                
+            summary_stats = analysis_results['summary_stats']
+            for key, val in summary_stats_all.items():
+                val.append(summary_stats[key])
+                summary_stats_all[key] = val
+                
+            k += 1
+    num_ana_tot = k
+    
+    ana_dict['analysis_name'] = analysis_name
+    ana_dict['ana_code_file'] = ana_code_file
+    ana_dict['ana_param_dict'] = ana_param_dict
+    ana_dict['varied_ana_params'] = varied_ana_params
+    ana_dict['exp_ana_dict'] = exp_ana_dict
+    ana_dict['ana_comment'] = ana_comment
+    ana_dict['simu_info_filepath'] = simu_info_filepath
+    ana_dict['ana_list'] = ana_list
+    ana_dict['ana_names'] = ana_names
+    ana_dict['summary_stats_all'] = summary_stats_all
+    ana_dict['num_ana_tot'] = num_ana_tot
+    
+    with open(analysis_info_path, 'wb') as f:
+        pickle.dump(ana_dict, f)
+
+def exe_multi_simu_analysis():
+    """ 
+    """
+   
+def main():
+    print(this_filename())
+
+# if this file is run from the console, the function main will be executed
+if __name__ == '__main__':
+    main()
         
         

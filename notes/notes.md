@@ -126,6 +126,8 @@ the inference gives poorer results (correlations) than when using each observed 
 
 [ ] tidy up code for figures -> write functions
 
+[ ] write up full details of simulation, inference and analysis in Methods or SI
+
 [ ] do replicate simulations (with different RNG seeds) to get robust inference performance (see Fig. 2 in Barton paper who did 100 replicate simus and calculated mean AUC)
 
 [ ] think about/ explore appropriate indicator from sequence data (without additional info from simu) that correlates with selection stringency/inference performance, e.g. something about strain succession (avg./max. lifetime of strains, log(x/x'),...)

@@ -619,6 +619,7 @@ def main():
     simu_dict['run_list'] = run_list
     with open(simu_info_filepath, 'wb') as f:
         pickle.dump(simu_dict, f)
-    
+
+# if this file is run from the console, the function main will be executed
 if __name__ == '__main__':
     main()

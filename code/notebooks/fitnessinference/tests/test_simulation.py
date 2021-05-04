@@ -182,9 +182,10 @@ def test_flu_antigen_simulation():
     temp_folder = os.path.join(os.getcwd(), 'test_temp')
     if not os.path.isdir(temp_folder):
         os.makedirs(temp_folder)
+    varied_simu_params = ['N_pop', 'mu']
     
     # use the simulation function to calculate the test results
-    run_name = simu.flu_antigen_simulation(traj, temp_folder)
+    run_name = simu.flu_antigen_simulation(traj, temp_folder, varied_simu_params)
     
 #     # find out how to store and access results with pypet before uncommenting this!!
 #     # results = traj.results.?

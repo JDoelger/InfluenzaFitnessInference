@@ -1,6 +1,7 @@
 import numpy as np
 from fitnessinference import analysis as ana
 from pypet import Trajectory
+from fitnessinference import simulation as simu
 
 def test_load_simu_data():
     """ test load_simu_data
@@ -109,21 +110,96 @@ def test_infer_ridge():
     assert M.shape==M_std.shape
     assert len(M)==num_parameters
     
-# def test_hJ_model_lists():
+def test_hJ_model_lists():
+    """ test hJ_model_lists
+    """
+    # test parameters:
+    N_site = 10
+    N_state = 2
+    h_model, J_model = simu.fitness_coeff_p24(N_site, N_state)
     
-#     # ana.hJ_model_lists(h_model, J_model)
+    # use the function to transform to unnested lists
+    h_model_list, J_model_list, hJ_model_list = ana.hJ_model_lists(h_model, J_model)
     
-# def test_hJ_inf_lists():
+    # assert various things
+    assert isinstance(hJ_model_list, np.ndarray)
+    assert len(hJ_model_list)==N_site*(N_site-1)/2
+    assert len(J_model_list)==N_site*(N_site-1)/2
+    assert len(h_model_list)==N_site
     
-#     # ana.hJ_inf_lists(M, N_site)
+def test_hJ_inf_lists():
+    """ test hJ_inf_lists
+    """
+    # test parameters:
+    N_site = 10
+    n_params = int(N_site*(N_site+1)/2) + 100
+    M = np.random.randn(n_params)
     
-# def test_hJ_inf_std_lists():
+    # use function to transform inference results into separate lists
+    h_list, J_list, hJ_list = ana.hJ_inf_lists(M, N_site)
     
-#     # ana.hJ_inf_std_lists(M_std, N_site)
+    # assert various things
+    assert isinstance(hJ_list, np.ndarray)
+    assert len(hJ_list)==N_site*(N_site-1)/2
+    assert len(J_list)==N_site*(N_site-1)/2
+    assert len(h_list)==N_site
+    
+    
+def test_hJ_inf_std_lists():
+    """ test hJ_inf_std_lists
+    """
+    # test parameters:
+    N_site = 10
+    n_params = int(N_site*(N_site+1)/2)
+    M_std = np.random.randint(0, 4, size=(n_params, ))
+    
+    # use function to get lists of stds
+    std_h_list, std_J_list, std_hJ_list = ana.hJ_inf_std_lists(M_std, N_site)
+    
+    assert isinstance(std_hJ_list, np.ndarray)
+    assert len(std_J_list)==N_site*(N_site-1)/2
+    
+def test_single_simu_analysis():
+    """ test single_simu_analysis
+    """
+    # test parameters
+    single_simu_filename = ('running_N_pop_1e+06N_site_20N_state_2mu_'
+                            '1e-04sigma_h_1D0_5h_0_-7J_0_0seed_123456N_simu_2e+02.data')
+    simu_name = '2021Apr07' 
+    exp_idx = 3
+    ana_param_dict = {
+        'seed': 20390,
+        'B': 10**3, 
+        'inf_start': 100, 
+        'inf_end': 200, 
+        'lambda_h': 10**(-4), 
+        'lambda_J': 1, 
+        'lambda_f': 10**(-4),
+        'hJ_threshold': -10
+          }
+    
+    test_result_dir = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
+                                    'NewApproachFromMarch2021/InfluenzaFitnessInference')
+    
+    
+    # use function to calculate analysis results
+    analysis_results = ana.single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dict,
+                                                result_directory=test_result_dir)
+    
+    # assert various things
+    assert isinstance(analysis_results, dict)
+    assert isinstance(analysis_results['summary_stats'], dict)
+    
+# def test_multi_simu_analysis():
+#     """ test multi_simu_analysis
+#     """
+#     # test parameters:
+    
+#     # use function to run several analyses and save collected results
+#     multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params)
+    
+#     # assert various things:
+    
 
-# def test_single_simu_analysis():
     
-# #     ana.single_simu_analysis(single_simu_filename, simu_name, exp_idx,
-# #                         seed, B, inf_start, inf_end, lambda_h, lambda_J, lambda_f,
-# #                         result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
-# #                                     'NewApproachFromMarch2021/InfluenzaFitnessInference')
+    

@@ -8,6 +8,8 @@ import scipy
 import simulation as simu
 from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
 from datetime import date
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 
 def load_simu_data(single_simu_filename, simu_name, exp_idx,
@@ -921,8 +923,8 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
                      hJ_model_list, hJ_inf_list, std_hJ_inf_list, r_hJ, pr_hJ,
                      precision, recall, AUC_prec_recall, 
                      fpr, tpr, AUC_ROC, fraction_positive,
-                     figure_directory='C:\Users\julia\Documents\Resources\InfluenzaFitnessLandscape\'
-                     'NewApproachFromMarch2021\InfluenzaFitnessInference\figures'):
+                     figure_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
+                         '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures'):
     """ 
     create plots for analysis of a single simulation
     
@@ -976,6 +978,134 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     import numpy as np
     
     """
+    figure_directory = os.path.normpath(figure_directory)
+    
+    # plot settings
+    file_extension = '.pdf'
+    full_page_width = 7.5
+    plotlabel_shift = -0.2
+    pltlabel_shift_3pan = -0.3
+    pltlabel_up_3pan = 1.1
+    plot_marker_size = 5
+    plot_marker_small = 3
+    mpl.rcParams['font.family'] = 'Arial'
+    mpl.rcParams['font.size'] = 10
+    mpl.rcParams['axes.linewidth'] = 1
+    
+    # plot strain succession
+    
+    fig_name = 'oneana_strain_succession' + file_extension
+    this_plot_filepath = os.path.join(figure_directory, fig_name)
+    cm = plt.get_cmap('rainbow')
+    colorlist = [cm(1.*i/(len(strain_frequency_yearly_transpose))) 
+                 for i in range(len(strain_frequency_yearly_transpose))]
+    fig = plt.figure(figsize=(full_page_width, 3))
+    ax1 = fig.add_axes([0, 0, 0.43, 1])
+    ax2 = fig.add_axes([0.57, 0, 0.43, 1])
+    
+    for sti in range(len(strain_frequency_yearly_transpose)):
+        ax1.plot(year_list, strain_frequency_yearly_transpose[sti], color=colorlist[sti])
+    ax1.set_xlabel('simulated season')
+    ax1.set_ylabel('strain frequency')
+    ax1.text(plotlabel_shift, 1, 'A', transform=ax1.transAxes,
+      fontsize=14, fontweight='bold', va='top', ha='right')
+    
+    for y in range(len(strain_index_yearly)):
+        for sti in range(len(strain_index_yearly[y])-1, -1, -1): 
+            ax2.plot(y+year_list[0], strain_index_yearly[y][sti], '.', markersize=plot_marker_size, color='blue')
+        ax2.plot(y+year_list[0], strain_index_yearly[y][0], '.', markersize=plot_marker_size, color='red')
+    ax2.set_xlabel('simulated season')
+    ax2.set_ylabel('strain label')
+    ax2.text(plotlabel_shift, 1, 'B', transform=ax2.transAxes,
+      fontsize=14, fontweight='bold', va='top', ha='right')
+    
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+    
+    # plot fitness distributions in each season
+    
+    fig_name = 'oneana_fitness_dists' + file_extension
+    this_plot_filepath = os.path.join(figure_directory, fig_name)
+    fig = plt.figure(figsize=(full_page_width, 3))
+    ax1 = fig.add_axes([0, 0, 0.25, 1])
+    ax2 = fig.add_axes([0.375, 0, 0.25, 1])
+    ax3 = fig.add_axes([0.75, 0, 0.25, 1])
+    
+    for y in range(len(fint_yearly[1:])):
+        ax1.plot([y]*len(fint_yearly[y]), fint_yearly[y]-np.mean(fint_yearly[y]), '.', markersize=plot_marker_small, color='black')
+    ax1.set_xlabel('simulated season')
+    ax1.set_ylabel('$F_{int}$ - $<F_{int}>$')
+    ax1.set_ylim([-15, 15])
+    ax1.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'A', transform=ax1.transAxes,
+      fontsize=14, fontweight='bold', va='top', ha='right')
+    
+    for y in range(len(minus_fhost_yearly[1:])):
+        ax2.plot([y]*len(minus_fhost_yearly[y]), minus_fhost_yearly[y]-np.mean(minus_fhost_yearly[y]), '.', markersize=plot_marker_small, color='black')
+    ax2.set_xlabel('simulated season')
+    ax2.set_ylabel('$-F_{host}$ - $<-F_{host}>$')
+    ax2.set_ylim([-15, 15])
+    ax2.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'B', transform=ax2.transAxes,
+      fontsize=14, fontweight='bold', va='top', ha='right')
+    
+    for y in range(len(ftot_yearly[1:])):
+        ax3.plot([y]*len(ftot_yearly[y]), ftot_yearly[y]-np.mean(ftot_yearly[y]), '.', markersize=plot_marker_small, color='black')
+    ax3.set_xlabel('simulated season')
+    ax3.set_ylabel('$F_{total}$ - $<F_{total}>$')
+    ax3.set_ylim([-15, 15])
+    ax3.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'C', transform=ax3.transAxes,
+      fontsize=14, fontweight='bold', va='top', ha='right')
+    
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+    
+    # plot correlations between simulated and inferred fitness coefficients
+    
+    fig_name = 'oneana_infsimu_correlation' + file_extension
+    this_plot_filepath = os.path.join(figure_directory, fig_name)
+    fig = plt.figure(figsize=(full_page_width, 3))
+    ax1 = fig.add_axes([0, 0, 0.25, 1])
+    ax2 = fig.add_axes([0.375, 0, 0.25, 1])
+    ax3 = fig.add_axes([0.75, 0, 0.25, 1])
+
+    corr1_line = np.linspace(-10, 2, num=2)
+    ax1.errorbar(h_model_list, h_inf_list, std_h_inf_list, marker='o', linestyle='none', zorder=1)
+    ax1.plot(corr1_line, corr1_line, '-', color='black')
+    ax1.set_xlabel('simulated $h$')
+    ax1.set_ylabel('inferred $h$')
+    text = '$r_h$ = %.2f, p = %.e' % (r_h, pr_h)
+    ax1.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax1.transAxes)
+    ax1.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'A', transform=ax1.transAxes,
+      fontsize=14, fontweight='bold', va='top', ha='right')
+
+    corr1_line = np.linspace(-2, 3, num=2)
+    ax2.errorbar(J_model_list, J_inf_list, std_J_inf_list, marker='o', linestyle='none', zorder=1)
+    ax2.plot(corr1_line, corr1_line, '-', color='black')
+    ax2.set_xlabel('simulated $J$')
+    ax2.set_ylabel('inferred $J$')
+    text = '$r_J$ = %.2f, p = %.e' % (r_J, pr_J)
+    ax2.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax2.transAxes)
+    ax2.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'B', transform=ax2.transAxes,
+      fontsize=14, fontweight='bold', va='top', ha='right')
+
+    corr1_line = np.linspace(-15, 5, num=2)
+    ax3.errorbar(hJ_model_list, hJ_inf_list, std_hJ_inf_list, marker='o', linestyle='none', zorder=1)
+    ax3.plot(corr1_line, corr1_line, '-', color='black')
+    ax3.set_xlabel('simulated $h_k + h_l + J_{kl}$')
+    ax3.set_ylabel('inferred $h_k + h_l + J_{kl}$')
+    text = '$r_{hJ}$ = %.2f, p = %.e' % (r_hJ, pr_hJ)
+    ax3.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax3.transAxes)
+    ax3.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'C', transform=ax3.transAxes,
+      fontsize=14, fontweight='bold', va='top', ha='right')
+
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+    
+    # plot classification curves
+    
+    
+    
+    
+    
+    
+    
+    
    
 def main():
     # run analysis/inference, each only once, comment out afterward

@@ -119,6 +119,9 @@ the inference gives poorer results (correlations) than when using each observed 
 - read manuscript draft and make small edits
 - sent draft with intro, model, inference, discussion sections to A and M
 
+# log May 4 (coding and meet Mehran)
+- worked on tidying up code putting blocks of code into functions
+- met Mehran shortly, where he gave me comments on the manuscript
 
 # To Do :
 

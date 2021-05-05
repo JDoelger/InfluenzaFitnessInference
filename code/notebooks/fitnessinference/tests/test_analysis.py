@@ -190,16 +190,16 @@ def test_single_simu_analysis():
     assert isinstance(analysis_results, dict)
     assert isinstance(analysis_results['summary_stats'], dict)
     
-# def test_multi_simu_analysis():
-#     """ test multi_simu_analysis
+# def test_function():
+#     """ test function
 #     """
 #     # test parameters:
     
-#     # use function to run several analyses and save collected results
-#     multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params)
+#     # use function 
     
-#     # assert various things:
+#     # assert various things on results:
     
+
 
     
     

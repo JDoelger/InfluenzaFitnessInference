@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 import os 
-from pypet import Trajectory
+from pypet import Trajectory, cartesian_product
 import pickle
 import scipy
 # from fitnessinference import simulation as simu
@@ -554,10 +554,14 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
     f_host_std = np.mean([np.std(fs) for fs in minus_fhost_yearly])
     f_int_std = np.mean([np.std(fs) for fs in fint_yearly])
     f_tot_std = np.mean([np.std(fs) for fs in ftot_yearly])
-    # mean selection stringency
-    mean_string = np.mean([(np.std(ftot)/np.std(mfhost)) for mfhost, ftot in zip(minus_fhost_yearly, ftot_yearly)])
+    # mean selection stringency (replace with 0 if division by 0)
+    stringency = [np.divide(np.std(ftot), np.std(mfhost), out = np.zeros_like(np.std(ftot)), where=np.std(mfhost)!=0)
+                 for mfhost, ftot in zip(minus_fhost_yearly, ftot_yearly)]
+    mean_string = np.mean(stringency)
+#     mean_string = np.mean([(np.std(ftot)/np.std(mfhost)) for mfhost, ftot in zip(minus_fhost_yearly, ftot_yearly)])
     # standard error of selection stringency
-    SE_string = np.std([(np.std(ftot)/np.std(mfhost)) for mfhost, ftot in zip(minus_fhost_yearly, ftot_yearly)])/len(ftot_yearly)
+    SE_string = np.std(stringency)/len(ftot_yearly)
+#     SE_string = np.std([(np.std(ftot)/np.std(mfhost)) for mfhost, ftot in zip(minus_fhost_yearly, ftot_yearly)])/len(ftot_yearly)
     
     # compare model fitness coeffs against inferred coeffs
 
@@ -663,7 +667,7 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
         
     return analysis_results
 
-def multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, 
+def multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict,
                         result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                                     'NewApproachFromMarch2021/InfluenzaFitnessInference'):
     """
@@ -843,12 +847,146 @@ def multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params,
     with open(analysis_info_path, 'wb') as f:
         pickle.dump(ana_dict, f)
 
-def exe_multi_simu_analysis():
+def exe_multi_simu_analysis_L():
     """ 
+    runs multi_simu_analysis with specified parameters for simulations with varying 
+    sequence length L
+    
+    Dependencies:
+    
+    import pickle
+    import numpy as np
+    import scipy
+    from fitnessinference import simulation as simu
+    from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
+    from pypet import cartesian_product, Trajectory
+    from datetime import date
+    import os
+    other functions in this module
+    """
+    simu_name = '2021Apr16'
+    ana_param_dict ={
+        'seed': 20390, 
+        'B': 10**3, 
+        'inf_start': 100, 
+        'inf_end': 200, 
+        'lambda_h': 10**(-4), 
+        'lambda_J': 1, 
+        'lambda_f': 10**(-4),
+        'hJ_threshold': -10
+    }
+    varied_ana_params = ['B', 'inf_end']
+    exp_ana_dict = {'B': [10, 100, 10**3, 10**4, 10**5], 'inf_end': [110, 120, 150, 200]}
+    exp_ana_dict = cartesian_product(exp_ana_dict)
+    
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)
+    
+def exe_multi_simu_analysis_Npop():
+    """ 
+    runs multi_simu_analysis with specified parameters for simulations with varying population size N_pop
+    
+    Dependencies:
+    
+    import pickle
+    import numpy as np
+    import scipy
+    import simulation as simu
+    from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
+    from pypet import cartesian_product, Trajectory
+    from datetime import date
+    import os
+    other functions in this module
+    """
+    simu_name = '2021Apr07'
+    ana_param_dict ={
+        'seed': 20390, 
+        'B': 10**3, 
+        'inf_start': 100, 
+        'inf_end': 200, 
+        'lambda_h': 10**(-4), 
+        'lambda_J': 1, 
+        'lambda_f': 10**(-4),
+        'hJ_threshold': -10
+    }
+    varied_ana_params = ['B', 'inf_end']
+    exp_ana_dict = {'B': [10, 100, 10**3, 10**4, 10**5], 'inf_end': [110, 120, 150, 200]}
+    exp_ana_dict = cartesian_product(exp_ana_dict)
+    
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)  
+    
+def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index_yearly,
+                     fint_yearly, minus_fhost_yearly, ftot_yearly, 
+                     h_model_list, h_inf_list, std_h_inf_list, r_h, pr_h, 
+                     J_model_list, J_inf_list, std_J_inf_list, r_J, pr_J,
+                     hJ_model_list, hJ_inf_list, std_hJ_inf_list, r_hJ, pr_hJ,
+                     precision, recall, AUC_prec_recall, 
+                     fpr, tpr, AUC_ROC, fraction_positive,
+                     figure_directory='C:\Users\julia\Documents\Resources\InfluenzaFitnessLandscape\'
+                     'NewApproachFromMarch2021\InfluenzaFitnessInference\figures'):
+    """ 
+    create plots for analysis of a single simulation
+    
+    Parameters:
+            year_list: list
+            strain_frequency_yearly_transpose: list
+            strain_index_yearly: list
+            
+            fint_yearly: list of numpy.ndarrays
+            minus_fhost_yearly:  list of numpy.ndarrays
+            ftot_yearly: list of numpy.ndarrys
+            
+            h_model_list: numpy.ndarray
+            h_inf_list: numpy.ndarray
+            std_h_inf_list: numpy.ndarray
+            r_h, pr_h: numpy.float64
+            J_model_list: numpy.ndarray
+            J_inf_list: numpy.ndarray
+            std_J_inf_list: numpy.ndarray
+            r_J, pr_J: numpy.float64
+            hJ_model_list: numpy.ndarray
+            hJ_inf_list: numpy.ndarray
+            std_hJ_inf_list: numpy.ndarray
+            r_hJ, pr_hJ: numpy.float64
+            
+            precision, recall: numpy.ndarrays
+            AUC_prec_recall: numpy.float64
+            fpr, tpr: numpy.ndarrays
+            AUC_ROC: numpy.float64
+            fraction_positive: numpy.float64
+            
+            figure_directory (optional): str
+    
+    Results:
+    
+    plot files .eps
+            oneana_strain_succession
+            oneana_fitness_dists
+            oneana_infsimu_correlation
+            oneana_classification_curves
+    
+    Returns:
+    
+    None
+    
+    Dependencies:
+    
+    import os
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    import numpy as np
+    
     """
    
 def main():
-    print(this_filename())
+    # run analysis/inference, each only once, comment out afterward
+    
+#     exe_multi_simu_analysis_L()
+#     exe_multi_simu_analysis_Npop()
+
+    # make plots
+    
+    exe_single_simu_plots
+
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

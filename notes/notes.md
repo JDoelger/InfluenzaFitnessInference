@@ -123,9 +123,17 @@ the inference gives poorer results (correlations) than when using each observed 
 - worked on tidying up code putting blocks of code into functions
 - met Mehran shortly, where he gave me comments on the manuscript
 
+# log May 5 (coding and edit ms results sections)
+- tidied up plotting of results from single analysis
+
+
 # To Do :
 
 [ ] write abstract
+
+[ ] rewrite manuscript results sections based on M's suggestions
+
+[ ] do inference and fitness distribution analysis on Mt Fuji simulations
 
 [ ] tidy up code for figures -> write functions
 
@@ -181,6 +189,8 @@ even where data are lacking, e.g. by small regularization coeffs for each param 
 [x] make manuscript figures that A, M and I agreed on (update manuscript)
 
 [x] write complete first manuscript draft and send to A and M
+
+[x] run simulations for Mt Fuji model with equal h at all sites and J=0, for various h -> simu_name=2021May06_temp
 
 
 

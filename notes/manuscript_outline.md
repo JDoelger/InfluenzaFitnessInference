@@ -27,27 +27,49 @@
 
 # Model of influenza antigen evolution
 
-- model mechanisms, assumptions, temporal coarse-graining (see model schematic in slides)
-- mathematical model formulation (see slides) (take out details for methods)
-    - essential model equations
-    - fitness formulation
-    - __table__: model parameters plus inference parameters
-    - __figure__: strain succession from simulated data 
+## Sequence representation
+ - binary sequence representation 
 
+## Fitness model
+### Intrinsic fitness representation
+- F_int = ...
+- fields and couplings
+- refer to HIV papers and others using this type of Ising fitness representation
 
-# Inference of intrinsic fitness from flu-like simulated sequence data
+### Representation of host immunity-mediated fitness cost
+- F_host = ...
+- refer to luksza et al. and others before
 
-- inference method and stringency assumption:
-    - essential equations
-    - refer to parameter table
-    - __figure__: widths of fitness dists from example simulation
-    - __figure?__: log(x(t+1)/xm(t)) for various B/N
+## Sequence selection
+- x(S_j, t+1) = ... 
+
+## Sequence mutation
+- x_m = ...
+
+# Analysis and fitness inference based on simulated sequence data
+
+## Simulation of influenza antigen evolution
+- __table__: model parameters plus inference parameters
+- __figure__: strain succession from simulated data 
+
+## Stringent selection regime
+- __figure__: widths of fitness dists from example simulation
+- __?figure__: log(x(t+1)/xm(t)) for various B/N
+- observation that F is narrowly distributed
+- ? observation that log(x/x') is very noisy due to subsampling
+
+## Method for intrinsic fitness inference
+- based on stringent selection assumption ...
+- {h,J,F^*} = arg min...
+- solution method M = ..., refer to Hastie and Tibshirani 2009, p. 44 ff
+
+## Inferring the intrinsic fitness from simulated flu-like sequence data
 
 - test of inference performance
-    - __figure__: inferred vs. simulated fitness params with correlation (and classification curves) for one example analysis
-    - __figure__: performance measure as function of sample size/ number of seasons
-    - __figure__: performance and stringency measure as function of sequence length
-    - __figure__: performance and stringency measure as function of population size
+- __figure__: inferred vs. simulated fitness params with correlation for one example analysis
+- __figure__: classification curves for one example analysis
+- __figure__: performance measure as function of sample size/ number of seasons
+- __figure__: performance and measure as function of sequence length aand population size
 
 # Discussion 
 
@@ -78,4 +100,29 @@
 - additional considerations for effective influenza treatments:
     - T-cell immunity
     - other antigens besides HA
+
+# References for influenza evolution models, motivating our model description
+
+- Yan, Neher and Shraiman 2019, eLife
+    - Phylodynamic theory of persistence ,extinction and speciation of rapidly adapting pathogens
+    - mapping multi-strain SIR model on traveling-wave model
+    - find that the persistence of a rapidly evolving Red-Queen-like state typical for seasonal influenza requires long-ranged cross-immunity and sufficiently large population sizes
+    The RQS is generally unstable towards speciation and extinction
+    - influenza-like behavior: rapid evolution while maintaining limited genetic diversity, the most recent ancestor of the population in subtype A/H2N2 is rarely more than 3-5 years in the past [Rambaut et al. 2008]
+    - lasting immunity against specific influenza strains [Fonville et al. 2014]
+    - escape by accumulating amino acid substitutions in surface glycoproteins [Koel et al 2013, Wilson and Cox 1990]
+    - within each subtype many HA sequence variants co-circulate [Rambaut et al. 2008, Fitch et al. 1997],
+    differing by around 10 substitutions from eachother [Strelkowa and Laessing 2012]
+    - decay of immune cross-reactivity over around 10 years [Smith et al. 2004, ...]
+    - Epidemiological dynamics of influenza often modeled with generalizations of classic SIR model to multiple variants [Kermack and McKendrick 1927, Gog and Grenfell 2002], common approach has been to impose discrete one-dim strain space in which new strains are generated from adjacent strains and susceptibility reduces with distance in strain space [Andreasen et al. 1996; Gog and Grenfell 2002]; such models result naturally in traveling waves with pathogen pop. moving through strain space [Lin et al. 2003]
+    - the antigencially evolving populations are related to general models of rapid adaptation with populations moving towards higher fitness [Tsimring et al. 1996, Rouzine et al. 2003, Desai and Fisher 2007, Neher et al. 2014, Neher 2013a] 
+    - [Rouzine and Rozhnova 2018] describe explicit mapping between SIR model in 1-d antigenic space and traveling wave models (TW) in fitness
+    - 1D TW models naturally result in spindly phylogenies (one possible direction for escape)
+    - Influenza viruses have high-dimensional antigenic space [Perselson Oster 1979, Wilson and Cox 1990], such that different strains can follow different escape paths and can diverge sufficiently until they no longer compete for hosts and propagate independently afterwards
+    - How is the spindly phylogeny maintained? Several computational studies have addressed this and identified cross-immunity [Bedford et al. 2012, Tria et al. 2005, Koelle et al. 2011, Ferguson et al. 2003, ...] as well as deleterious mutations [Koelle and Rasmussen 2015, Gog and Grenfell 2002] as critical parameters
+    - cross-immunity expression (equivalent to our model)
+    motivated by host-level susceptibility (Eq. 3) [Wikramaratna et al. 2015] and 'order one independence closure' or mean-field approximation [Kryazhimskiy et al. 2007, Weiss 1907, Landau and Lifshitz 2013] leading to exponential expression, analogous to our model Sa = exp(-sum Kab Rb) with Rb fraction of population recovered from strain (also analogous to models by [Luksza and Laessig 2014] and [Gog and Grenfell 2002])
+    - authors follow [Luksza and Laessig 2014] for functional form of cross-immunity
+    - HOW/WITH WHICH ASSUMPTIONS CAN I TRANSFORM THE GIVEN FORM OF INFECTION GROWTH INTO OUR MODEL WITH FINT AND FHOST? Check Luksza and Laessig who use an equivalent model to ours (see eq. 1 and 2, 11-14 in methods of their paper)
+    - 
 

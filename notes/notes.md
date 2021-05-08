@@ -124,6 +124,7 @@ the inference gives poorer results (correlations) than when using each observed 
 - met Mehran shortly, where he gave me comments on the manuscript
 
 # log May 5 (coding and edit ms results sections)
+- ran simulation of Mt Fuji model with varying h
 - tidied up plotting of results from single analysis
 
 

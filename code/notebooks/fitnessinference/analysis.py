@@ -4,15 +4,17 @@ import os
 from pypet import Trajectory, cartesian_product
 import pickle
 import scipy
-# from fitnessinference import simulation as simu
-import simulation as simu
+try: 
+    import simulation as simu
+except ModuleNotFoundError:
+    from fitnessinference import simulation as simu
 from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
 from datetime import date
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
-def load_simu_data(single_simu_filename, simu_name, exp_idx,
+def load_simu_data(single_simu_filename, simu_name, run_num,
                    result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                                     'NewApproachFromMarch2021/InfluenzaFitnessInference'):
     """
@@ -26,7 +28,7 @@ def load_simu_data(single_simu_filename, simu_name, exp_idx,
     simu_name: str
             name of the whole pypet based simulation
             usually as date like '2021Apr07'
-    exp_idx: int
+    run_num: int
             run index = index in exp_dict (dictionary)
             for the specific run (parameter combo) that I want to analyze
     result_directory (optional): str
@@ -64,7 +66,7 @@ def load_simu_data(single_simu_filename, simu_name, exp_idx,
     traj.f_load(filename=simu_file, load_parameters=2,
                 load_results=2, load_derived_parameters=0)
     # load the parameter values of this specific run
-    traj.v_idx = exp_idx
+    traj.v_idx = run_num
 
     # load data from the pickled files
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
@@ -428,7 +430,7 @@ def this_filename():
     return filename
     
 
-def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dict,
+def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dict,
                         result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                                     'NewApproachFromMarch2021/InfluenzaFitnessInference'):
     """
@@ -445,7 +447,7 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
             name of the whole pypet based simulation
             usually as date like '2021Apr07'
             (giving the folder in which the simu file is located) 
-    exp_idx: int
+    run_num: int
             index of single simu run
     ana_param_dict: dict
             parameters for inference/analysis
@@ -514,7 +516,7 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
     # load data from the simulation
     
     strain_yearly, strain_frequency_yearly, traj =\
-            load_simu_data(single_simu_filename, simu_name, exp_idx, result_directory=result_directory)
+            load_simu_data(single_simu_filename, simu_name, run_num, result_directory=result_directory)
 
     # fitness landscape (model input):
     if traj.hJ_coeffs=='constant':
@@ -604,9 +606,17 @@ def single_simu_analysis(single_simu_filename, simu_name, exp_idx, ana_param_dic
     hJ_del_pred = np.int_(hJ_inf_list<hJ_threshold)
     # precision-recall
     precision, recall, thresholds = precision_recall_curve(hJ_deleterious, hJ_del_pred)
-    AUC_prec_recall = auc(recall, precision)
+    try:
+        AUC_prec_recall = auc(recall, precision)
+    except ValueError:
+        AUC_prec_recall = 0
+        print('ValueError: AUC_prec_recall could not be calculated')
     # ROC curve
-    AUC_ROC = roc_auc_score(hJ_deleterious, hJ_del_pred)
+    try: 
+        AUC_ROC = roc_auc_score(hJ_deleterious, hJ_del_pred)
+    except ValueError:
+        AUC_ROC = 0
+        print('ValueError: AUC_ROC could not be calculated')
     fpr, tpr, _ = roc_curve(hJ_deleterious, hJ_del_pred)
     
     summary_stats = {
@@ -914,7 +924,85 @@ def exe_multi_simu_analysis_Npop():
     exp_ana_dict = {'B': [10, 100, 10**3, 10**4, 10**5], 'inf_end': [110, 120, 150, 200]}
     exp_ana_dict = cartesian_product(exp_ana_dict)
     
-    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)  
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict) 
+    
+    
+def exe_multi_simu_analysis_fuji():
+    """ 
+    runs multi_simu_analysis with specified parameters for simulations with varying fields h_0 with hJ_coeffs='constant'
+    
+    Dependencies:
+    
+    import pickle
+    import numpy as np
+    import scipy
+    import simulation as simu
+    from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
+    from pypet import cartesian_product, Trajectory
+    from datetime import date
+    import os
+    other functions in this module
+    """
+    simu_name = '2021May06'
+    ana_param_dict ={
+        'seed': 20390, 
+        'B': 10**3, 
+        'inf_start': 100, 
+        'inf_end': 200, 
+        'lambda_h': 10**(-4), 
+        'lambda_J': 1, 
+        'lambda_f': 10**(-4),
+        'hJ_threshold': -10
+    }
+    varied_ana_params = ['B', 'inf_end']
+    exp_ana_dict = {'B': [10, 100, 10**3, 10**4, 10**5], 'inf_end': [110, 120, 150, 200]}
+    exp_ana_dict = cartesian_product(exp_ana_dict)
+    
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict) 
+    
+def set_plot_settings():
+    """
+    define default plot settings for manuscript figures
+    
+    Returns:
+    
+    plt_set: dict
+            default plot settings to use when making figures
+    
+    Dependencies:
+    
+    import matplotlib as mpl
+    """
+    # plot settings
+    file_extension = '.pdf'
+    full_page_width = 7.5
+    label_font_size = 14
+    plotlabel_shift_2pan = -0.13
+    plotlabel_shift_3pan = -0.2
+    plotlabel_up_3pan = 1
+    plot_marker_size_dot = 5
+    plot_marker_size_dotSmall = 3
+    plot_dim_2pan = [[0, 0, 0.43, 1],[0.57, 0, 0.43, 1]]
+    plot_dim_3pan = [[0, 0, 0.25, 1],[0.375, 0, 0.25, 1],[0.75, 0, 0.25, 1]]
+    mpl.rcParams['font.family'] = 'Arial'
+    mpl.rcParams['font.size'] = 10
+    mpl.rcParams['axes.linewidth'] = 1
+    
+    plt_set = {
+        'file_extension': file_extension,
+        'full_page_width': full_page_width,
+        'label_font_size': label_font_size,
+        'plotlabel_shift_2pan': plotlabel_shift_2pan,
+        'plotlabel_shift_3pan': plotlabel_shift_3pan,
+        'plotlabel_up_3pan': plotlabel_up_3pan,
+        'plot_marker_size_dot': plot_marker_size_dot,
+        'plot_marker_size_dotSmall': plot_marker_size_dotSmall,
+        'plot_dim_2pan': plot_dim_2pan,
+        'plot_dim_3pan': plot_dim_3pan
+    }
+    
+    return plt_set
+    
         
 def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index_yearly,
                      fint_yearly, minus_fhost_yearly, ftot_yearly, 
@@ -922,9 +1010,9 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
                      J_model_list, J_inf_list, std_J_inf_list, r_J, pr_J,
                      hJ_model_list, hJ_inf_list, std_hJ_inf_list, r_hJ, pr_hJ,
                      precision, recall, AUC_prec_recall, 
-                     fpr, tpr, AUC_ROC, fraction_positive,
+                     fpr, tpr, AUC_ROC, fraction_positive, fig_name_unique='',
                      figure_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
-                         '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures'):
+                      '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures'):
     """ 
     create plots for analysis of a single simulation
     
@@ -956,15 +1044,18 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
             AUC_ROC: numpy.float64
             fraction_positive: numpy.float64
             
+            fig_name_unique (optional): str
+                    addition to figure name to indicate the exact analysis that is plotted
+            
             figure_directory (optional): str
     
     Results:
     
-    plot files .eps
-            oneana_strain_succession
-            oneana_fitness_dists
-            oneana_infsimu_correlation
-            oneana_classification_curves
+    plot files .pdf
+            oneana_strain_succession_fuji
+            oneana_fitness_dists_fuji
+            oneana_infsimu_correlation_fuji
+            oneana_classification_curves_fuji
     
     Returns:
     
@@ -978,158 +1069,157 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     import numpy as np
     
     """
+    
     figure_directory = os.path.normpath(figure_directory)
     
     # plot settings
-    file_extension = '.pdf'
-    full_page_width = 7.5
-    plotlabel_shift = -0.2
-    pltlabel_shift_3pan = -0.3
-    pltlabel_up_3pan = 1.1
-    plot_marker_size = 5
-    plot_marker_small = 3
-    mpl.rcParams['font.family'] = 'Arial'
-    mpl.rcParams['font.size'] = 10
-    mpl.rcParams['axes.linewidth'] = 1
+    plt_set = set_plot_settings()
     
     # plot strain succession
     
-    fig_name = 'oneana_strain_succession' + file_extension
+    fig_name = 'oneana_strain_succession' + fig_name_unique  + plt_set['file_extension']
     this_plot_filepath = os.path.join(figure_directory, fig_name)
     cm = plt.get_cmap('rainbow')
     colorlist = [cm(1.*i/(len(strain_frequency_yearly_transpose))) 
                  for i in range(len(strain_frequency_yearly_transpose))]
-    fig = plt.figure(figsize=(full_page_width, 3))
-    ax1 = fig.add_axes([0, 0, 0.43, 1])
-    ax2 = fig.add_axes([0.57, 0, 0.43, 1])
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_2pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_2pan'][1])
     
     for sti in range(len(strain_frequency_yearly_transpose)):
         ax1.plot(year_list, strain_frequency_yearly_transpose[sti], color=colorlist[sti])
     ax1.set_xlabel('simulated season')
     ax1.set_ylabel('strain frequency')
-    ax1.text(plotlabel_shift, 1, 'A', transform=ax1.transAxes,
-      fontsize=14, fontweight='bold', va='top', ha='right')
+    ax1.text(plt_set['plotlabel_shift_2pan'], 1, 'A', transform=ax1.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     for y in range(len(strain_index_yearly)):
         for sti in range(len(strain_index_yearly[y])-1, -1, -1): 
-            ax2.plot(y+year_list[0], strain_index_yearly[y][sti], '.', markersize=plot_marker_size, color='blue')
-        ax2.plot(y+year_list[0], strain_index_yearly[y][0], '.', markersize=plot_marker_size, color='red')
+            ax2.plot(y+year_list[0], strain_index_yearly[y][sti], '.',
+                     markersize=plt_set['plot_marker_size_dot'], color='blue')
+        ax2.plot(y+year_list[0], strain_index_yearly[y][0], '.', 
+                 markersize=plt_set['plot_marker_size_dot'], color='red')
     ax2.set_xlabel('simulated season')
     ax2.set_ylabel('strain label')
-    ax2.text(plotlabel_shift, 1, 'B', transform=ax2.transAxes,
-      fontsize=14, fontweight='bold', va='top', ha='right')
+    ax2.text(plt_set['plotlabel_shift_2pan'], 1, 'B', transform=ax2.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
     
     # plot fitness distributions in each season
     
-    fig_name = 'oneana_fitness_dists' + file_extension
+    fig_name = 'oneana_fitness_dists' + fig_name_unique  + plt_set['file_extension']
     this_plot_filepath = os.path.join(figure_directory, fig_name)
-    fig = plt.figure(figsize=(full_page_width, 3))
-    ax1 = fig.add_axes([0, 0, 0.25, 1])
-    ax2 = fig.add_axes([0.375, 0, 0.25, 1])
-    ax3 = fig.add_axes([0.75, 0, 0.25, 1])
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_3pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
+    ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
     
     for y in range(len(fint_yearly[1:])):
-        ax1.plot([y]*len(fint_yearly[y]), fint_yearly[y]-np.mean(fint_yearly[y]), '.', markersize=plot_marker_small, color='black')
+        ax1.plot([y]*len(fint_yearly[y]), fint_yearly[y]-np.mean(fint_yearly[y]), '.',
+                 markersize=plt_set['plot_marker_size_dotSmall'], color='black')
     ax1.set_xlabel('simulated season')
     ax1.set_ylabel('$F_{int}$ - $<F_{int}>$')
     ax1.set_ylim([-15, 15])
-    ax1.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'A', transform=ax1.transAxes,
-      fontsize=14, fontweight='bold', va='top', ha='right')
+    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     for y in range(len(minus_fhost_yearly[1:])):
-        ax2.plot([y]*len(minus_fhost_yearly[y]), minus_fhost_yearly[y]-np.mean(minus_fhost_yearly[y]), '.', markersize=plot_marker_small, color='black')
+        ax2.plot([y]*len(minus_fhost_yearly[y]), minus_fhost_yearly[y]-np.mean(minus_fhost_yearly[y]), '.',
+                 markersize=plt_set['plot_marker_size_dotSmall'], color='black')
     ax2.set_xlabel('simulated season')
     ax2.set_ylabel('$-F_{host}$ - $<-F_{host}>$')
     ax2.set_ylim([-15, 15])
-    ax2.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'B', transform=ax2.transAxes,
-      fontsize=14, fontweight='bold', va='top', ha='right')
+    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     for y in range(len(ftot_yearly[1:])):
-        ax3.plot([y]*len(ftot_yearly[y]), ftot_yearly[y]-np.mean(ftot_yearly[y]), '.', markersize=plot_marker_small, color='black')
+        ax3.plot([y]*len(ftot_yearly[y]), ftot_yearly[y]-np.mean(ftot_yearly[y]), '.',
+                 markersize=plt_set['plot_marker_size_dotSmall'], color='black')
     ax3.set_xlabel('simulated season')
     ax3.set_ylabel('$F_{total}$ - $<F_{total}>$')
     ax3.set_ylim([-15, 15])
-    ax3.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'C', transform=ax3.transAxes,
-      fontsize=14, fontweight='bold', va='top', ha='right')
+    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
     
     # plot correlations between simulated and inferred fitness coefficients
     
-    fig_name = 'oneana_infsimu_correlation' + file_extension
+    fig_name = 'oneana_infsimu_correlation' + fig_name_unique  + plt_set['file_extension']
     this_plot_filepath = os.path.join(figure_directory, fig_name)
-    fig = plt.figure(figsize=(full_page_width, 3))
-    ax1 = fig.add_axes([0, 0, 0.25, 1])
-    ax2 = fig.add_axes([0.375, 0, 0.25, 1])
-    ax3 = fig.add_axes([0.75, 0, 0.25, 1])
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_3pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
+    ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
 
-    corr1_line = np.linspace(-10, 2, num=2)
+    corr1_line = np.linspace(np.min(h_model_list), np.max(h_model_list), num=2)
     ax1.errorbar(h_model_list, h_inf_list, std_h_inf_list, marker='o', linestyle='none', zorder=1)
     ax1.plot(corr1_line, corr1_line, '-', color='black')
     ax1.set_xlabel('simulated $h$')
     ax1.set_ylabel('inferred $h$')
     text = '$r_h$ = %.2f, p = %.e' % (r_h, pr_h)
     ax1.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax1.transAxes)
-    ax1.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'A', transform=ax1.transAxes,
-      fontsize=14, fontweight='bold', va='top', ha='right')
+    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
 
-    corr1_line = np.linspace(-2, 3, num=2)
+    corr1_line = np.linspace(np.min(J_model_list), np.max(J_model_list), num=2)
     ax2.errorbar(J_model_list, J_inf_list, std_J_inf_list, marker='o', linestyle='none', zorder=1)
     ax2.plot(corr1_line, corr1_line, '-', color='black')
     ax2.set_xlabel('simulated $J$')
     ax2.set_ylabel('inferred $J$')
     text = '$r_J$ = %.2f, p = %.e' % (r_J, pr_J)
     ax2.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax2.transAxes)
-    ax2.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'B', transform=ax2.transAxes,
-      fontsize=14, fontweight='bold', va='top', ha='right')
+    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
 
-    corr1_line = np.linspace(-15, 5, num=2)
+    corr1_line = np.linspace(np.min(hJ_model_list), np.max(hJ_model_list), num=2)
     ax3.errorbar(hJ_model_list, hJ_inf_list, std_hJ_inf_list, marker='o', linestyle='none', zorder=1)
     ax3.plot(corr1_line, corr1_line, '-', color='black')
     ax3.set_xlabel('simulated $h_k + h_l + J_{kl}$')
     ax3.set_ylabel('inferred $h_k + h_l + J_{kl}$')
     text = '$r_{hJ}$ = %.2f, p = %.e' % (r_hJ, pr_hJ)
     ax3.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax3.transAxes)
-    ax3.text(pltlabel_shift_3pan, pltlabel_up_3pan, 'C', transform=ax3.transAxes,
-      fontsize=14, fontweight='bold', va='top', ha='right')
+    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
 
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
     
     # plot classification curves
     
-    fig_name = 'oneana_classification_curves' + file_extension
+    fig_name = 'oneana_classification_curves' + fig_name_unique  + plt_set['file_extension']
     this_plot_filepath = os.path.join(figure_directory, fig_name)
-    fig = plt.figure(figsize=(full_page_width, 3))
-    ax1 = fig.add_axes([0, 0, 0.43, 1])
-    ax2 = fig.add_axes([0.57, 0, 0.43, 1])
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_2pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_2pan'][1])
     
     ax1.plot([0, 1], [fraction_positive, fraction_positive], linestyle='--', color='black', label='no skill')
     ax1.plot(recall, precision, marker='o', label='precision-recall AUC = %.2f' % AUC_prec_recall)
     ax1.set_xlabel('Recall')
     ax1.set_ylabel('Precision')
     ax1.legend()
-    ax1.text(plotlabel_shift, 1, 'A', transform=ax1.transAxes,
-             fontsize=14, fontweight='bold', va='top', ha='right')
+    ax1.text(plt_set['plotlabel_shift_2pan'], 1, 'A', transform=ax1.transAxes,
+             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     ax2.plot([0, 1], [0, 1], linestyle='--', color='black', label='no skill')
     ax2.plot(fpr, tpr, marker='o', label='ROC AUC = %.2f' % AUC_ROC)
     ax2.set_xlabel('False positive rate')
     ax2.set_ylabel('True positive rate')
     ax2.legend()
-    ax2.text(plotlabel_shift, 1, 'B', transform=ax2.transAxes,
-            fontsize=14, fontweight='bold', va='top', ha='right')
+    ax2.text(plt_set['plotlabel_shift_2pan'], 1, 'B', transform=ax2.transAxes,
+            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     
-def exe_single_simu_plots():
+def exe_single_simu_plots_Npop():
     """
     retrieves info for specific single simu and analysis 
-    and runs single_simu_plots 
+    and runs single_simu_plots for one simulation of the set, where N_pop is varied
+    to change which analysis to plot: vary analysis_filename, 
+    parameter values that define the exact analysis file
     
     Dependencies:
     
@@ -1156,6 +1246,9 @@ def exe_single_simu_plots():
     ana_param_dict = ana_dict['ana_param_dict']
     simu_param_dict = simu_dict['simu_param_dict']
     
+    # set parameter values that define the exact analysis 
+    # we want to look at:
+    
     B_val = 10**3
     inf_end_val = 200
     N_pop_val = 10**5
@@ -1168,7 +1261,8 @@ def exe_single_simu_plots():
         if exp_dict['N_pop'][ind]==N_pop_val:
             run_num = ind
             break
-        
+    
+    
     ana_name = analysis_filename + '_' + str(ana_num) + 'run_' + str(run_num) 
     ana_file_path = os.path.join(temp_folder, ana_name + '.data')
     with open(ana_file_path, 'rb') as f:
@@ -1239,24 +1333,277 @@ def exe_single_simu_plots():
     
     # make and save plots for this single analysis of a single simulation
     
+    figure_dir=('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
+                      '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures')
+    figure_dir = temp_folder
+    fig_name_unique = '_Npop_%.e_B_%.e_infend_%d' % (N_pop_val, B_val, inf_end_val)
     single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index_yearly,
                      fint_yearly, minus_fhost_yearly, ftot_yearly, 
                      h_model_list, h_inf_list, std_h_inf_list, r_h, pr_h, 
                      J_model_list, J_inf_list, std_J_inf_list, r_J, pr_J,
                      hJ_model_list, hJ_inf_list, std_hJ_inf_list, r_hJ, pr_hJ,
                      precision, recall, AUC_prec_recall, 
-                     fpr, tpr, AUC_ROC, fraction_positive)
+                     fpr, tpr, AUC_ROC, fraction_positive, fig_name_unique=fig_name_unique,
+                      figure_directory=figure_dir)
+    
+def exe_single_simu_plots_fuji(h_0_val):
+    """
+    retrieves info for specific single simu and analysis 
+    and runs single_simu_plots for the mt. fuji model with h=const, J=0,
+    to change which analysis to plot: vary analysis_filename, 
+    parameter values that define the exact analysis file
+    
+    Parameters: 
+    
+    h_0_val: float
+            value of h in the simulation, for which I want to make plots
+    
+    Dependencies:
+    
+    import numpy as np
+    import os
+    import pickle
+    from fitnessinference import simulation as simu
+    other functions in this module
+    """
+    simu_name = '2021May06'
+    
+    result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
+                    'InfluenzaFitnessInference')
+    result_directory = os.path.normpath(result_directory)
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    
+    analysis_filename = 'analysis_2021May06'
+    analysis_filepath = os.path.join(temp_folder, analysis_filename + '.data')
+    with open(analysis_filepath, 'rb') as f:
+        ana_dict = pickle.load(f)
+    simu_info_filepath = ana_dict['simu_info_filepath']
+    with open(simu_info_filepath, 'rb') as f:
+        simu_dict = pickle.load(f)
+        
+    ana_names = ana_dict['ana_names']
+    exp_ana_dict = ana_dict['exp_ana_dict']
+    exp_dict = simu_dict['exp_dict']
+    ana_param_dict = ana_dict['ana_param_dict']
+    simu_param_dict = simu_dict['simu_param_dict']
+    
+    # set parameter values that define the exact analysis 
+    # we want to look at:
+    
+#     B_val = 10**3
+#     inf_end_val = 200
+#     N_pop_val = 10**5
+    
+#     for ind in range(len(exp_ana_dict['B'])):
+#         if exp_ana_dict['B'][ind]==B_val and exp_ana_dict['inf_end'][ind]==inf_end_val:
+#             ana_num = ind
+#             break
+#     for ind in range(len(exp_dict['N_pop'])):
+#         if exp_dict['N_pop'][ind]==N_pop_val:
+#             run_num = ind
+#             break
 
-   
+# for analysis from simulation with varying h0, 
+    B_val = 10**3
+    inf_end_val = 200
+#     h_0_val = 0
+    
+    for ind in range(len(exp_ana_dict['B'])):
+        if exp_ana_dict['B'][ind]==B_val and exp_ana_dict['inf_end'][ind]==inf_end_val:
+            ana_num = ind
+            break
+    for ind in range(len(exp_dict['h_0'])):
+        if exp_dict['h_0'][ind]==h_0_val:
+            run_num = ind
+            break
+    
+    
+    ana_name = analysis_filename + '_' + str(ana_num) + 'run_' + str(run_num) 
+    ana_file_path = os.path.join(temp_folder, ana_name + '.data')
+    with open(ana_file_path, 'rb') as f:
+        analysis_results = pickle.load(f)
+    
+    # extract data for strain succession plots
+    
+    strain_yearly = analysis_results['strain_sample_yearly']
+    strain_frequency_yearly = analysis_results['strain_sample_frequency_yearly']
+    inf_end = inf_end_val
+    year_list = [y for y in range(inf_end)]
+    strain_All_timeOrdered = []
+    for y in range(len(strain_yearly)): # for each time point
+        for sti in range(len(strain_yearly[y])): # for each strain at this time
+            if strain_yearly[y][sti].tolist() not in strain_All_timeOrdered:
+                strain_All_timeOrdered.append(strain_yearly[y][sti].tolist())
+    # assign strain label to each strain in each year
+    strain_All_freq_yearly=[[0 for i in range(len(strain_All_timeOrdered))] for y in range(len(strain_yearly))] # frequency of all ever observed strains in each year
+    strain_index_yearly=[[0 for sti in range(len(strain_yearly[y]))] for y in range(len(strain_yearly))] # strain labels for strains that are observed in each year
+    for y in range(len(strain_yearly)):
+        for sti in range(len(strain_yearly[y])):
+            label=strain_All_timeOrdered.index(strain_yearly[y][sti].tolist()) # strain label
+            strain_All_freq_yearly[y][label]=strain_frequency_yearly[y][sti] # strain frequency update
+            strain_index_yearly[y][sti]=label # save strain label
+    strain_frequency_yearly_transpose=list(map(list, zip(*strain_All_freq_yearly)))
+    
+    # extract data for fitness distribution plots
+    
+    fint_yearly = analysis_results['fint_yearly']
+    minus_fhost_yearly = analysis_results['minus_fhost_yearly']
+    ftot_yearly = analysis_results['ftot_yearly']
+    
+    # extract data for plots of inferred vs simulated params and calculated correlations
+    
+    N_site = simu_param_dict['N_site']
+    N_state = simu_param_dict['N_state']
+#     h_0 = simu_param_dict['h_0']
+    J_0 = simu_param_dict['J_0']
+#     hJ_coeffs = simu_param_dict['hJ_coeffs']
+    h_0 = exp_dict['h_0'][run_num]
+    hJ_coeffs = exp_dict['hJ_coeffs'][run_num]
+    if hJ_coeffs=='constant':
+        h_model, J_model = simu.fitness_coeff_constant(N_site, N_state, h_0, J_0)
+    elif hJ_coeffs=='p24':
+        h_model, J_model = simu.fitness_coeff_p24(N_site, N_state)
+    M = analysis_results['M']
+    M_std = analysis_results['M_std']
+    h_model_list, J_model_list, hJ_model_list = hJ_model_lists(h_model, J_model)
+    h_inf_list, J_inf_list, hJ_inf_list = hJ_inf_lists(M, N_site)
+    std_h_inf_list, std_J_inf_list, std_hJ_inf_list = hJ_inf_std_lists(M_std, N_site)
+    summary_stats = analysis_results['summary_stats']
+    r_h = summary_stats['r_h']
+    pr_h = summary_stats['pr_h']
+    r_J = summary_stats['r_J']
+    pr_J = summary_stats['pr_J']
+    r_hJ = summary_stats['r_hJ']
+    pr_hJ = summary_stats['pr_hJ']
+    
+    # extract data for plots of classification curves and calculated AUCs
+    
+    precision = analysis_results['precision']
+    recall = analysis_results['recall']
+    AUC_prec_recall = summary_stats['AUC_prec_recall']
+    fpr = analysis_results['fpr']
+    tpr = analysis_results['tpr']
+    AUC_ROC = summary_stats['AUC_ROC']
+    hJ_threshold = ana_param_dict['hJ_threshold']
+    hJ_deleterious = np.int_(hJ_model_list<hJ_threshold)
+    fraction_positive = sum(hJ_deleterious)/len(hJ_deleterious)
+    
+    # make and save plots for this single analysis of a single simulation
+    
+#     figure_dir=('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
+#                       '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures')
+    figure_dir = temp_folder
+    fig_name_unique = '_h_%.f_B_%.e_infend_%d' % (h_0_val, B_val, inf_end_val)
+    single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index_yearly,
+                     fint_yearly, minus_fhost_yearly, ftot_yearly, 
+                     h_model_list, h_inf_list, std_h_inf_list, r_h, pr_h, 
+                     J_model_list, J_inf_list, std_J_inf_list, r_J, pr_J,
+                     hJ_model_list, hJ_inf_list, std_hJ_inf_list, r_hJ, pr_hJ,
+                     precision, recall, AUC_prec_recall, 
+                     fpr, tpr, AUC_ROC, fraction_positive, fig_name_unique=fig_name_unique,
+                      figure_directory=figure_dir)
+
+def exe_multi_anaSimu_plots_sampleSize():
+    """
+    make and save plots for different sample sizes applied to one example simulation
+    
+    Results:
+    
+    plot file: .pdf
+                param_exploration_sampleSize
+ 
+    Returns:
+    
+    None
+    
+    Dependencies:
+    
+    import os
+    import pickle
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    """
+    # plot settings
+    plt_set = set_plot_settings()
+    
+    # 3 panel figure of inference performance measures as function of sampling params
+    
+    figure_directory = ''
+    n_seasons_list = []
+    B_list = []
+    r_hJ_arr = []
+    
+    fig_name = 'param_exploration' + plt_set['file_extension']
+    this_plot_filepath = os.path.join(figure_directory)
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_3pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
+    ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
+    
+    for i in range(len(n_seasons_list)):
+        ax1.errorbar(B_list, r_hJ_arr[i], SE_r_hJ_arr[i])
+    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
+            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
+            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
+            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    
+############################
+
+    corr1_line = np.linspace(np.min(h_model_list), np.max(h_model_list), num=2)
+    ax1.errorbar(h_model_list, h_inf_list, std_h_inf_list, marker='o', linestyle='none', zorder=1)
+    ax1.plot(corr1_line, corr1_line, '-', color='black')
+    ax1.set_xlabel('simulated $h$')
+    ax1.set_ylabel('inferred $h$')
+    text = '$r_h$ = %.2f, p = %.e' % (r_h, pr_h)
+    ax1.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax1.transAxes)
+    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+
+    corr1_line = np.linspace(np.min(J_model_list), np.max(J_model_list), num=2)
+    ax2.errorbar(J_model_list, J_inf_list, std_J_inf_list, marker='o', linestyle='none', zorder=1)
+    ax2.plot(corr1_line, corr1_line, '-', color='black')
+    ax2.set_xlabel('simulated $J$')
+    ax2.set_ylabel('inferred $J$')
+    text = '$r_J$ = %.2f, p = %.e' % (r_J, pr_J)
+    ax2.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax2.transAxes)
+    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+
+    corr1_line = np.linspace(np.min(hJ_model_list), np.max(hJ_model_list), num=2)
+    ax3.errorbar(hJ_model_list, hJ_inf_list, std_hJ_inf_list, marker='o', linestyle='none', zorder=1)
+    ax3.plot(corr1_line, corr1_line, '-', color='black')
+    ax3.set_xlabel('simulated $h_k + h_l + J_{kl}$')
+    ax3.set_ylabel('inferred $h_k + h_l + J_{kl}$')
+    text = '$r_{hJ}$ = %.2f, p = %.e' % (r_hJ, pr_hJ)
+    ax3.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax3.transAxes)
+    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+    plt.close()
+
+    
+    
 def main():
     # run analysis/inference, each only once, comment out afterward
     
 #     exe_multi_simu_analysis_L()
 #     exe_multi_simu_analysis_Npop()
+#     exe_multi_simu_analysis_fuji()
 
-    # make plots
+    # make single analysis plots
     
-#     exe_single_simu_plots()
+#     exe_single_simu_plots_Npop()
+
+#     h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]
+#     for h_0_val in h_0_val_list:
+#         exe_single_simu_plots_fuji(h_0_val)
+
 
 
 # if this file is run from the console, the function main will be executed

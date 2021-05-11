@@ -1503,89 +1503,159 @@ def exe_single_simu_plots_fuji(h_0_val):
                      fpr, tpr, AUC_ROC, fraction_positive, fig_name_unique=fig_name_unique,
                       figure_directory=figure_dir)
 
-def exe_multi_anaSimu_plots_sampleSize():
+def exe_single_simu_plot_numMutations_fuji(h_0_val):
     """
-    make and save plots for different sample sizes applied to one example simulation
+    for a single analysis of a fuji simulation with h=h_0_val, execute the calculation and plot
+    of the number of mutations in each sampled strain as function of time
+    plus the mean and std of number of mutations at each time
     
+    Parameters:
+    
+    h_0_val: float
+            value of h in the simulation for which plots should be made
+            
     Results:
     
-    plot file: .pdf
-                param_exploration_sampleSize
- 
-    Returns:
+    Returns: 
     
     None
     
     Dependencies:
-    
-    import os
+    import numpy as np
     import pickle
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
+    import os
+    
     """
-    # plot settings
+#     mut_list = [] # for each season, list of number of mutations for each selected strain
+#     mut_mean_list = [] # list of mean number of mutations for each season
+#     mut_std_list = [] # list of std of number of mutations for each season
+    
+    simu_name = '2021May06'
+    
+    result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
+                    'InfluenzaFitnessInference')
+    result_directory = os.path.normpath(result_directory)
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    
+    analysis_filename = 'analysis_2021May06'
+    analysis_filepath = os.path.join(temp_folder, analysis_filename + '.data')
+    with open(analysis_filepath, 'rb') as f:
+        ana_dict = pickle.load(f)
+    simu_info_filepath = ana_dict['simu_info_filepath']
+    with open(simu_info_filepath, 'rb') as f:
+        simu_dict = pickle.load(f)
+        
+    exp_ana_dict = ana_dict['exp_ana_dict']
+    exp_dict = simu_dict['exp_dict']
+        
+    # load specific analysis
+    B_val = 10**3
+    inf_end_val = 200
+    
+    for ind in range(len(exp_ana_dict['B'])):
+        if exp_ana_dict['B'][ind]==B_val and exp_ana_dict['inf_end'][ind]==inf_end_val:
+            ana_num = ind
+            break
+    for ind in range(len(exp_dict['h_0'])):
+        if exp_dict['h_0'][ind]==h_0_val:
+            run_num = ind
+            break
+       
+    ana_name = analysis_filename + '_' + str(ana_num) + 'run_' + str(run_num) 
+    ana_file_path = os.path.join(temp_folder, ana_name + '.data')
+    with open(ana_file_path, 'rb') as f:
+        analysis_results = pickle.load(f)
+        
+    strain_yearly = analysis_results['strain_sample_yearly']
+    strain_frequency_yearly = analysis_results['strain_sample_frequency_yearly']
+    inf_end = inf_end_val
+    year_list = [y for y in range(inf_end)]
+    
+    mut_list_yearly = [[np.sum(strain_yearly[i][j]) 
+                        for j in range(len(strain_yearly[i]))] 
+                       for i in range(len(strain_yearly))]
+    mut_list_eachSeq_yearly = [np.repeat(np.array(mut_list_yearly[i]), 
+                                        np.array([int(strain_frequency_yearly[i][j]*B_val) 
+                                         for j in range(len(strain_frequency_yearly[i]))]))
+                              for i in range(len(mut_list_yearly))]
+    mut_mean_yearly = [np.mean(mut_list_eachSeq_yearly[i])
+                      for i in range(len(mut_list_yearly))]
+    mut_std_yearly = [np.std(mut_list_eachSeq_yearly[i])
+                      for i in range(len(mut_list_yearly))]
+    
+    # make and save plot
+    
     plt_set = set_plot_settings()
+    fig_name_unique = '_h_%.f_B_%.e_infend_%d' % (h_0_val, B_val, inf_end_val)
+#     fig_name = 'oneana_num_mutations' + fig_name_unique + plt_set['file_extension']
+    fig_name = 'oneana_num_mutations' + fig_name_unique + 'png'
+    figure_directory = temp_folder
+    this_plot_filepath = os.path.join(figure_directory, fig_name)
     
-    # 3 panel figure of inference performance measures as function of sampling params
+    fig = plt.figure(figsize=(plt_set['full_page_width']*2/3, plt_set['full_page_width']*2/3))
+    for i in range(len(year_list)):
+        plt.plot([year_list[i]]*len(mut_list_yearly[i]), mut_list_yearly[i], '.', color = 'black', markersize=plt_set['plot_marker_size_dotSmall'])
+    plt.errorbar(year_list, mut_mean_yearly, mut_std_yearly, marker='.',  linewidth=0.5, zorder=1, color='blue', markersize=plt_set['plot_marker_size_dotSmall'])
+    plt.xlabel('simulated season')
+    plt.ylabel('accumulated mutations')
     
-    figure_directory = ''
-    n_seasons_list = []
-    B_list = []
-    r_hJ_arr = []
-    
-    fig_name = 'param_exploration' + plt_set['file_extension']
-    this_plot_filepath = os.path.join(figure_directory)
-    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
-    ax1 = fig.add_axes(plt_set['plot_dim_3pan'][0])
-    ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
-    ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
-    
-    for i in range(len(n_seasons_list)):
-        ax1.errorbar(B_list, r_hJ_arr[i], SE_r_hJ_arr[i])
-    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
-            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-    
-    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
-            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-    
-    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
-            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-    
-    
-############################
-
-    corr1_line = np.linspace(np.min(h_model_list), np.max(h_model_list), num=2)
-    ax1.errorbar(h_model_list, h_inf_list, std_h_inf_list, marker='o', linestyle='none', zorder=1)
-    ax1.plot(corr1_line, corr1_line, '-', color='black')
-    ax1.set_xlabel('simulated $h$')
-    ax1.set_ylabel('inferred $h$')
-    text = '$r_h$ = %.2f, p = %.e' % (r_h, pr_h)
-    ax1.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax1.transAxes)
-    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
-      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-
-    corr1_line = np.linspace(np.min(J_model_list), np.max(J_model_list), num=2)
-    ax2.errorbar(J_model_list, J_inf_list, std_J_inf_list, marker='o', linestyle='none', zorder=1)
-    ax2.plot(corr1_line, corr1_line, '-', color='black')
-    ax2.set_xlabel('simulated $J$')
-    ax2.set_ylabel('inferred $J$')
-    text = '$r_J$ = %.2f, p = %.e' % (r_J, pr_J)
-    ax2.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax2.transAxes)
-    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
-      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-
-    corr1_line = np.linspace(np.min(hJ_model_list), np.max(hJ_model_list), num=2)
-    ax3.errorbar(hJ_model_list, hJ_inf_list, std_hJ_inf_list, marker='o', linestyle='none', zorder=1)
-    ax3.plot(corr1_line, corr1_line, '-', color='black')
-    ax3.set_xlabel('simulated $h_k + h_l + J_{kl}$')
-    ax3.set_ylabel('inferred $h_k + h_l + J_{kl}$')
-    text = '$r_{hJ}$ = %.2f, p = %.e' % (r_hJ, pr_hJ)
-    ax3.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax3.transAxes)
-    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
-      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
+    
+
+    
+    
+    
+    
+
+# def exe_multi_anaSimu_plots_sampleSize():
+#     """
+#     make and save plots for different sample sizes applied to one example simulation
+    
+#     Results:
+    
+#     plot file: .pdf
+#                 param_exploration_sampleSize
+ 
+#     Returns:
+    
+#     None
+    
+#     Dependencies:
+    
+#     import os
+#     import pickle
+#     import matplotlib as mpl
+#     import matplotlib.pyplot as plt
+#     """
+#     # plot settings
+#     plt_set = set_plot_settings()
+    
+#     # 3 panel figure of inference performance measures as function of sampling params
+    
+#     figure_directory = ''
+#     n_seasons_list = []
+#     B_list = []
+#     r_hJ_arr = []
+    
+#     fig_name = 'param_exploration' + plt_set['file_extension']
+#     this_plot_filepath = os.path.join(figure_directory)
+#     fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+#     ax1 = fig.add_axes(plt_set['plot_dim_3pan'][0])
+#     ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
+#     ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
+    
+#     for i in range(len(n_seasons_list)):
+#         ax1.errorbar(B_list, r_hJ_arr[i], SE_r_hJ_arr[i])
+#     ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
+#             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+#     ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
+#             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+#     ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
+#             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+
 
     
     
@@ -1600,9 +1670,14 @@ def main():
     
 #     exe_single_simu_plots_Npop()
 
-#     h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]
+    h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]
 #     for h_0_val in h_0_val_list:
-#         exe_single_simu_plots_fuji(h_0_val)
+#       exe_single_simu_plots_fuji(h_0_val)
+
+    for h_0_val in h_0_val_list:
+        exe_single_simu_plot_numMutations_fuji(h_0_val)
+
+
 
 
 

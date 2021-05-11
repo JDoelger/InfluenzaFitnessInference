@@ -123,18 +123,30 @@ the inference gives poorer results (correlations) than when using each observed 
 - worked on tidying up code putting blocks of code into functions
 - met Mehran shortly, where he gave me comments on the manuscript
 
-# log May 5 (coding and edit ms results sections)
+# log May 6 (coding and edit ms results sections)
 - ran simulation of Mt Fuji model with varying h
 - tidied up plotting of results from single analysis
+
+# log May 7 (simu analysis and references for manuscript)
+- ran analysis on Mt Fuji model simulations
+- finding references for traveling-wave influenza-like evolution modeling
+
+# log May 10 (Mt Fuji discussion)
+- meeting with Mehran discussing about Mt fuji simulation results
+
+# log May 11 (Mt Fuji stringency analysis)
+- calculate and plot number of mutations in selected seqences in each year: number of mutations increases with time but less than linearly (far from exponentially)
+	- since the number of strains with k mutations increases with k (up to L/2) as L choose k, and if many fitness-equivalent strains are created parallelly then the immunity-dependent fitness cost for each individual strain accumulates slower with increasing number of fitness-equivalent sequences, i.e., it accumulates slower with increasing k
+
 
 
 # To Do :
 
 [ ] write abstract
 
-[ ] rewrite manuscript results sections based on M's suggestions
+[ ] think about and write down (analytical) justification for selection stringency condition (with use of Mt Fuji model)
 
-[ ] do inference and fitness distribution analysis on Mt Fuji simulations
+[ ] write down (and discuss with A and M) derivation of F_host functional form -> I don't understand why [Luksza and Laessig 2014] (eq. 11-14 in their methods) don't discuss validity of their expression 1-sum compared to more correct mean-field expression exp(-sum) (see also [Yan et al. 2019, eq. 3-5] and [Gog and Grenfell 2002, ])
 
 [ ] tidy up code for figures -> write functions
 
@@ -156,10 +168,7 @@ even where data are lacking, e.g. by small regularization coeffs for each param 
 
 [ ] find out, why the strain labels in succession plots seem to increase linearly in simulation and exponentially in data
 
-
 [ ] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
-
-[ ] write down analytical estimates for selection stringency
 
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 
@@ -193,6 +202,11 @@ even where data are lacking, e.g. by small regularization coeffs for each param 
 
 [x] run simulations for Mt Fuji model with equal h at all sites and J=0, for various h -> simu_name=2021May06_temp
 
+[x] rewrite manuscript results sections based on M's suggestions
+
+[x] do inference and fitness distribution analysis on Mt Fuji simulations
+
+[x] plot number of accumulated mutations as function of time for fuji simulations
 
 
 

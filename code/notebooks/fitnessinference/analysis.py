@@ -12,6 +12,8 @@ from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curv
 from datetime import date
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from Bio import SeqIO
+from Bio.Seq import Seq
 
 
 def load_simu_data(single_simu_filename, simu_name, run_num,
@@ -1524,7 +1526,7 @@ def exe_single_simu_plot_numMutations_fuji(h_0_val):
     import numpy as np
     import pickle
     import os
-    
+    other functions in this module
     """
 #     mut_list = [] # for each season, list of number of mutations for each selected strain
 #     mut_mean_list = [] # list of mean number of mutations for each season
@@ -1601,83 +1603,520 @@ def exe_single_simu_plot_numMutations_fuji(h_0_val):
     
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
+   
+        
+def exe_plot_param_exploration_sampleSize():
+    """
+    make and save plots for different sample sizes applied to one example simulation
     
-
+    Results:
     
-    
-    
-    
-
-# def exe_multi_anaSimu_plots_sampleSize():
-#     """
-#     make and save plots for different sample sizes applied to one example simulation
-    
-#     Results:
-    
-#     plot file: .pdf
-#                 param_exploration_sampleSize
+    plot file: .pdf
+                name: ..._plotnumSamples
  
-#     Returns:
+    Returns:
     
-#     None
+    None
     
-#     Dependencies:
+    Dependencies:
     
-#     import os
-#     import pickle
-#     import matplotlib as mpl
-#     import matplotlib.pyplot as plt
-#     """
-#     # plot settings
-#     plt_set = set_plot_settings()
+    import os
+    import pickle
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    other functions in this module
+    """
+    # load plot settings
+    plt_set = set_plot_settings()
     
-#     # 3 panel figure of inference performance measures as function of sampling params
+    # load and process data for plotting
+    simu_name = '2021Apr16'
+    analysis_filename = 'analysis_2021May04.data'
+    result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
+                    'InfluenzaFitnessInference')
+    result_directory = os.path.normpath(result_directory)
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     
-#     figure_directory = ''
-#     n_seasons_list = []
-#     B_list = []
-#     r_hJ_arr = []
+    figure_directory = temp_folder
     
-#     fig_name = 'param_exploration' + plt_set['file_extension']
-#     this_plot_filepath = os.path.join(figure_directory)
-#     fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
-#     ax1 = fig.add_axes(plt_set['plot_dim_3pan'][0])
-#     ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
-#     ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
+    analysis_filepath = os.path.join(temp_folder, analysis_filename)
+    with open(analysis_filepath, 'rb') as f:
+        ana_dict = pickle.load(f)
+    simu_info_filepath = ana_dict['simu_info_filepath']
+    with open(simu_info_filepath, 'rb') as f:
+        simu_dict = pickle.load(f)
+        
+    summary_stats_all = ana_dict['summary_stats_all']
+    ana_param_dict = ana_dict['ana_param_dict']
+    varied_ana_params = ana_dict['varied_ana_params']
+    ana_list = ana_dict['ana_list']
+    run_list = simu_dict['run_list']
+    exp_dict = simu_dict['exp_dict']
+    exp_ana_dict = ana_dict['exp_ana_dict']
     
-#     for i in range(len(n_seasons_list)):
-#         ax1.errorbar(B_list, r_hJ_arr[i], SE_r_hJ_arr[i])
-#     ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
-#             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    # define first part of plot name with analysis name
+    file_ext_length = len('.data')
+    plot_file_path = analysis_filepath[:-file_ext_length] + '_plot'
     
-#     ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
-#             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    # 3 panel figure of inference performance measures as function of sampling params
     
-#     ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
-#             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    this_plot_filepath = plot_file_path + 'numSamples' + plt_set['file_extension']
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_3pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
+    ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
+    
+    # load data for first plot: r_hJ+-SE_rhJ as function of B and n_seasons
+    r_hJ_list = summary_stats_all['r_hJ']
+    SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    val_N_site = 20 # sequence length, which defines the specific simulation we want to analyze
+    B_list = np.unique(exp_ana_dict['B']).tolist()
+    n_seasons_list = list(np.unique(exp_ana_dict['inf_end'])-ana_param_dict['inf_start'])
+    r_hJ_arr = np.zeros((len(n_seasons_list), len(B_list)))
+    SE_r_hJ_arr = np.zeros((len(n_seasons_list), len(B_list)))
+    k = 0
+    for ananum in range(len(exp_ana_dict['B'])):
+        val_B = exp_ana_dict['B'][ananum]
+        val_n_seasons = exp_ana_dict['inf_end'][ananum] - ana_param_dict['inf_start']
+        for runnum in range(len(exp_dict['N_site'])):
+            if exp_dict['N_site'][runnum]==val_N_site:
+                r_hJ = r_hJ_list[k]
+                SE_r_hJ = SE_r_hJ_list[k]
+                ind_B = B_list.index(val_B)
+                ind_n = n_seasons_list.index(val_n_seasons)
+                r_hJ_arr[ind_n, ind_B] = r_hJ
+                SE_r_hJ_arr[ind_n, ind_B] = SE_r_hJ
+            k += 1
+    
+    num_colors = len(n_seasons_list)
+    cm = plt.get_cmap('rainbow')
+    colorlist = [cm(1.*i/num_colors) for i in range(num_colors)]
+    
+    # make first plot (panel A)
+    for i in range(len(n_seasons_list)):
+        ax1.errorbar(B_list, r_hJ_arr[i,:], SE_r_hJ_arr[i,:], marker='o', linestyle='-', 
+                     zorder=1, color=colorlist[i], label='n_s=%.i' % n_seasons_list[i])
+    ax1.legend()
+    ax1.set_xlabel('yearly sample size $B$')
+    ax1.set_ylabel('correlation $r_{hJ}$')
+    ax1.set_xscale('log')
+    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
+            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    # load data for second plot: r_hJ+-SE_rhJ as function of B*n_seasons
+    r_hJ_collapsed_list = []
+    SE_r_hJ_collapsed_list = []
+    num_sample_list = []
+    for ind_n in range(len(n_seasons_list)):
+        for ind_B in range(len(B_list)):
+            r_hJ_collapsed_list.append(r_hJ_arr[ind_n, ind_B])
+            SE_r_hJ_collapsed_list.append(SE_r_hJ_arr[ind_n, ind_B])
+            num_sample_list.append(n_seasons_list[ind_n]*B_list[ind_B])
+    
+    # make second plot (panel B)
+    ax2.errorbar(num_sample_list, r_hJ_collapsed_list, SE_r_hJ_collapsed_list, marker='o',
+                linestyle='none', zorder=1, color='black')
+    ax2.set_xlabel('$B*n_{seasons}$')
+    ax2.set_ylabel('correlation $r_{hJ}$')
+    ax2.set_xscale('log')
+    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
+            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    # load data for third plot: classification performance as function of B*n_seasons
+    AUC_PRC_list = summary_stats_all['AUC_prec_recall']
+    AUC_ROC_list = summary_stats_all['AUC_ROC']
+    
+    num_sample_list = []
+    AUC_PRC_collapsed_list = []
+    AUC_ROC_collapsed_list = []
+    k = 0
+    for ananum in ana_list:
+        val_B = exp_ana_dict['B'][ananum]
+        val_n_seasons = exp_ana_dict['inf_end'][ananum] - ana_param_dict['inf_start']
+        for runnum in run_list:
+            if exp_dict['N_site'][runnum]==val_N_site:
+                AUC_PRC = AUC_PRC_list[k]
+                AUC_ROC = AUC_ROC_list[k]
+                AUC_PRC_collapsed_list.append(AUC_PRC)
+                AUC_ROC_collapsed_list.append(AUC_ROC)
+                num_sample_list.append(val_B*val_n_seasons)
+            k += 1
+    # make third plot (panel C)
+    ax3.plot(num_sample_list, AUC_PRC_collapsed_list, marker='o', linestyle='none',
+            color='black', label='AUC PRC')
+    ax3.plot(num_sample_list, AUC_ROC_collapsed_list, marker='o', linestyle='none',
+            color='blue', label='AUC ROC')
+    ax3.legend()
+    ax3.set_xscale('log')
+    ax3.set_xlabel('$B*n_{seasons}$')
+    ax3.set_ylabel('classification AUC')
+    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
+            fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+
+def exe_plot_param_exploration_L_Npop():
+    """
+    make and save plots of correlation r_hJ as function of sequence length L 
+    and from separate analysis as function of population size N_pop
+    
+    Results:
+    
+    plot file: .pdf
+                name: param_exploration_L_Npop
+ 
+    Returns:
+    
+    None
+    
+    Dependencies:
+    
+    import os
+    import pickle
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    other functions in this module
+    """   
+    # load plot settings
+    plt_set = set_plot_settings()
+    
+    
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_2pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_2pan'][1])
+    
+    # load data for first plot: r_hJ+-SE_rhJ as function of L for various B
+    simu_name = '2021Apr16'
+    analysis_filename = 'analysis_2021May04.data'
+    result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
+                    'InfluenzaFitnessInference')
+    result_directory = os.path.normpath(result_directory)
+    temp_folder = os.path.join(result_directory, 'results',
+                               'simulations', simu_name + '_temp')
+    
+    figure_directory = os.path.join(result_directory, 'results', 'simulations')
+    this_plot_filepath = os.path.join(figure_directory, 'param_exploration_L_Npop' + plt_set['file_extension'])
+    
+    analysis_filepath = os.path.join(temp_folder, analysis_filename)
+    with open(analysis_filepath, 'rb') as f:
+        ana_dict = pickle.load(f)
+    simu_info_filepath = ana_dict['simu_info_filepath']
+    with open(simu_info_filepath, 'rb') as f:
+        simu_dict = pickle.load(f)
+        
+    summary_stats_all = ana_dict['summary_stats_all']
+    ana_param_dict = ana_dict['ana_param_dict']
+    varied_ana_params = ana_dict['varied_ana_params']
+    ana_list = ana_dict['ana_list']
+    run_list = simu_dict['run_list']
+    exp_dict = simu_dict['exp_dict']
+    exp_ana_dict = ana_dict['exp_ana_dict']
+    
+    r_hJ_list = summary_stats_all['r_hJ']
+    SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    
+    val_inf_end = 200
+    B_list = np.unique(exp_ana_dict['B']).tolist()
+    L_list = np.unique(exp_dict['N_site']).tolist()
+    r_hJ_arr = np.zeros((len(B_list), len(L_list)))
+    SE_r_hJ_arr = np.zeros((len(B_list), len(L_list)))
+    k = 0
+    for ananum in ana_list:
+        for runnum in run_list:
+            if exp_ana_dict['inf_end'][ananum]==val_inf_end:
+                val_B = exp_ana_dict['B'][ananum]
+                val_L = exp_dict['N_site'][runnum]
+                r_hJ = r_hJ_list[k]
+                SE_r_hJ = SE_r_hJ_list[k]
+                ind_B = B_list.index(val_B)
+                ind_L = L_list.index(val_L)
+                r_hJ_arr[ind_B, ind_L] = r_hJ
+                SE_r_hJ_arr[ind_B, ind_L] = SE_r_hJ
+            k += 1
+    
+    num_colors = len(B_list)
+    cm = plt.get_cmap('rainbow')
+    colorlist = [cm(1.*i/num_colors) for i in range(num_colors)]
+    
+    # make first plot (panel A)
+    for ind_B in range(len(B_list)):
+        ax1.errorbar(L_list, r_hJ_arr[ind_B,:], SE_r_hJ_arr[ind_B, :], marker='o',
+                   linestyle='-', zorder=1, color=colorlist[ind_B],
+                   label='B=%.e' % B_list[ind_B])
+    ax1.legend()
+    ax1.set_xlabel('sequence length $L$')
+    ax1.set_ylabel('correlation $r_{hJ}$')
+    ax1.text(plt_set['plotlabel_shift_2pan'], 1, 'A', transform=ax1.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    # load data for second plot: r_hJ+-SE_rhJ as function of Npop for various B
+    simu_name = '2021Apr07'
+    analysis_filename = 'analysis_2021May04.data'
+    result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
+                    'InfluenzaFitnessInference')
+    result_directory = os.path.normpath(result_directory)
+    temp_folder = os.path.join(result_directory, 'results',
+                               'simulations', simu_name + '_temp')
+    
+    analysis_filepath = os.path.join(temp_folder, analysis_filename)
+    with open(analysis_filepath, 'rb') as f:
+        ana_dict = pickle.load(f)
+    simu_info_filepath = ana_dict['simu_info_filepath']
+    with open(simu_info_filepath, 'rb') as f:
+        simu_dict = pickle.load(f)
+        
+    summary_stats_all = ana_dict['summary_stats_all']
+    ana_param_dict = ana_dict['ana_param_dict']
+    varied_ana_params = ana_dict['varied_ana_params']
+    ana_list = ana_dict['ana_list']
+    run_list = simu_dict['run_list']
+    exp_dict = simu_dict['exp_dict']
+    exp_ana_dict = ana_dict['exp_ana_dict']
+    
+    r_hJ_list = summary_stats_all['r_hJ']
+    SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    
+    val_inf_end = 200
+    B_list = np.unique(exp_ana_dict['B']).tolist()
+    Npop_list = np.unique(exp_dict['N_pop']).tolist()
+    r_hJ_arr = np.zeros((len(B_list), len(Npop_list)))
+    SE_r_hJ_arr = np.zeros((len(B_list), len(Npop_list)))
+    k = 0
+    for ananum in ana_list:
+        for runnum in run_list:
+            if exp_ana_dict['inf_end'][ananum]==val_inf_end:
+                val_B = exp_ana_dict['B'][ananum]
+                val_Npop = exp_dict['N_pop'][runnum]
+                r_hJ = r_hJ_list[k]
+                SE_r_hJ = SE_r_hJ_list[k]
+                ind_B = B_list.index(val_B)
+                ind_Npop = Npop_list.index(val_Npop)
+                r_hJ_arr[ind_B, ind_Npop] = r_hJ
+                SE_r_hJ_arr[ind_B, ind_Npop] = SE_r_hJ
+            k += 1
+    
+    num_colors = len(B_list)
+    cm = plt.get_cmap('rainbow')
+    colorlist = [cm(1.*i/num_colors) for i in range(num_colors)]
+    
+    for ind_B in range(len(B_list)):
+        ax2.errorbar(L_list, r_hJ_arr[ind_B,:], SE_r_hJ_arr[ind_B, :], marker='o',
+                   linestyle='-', zorder=1, color=colorlist[ind_B],
+                   label='B=%.e' % B_list[ind_B])
+    ax2.legend()
+    ax2.set_xlabel('population size $N_{pop}$')
+    ax2.set_ylabel('correlation $r_{hJ}$')
+    ax2.text(plt_set['plotlabel_shift_2pan'], 1, 'B', transform=ax2.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+    
+def index_list(s, item, i=0):
+    """
+    Return the index list of the occurrances of 'item' in string/list 's'.
+    Optional start search position 'i'
+    """
+    i_list = []
+    while True:
+        try:
+            i = s.index(item, i)
+            i_list.append(i)
+            i += 1
+        except:
+            break
+    return i_list
 
 
+def strain_info(seqs_list):
+    """
+    calculate strains and frequencies from list of seq.s at different time points
+    seqs_list: list of list of sequences for a number of time points
+    returns lists of strains and strain frequencies for each time, total count at each time, 
+    strains and frequencies across all time points 
+    """
+    total_count_list=[len(seqs) for seqs in seqs_list] # total number of sequences at each time
+    strains_list=[[] for seqs in seqs_list]
+    strains_freq_list=[[] for seqs in seqs_list]
+    strain_All_list=[]
+    strain_All_freq_list=[]
+    for y in range(len(seqs_list)): # for each time point
+        ## finding unique seqs in each time point
+        strains_count=[] # counts for each strain before normalization
+        for i in range(len(seqs_list[y])):
+            if seqs_list[y][i] not in strains_list[y]:
+                strains_list[y].append(seqs_list[y][i])
+                strains_count.append(1)
+            else:
+                strains_count[strains_list[y].index(seqs_list[y][i])]+=1
+        # rank strains of this year:
+        merge_list=list(zip(strains_count,strains_list[y]))
+        merge_list.sort(reverse=True) # sort coarse strain list according to count
+        strains_count=[y for y,x in merge_list]
+        strains_list[y]=[x for y,x in merge_list]
+        strains_freq_list[y]=[c/total_count_list[y] for c in strains_count] # calculate strain frequency from count
+        ## finding unique seqs across time points
+        for sti in range(len(strains_list[y])): # for each strain at this time
+            if strains_list[y][sti] not in strain_All_list:
+                strain_All_list.append(strains_list[y][sti])
+                strain_All_freq_list.append(strains_freq_list[y][sti]) # unnormalized (adding yearly freq)
+            else:
+                strain_All_freq_list[strain_All_list.index(strains_list[y][sti])]+=strains_freq_list[y][sti]
+    merge_list=list(zip(strain_All_freq_list,strain_All_list))
+    merge_list.sort(reverse=True) # sort coarse strain list according to count
+    strain_All_freq_list=[y/len(seqs_list) for y,x in merge_list] # normalized by number of time points
+    strain_All_list=[x for y,x in merge_list]
+    return [strains_list, strains_freq_list, total_count_list, strain_All_list,strain_All_freq_list]
+
     
+def exe_plot_strainSuccession_HA():
+    """
+    make and save plot of strain succession since 1968 of HA (H3N2) as collected from
+    the influenza research database (fludb.org)
+    
+    Results:
+    
+    plot file: .pdf
+                name: HA_strain_succession
+ 
+    Returns:
+    
+    None
+    
+    Dependencies:
+    
+    import os
+    import pickle
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    from Bio import SeqIO
+    from Bio.Seq import Seq
+    other functions in this module
+    """  
+    # plot settings
+    plt_set = set_plot_settings()
+    
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_2pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_2pan'][1])
+    
+    repo_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
+                      'NewApproachFromMarch2021/InfluenzaFitnessInference')
+    repo_directory = os.path.normpath(repo_directory)
+    
+    figure_directory = os.path.join(repo_directory, 'results')
+    this_plot_filepath = os.path.join(figure_directory, 
+                                      'HA_strain_succession' + plt_set['file_extension'])
+    
+    protein_list = list(SeqIO.parse('869893753356-ProteinFastaResults.fasta', 'fasta')) # HA (H3N2) protein records from IRD (fludb.org) for 1968-2020, downloaded on 18th Apr. 2021, only date and season in description
+    protein_BI1619068=list(SeqIO.parse('BI_16190_68_ProteinFasta.fasta','fasta')) # HA (H3N2) protein records from IRD (fludb.org) for strain BI/16190/68 (accession: KC296480)
+    seq_BI68=protein_BI1619068[0].seq # reference sequence for strain BI
+    
+    # use only seqs that are complete with no insertions/deletions
+    complete_list = []
+    for rec in protein_list:
+        if len(rec)==566:
+            complete_list.append(rec)
+            
+    # remove all sequences with ambiguous amino acids
+    amb_aa_list = ['B', 'J', 'Z', 'X']
+    complete_unamb_list = []
+    for rec in complete_list:
+        amb_count = 0
+        for aa in amb_aa_list:
+            if aa in rec.seq:
+                amb_count += 1
+                break
+        if amb_count==0:
+            complete_unamb_list.append(rec)
+            
+    # divide sequences into years:  as list of years, which contain list of sequences
+    year1=1968
+    yearend=2020
+    year_list=list(i for i in range(year1,yearend+1)) # list of years
+    yearly=list([] for i in range(0,yearend-year1+1)) # list of sequences for each year
+    for rec in complete_unamb_list:
+        for year in year_list:
+            if str(year) in rec.id:
+                yearly[year_list.index(year)].append(str(rec.seq)) # append only the sequence, not whole record
+    
+    # divide sequences into strains
+    [strain_yearly, strain_frequency_yearly, tot_count_yearly, 
+     strain_All, strain_frequency_All] = strain_info(yearly)
+    
+    strain_All_timeOrdered=[] # all strains ordered in time (first observed with highest frequency listed first)
+    strain_All_freq_timeOrdered=[] # frequency of all strains ordered in time
+    # order strains
+    for y in range(len(strain_yearly)):
+        for sti in range(len(strain_yearly[y])): # for each strain at this time
+            if strain_yearly[y][sti] not in strain_All_timeOrdered:
+                strain_All_timeOrdered.append(strain_yearly[y][sti])
+                strain_All_freq_timeOrdered.append(strain_frequency_yearly[y][sti]) # unnormalized (adding yearly freq)
+            else:
+                strain_All_freq_timeOrdered[strain_All_timeOrdered.index(strain_yearly[y][sti])]+=strain_frequency_yearly[y][sti]
+    # assign strain label to each strain in each year
+    strain_All_freq_yearly=[[0 for i in range(len(strain_All_timeOrdered))] for y in range(len(strain_yearly))] # frequency of all ever observed strains in each year
+    strain_index_yearly=[[0 for sti in range(len(strain_yearly[y]))] for y in range(len(strain_yearly))] # strain labels for strains that are observed in each year
+    for y in range(len(strain_yearly)):
+        for sti in range(len(strain_yearly[y])):
+            label=strain_All_timeOrdered.index(strain_yearly[y][sti]) # strain label
+            strain_All_freq_yearly[y][label]=strain_frequency_yearly[y][sti] # strain frequency update
+            strain_index_yearly[y][sti]=label # save strain label
+
+    strain_frequency_yearly_transpose=list(map(list, zip(*strain_All_freq_yearly)))
+    
+    cm = plt.get_cmap('rainbow')
+    colorlist = [cm(1.*i/(len(strain_frequency_yearly_transpose))) 
+                 for i in range(len(strain_frequency_yearly_transpose))]
+    
+    for sti in range(len(strain_frequency_yearly_transpose)):
+        ax1.plot(year_list, strain_frequency_yearly_transpose[sti], color=colorlist[sti])
+    ax1.set_xlabel('year')
+    ax1.set_ylabel('strain frequency')
+    ax1.text(plt_set['plotlabel_shift_2pan'], 1, 'A', transform=ax1.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    for y in range(len(strain_index_yearly)):
+        for sti in range(len(strain_index_yearly[y])-1, -1, -1): 
+            ax2.plot(y+year_list[0], strain_index_yearly[y][sti], '.',
+                     markersize=plt_set['plot_marker_size_dot'], color='blue')
+        ax2.plot(y+year_list[0], strain_index_yearly[y][0], '.', 
+                 markersize=plt_set['plot_marker_size_dot'], color='red')
+    ax2.set_xlabel('year')
+    ax2.set_ylabel('strain label')
+    ax2.text(plt_set['plotlabel_shift_2pan'], 1, 'B', transform=ax2.transAxes,
+      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+    plt.close()
     
 def main():
-    # run analysis/inference, each only once, comment out afterward
-    
+    ## run analysis/inference, each only once, comment out afterward
 #     exe_multi_simu_analysis_L()
 #     exe_multi_simu_analysis_Npop()
 #     exe_multi_simu_analysis_fuji()
 
-    # make single analysis plots
-    
+    ## make single analysis plots   
 #     exe_single_simu_plots_Npop()
 
+    ## make single analysis plots for each mount fuji simulation
     h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]
 #     for h_0_val in h_0_val_list:
 #       exe_single_simu_plots_fuji(h_0_val)
 
-    for h_0_val in h_0_val_list:
-        exe_single_simu_plot_numMutations_fuji(h_0_val)
+    ## for each mount fuji simulation  
+#     for h_0_val in h_0_val_list:
+#         exe_single_simu_plot_numMutations_fuji(h_0_val)
 
+    ## plot inference performance as function of sample size (3 panels)
+#     exe_plot_param_exploration_sampleSize()
 
+    ## plot inference performance as function of L and as function of N_pop
+#     exe_plot_param_exploration_L_Npop()
+
+    ## plot strain succession for HA protein sequences
+    exe_plot_strainSuccession_HA()
+    
 
 
 

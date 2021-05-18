@@ -138,7 +138,8 @@ the inference gives poorer results (correlations) than when using each observed 
 - calculate and plot number of mutations in selected seqences in each year: number of mutations increases with time but less than linearly (far from exponentially)
 	- since the number of strains with k mutations increases with k (up to L/2) as L choose k, and if many fitness-equivalent strains are created parallelly then the immunity-dependent fitness cost for each individual strain accumulates slower with increasing number of fitness-equivalent sequences, i.e., it accumulates slower with increasing k
 
-
+# log May 18 (code for nice figures)
+- I wrote functions for each plot of the manuscript, so that I also have better overview and easily change layout later
 
 # To Do :
 

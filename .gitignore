@@ -139,3 +139,6 @@ code/miscellaneous_code_experiments/
 
 # directory for logs created by pypet
 code/notebooks/logs/
+
+# powerpoint files
+*.pptx

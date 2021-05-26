@@ -72,7 +72,7 @@ def fitness_coeff_constant(N_site,N_state,h_0,J_0):
     
     return h_list, J_list
 
-def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Ising-reduced-out-learn.j', seed=12345, h_min=-9., h_max=-1., J_min=-0.5, J_max=2.):
+def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Ising-reduced-out-learn.j', seed=12345, h_min=-9., h_max=-0.5, J_min=-2., J_max=3.):
     """
     creating the mutational fitness coefficients for the simulated sequences in the case
     of fitness coeffs sampled from coefficients inferred for the HIV protein p24
@@ -123,7 +123,7 @@ def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Is
     seq_length = int((np.sqrt(1 + 8 * len(param_list)) - 1) / 2)
     # separate h and J list
     h_list = [[float(param_list[i][j]) for j in range(len(param_list[i]))]
-             for i in range(len(param_list))]
+             for i in range(seq_length)]
     J_list = [[float(param_list[i][j]) for j in range(len(param_list[i]))]
               for i in range(seq_length, len(param_list))]
     # calculate matrix from J_list
@@ -303,7 +303,7 @@ def fitness_host(seq, st_yearly, st_freq_yearly, sigma_h, D0):
     
     import numpy as np
     """
-    f_host_noSig = 0 # host fitness without sigma_h factor
+    f_host_noSig = 0 # initialize host fitness without sigma_h factor
     
     for t in range(len(st_yearly)): # iterate through all prev. time steps
         strains = st_yearly[t]

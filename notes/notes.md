@@ -141,9 +141,32 @@ the inference gives poorer results (correlations) than when using each observed 
 # log May 18 (code for nice figures)
 - I wrote functions for each plot of the manuscript, so that I also have better overview and easily change layout later
 
+# log May 19 (Supplementary)
+- I wrote some supplementary with a short description of the simulations and reaults for the simple Mount Fuji model
+
+# log May 20 (Supplementary)
+- making plots of fitness distributions for all simulated seasons (instead of only inferred ones) for Mount Fuji model
+- write supplementary description of simulation and fuji model results
+
+# log May 24 (Supplementary)
+- found that I am calculating the std for inferred parameters wrongly:
+	- for the parameters which have no information from the observed data, the std should be sqrt(1/lambda) instead of lambda
+	- I am correcting that in analysis.py (reran single simu plots) 
+- also I found that I replaced the max and min of h and J not with the max and min of the long (L=105) sequence but with wrong values
+	- Ideally I should run the simus again with corrected values or with even better (or no) scaling of fitness coefficient distribution between different sequence lengths
+
+# log May 25 (check out engaging cluster again for repeat simus)
+- connect to cluster node "eofe5.mit.edu" via putty as described in folder EngagingCluster under README, set up file transfer via securecrt as used before
+
+
+
 # To Do :
 
 [ ] write abstract
+
+[ ] run correct analysis and plots with correct calc of std (plots for sample size done)
+
+[ ] run correct simulations with correct fitness landscape replacement of min/max (ideally several runs w. different rng initialization for each parameter combo)
 
 [ ] think about and write down (analytical) justification for selection stringency condition (with use of Mt Fuji model)
 
@@ -182,7 +205,7 @@ even where data are lacking, e.g. by small regularization coeffs for each param 
 [x] write basic code for simulation postprocessing and analysis
 
 [x] add weights x(Si, t) into inference (features and response) and think more about correct linear regression (normalization etc.) 
-- book by Hastie et al. 2009, p. 45
+- book by Hastie et al. 2009, p. 45 and p. 64p. 
 - tried different inference but previous methods without strain weighting gives best results
 
 [x] plan for figures/sections for paper to better decide, how I do different analyses and what is missing

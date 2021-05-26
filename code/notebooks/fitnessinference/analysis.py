@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 from Bio import SeqIO
 from Bio.Seq import Seq
 
-
 def load_simu_data(single_simu_filename, simu_name, run_num,
                    result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                                     'NewApproachFromMarch2021/InfluenzaFitnessInference'):
@@ -283,9 +282,13 @@ def infer_ridge(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end):
         # unbiased estimator of variance
         sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
         v_vec = np.diag(XTX_reg_inv)
-        # use std of prior distribution 
+        # use std of prior distribution (if <infinity, else use 0)
         #for parameters that are not informed by model
-        M_std = copy.deepcopy(np.diag(reg_mat)) 
+        # M_var_inv = copy.deepcopy(np.diag(reg_mat))
+        M_std = np.zeros(M_full.shape)
+        for i in range(len(M_std)):
+            if reg_mat[i, i]!=0:
+                M_std[i]=np.sqrt(1/reg_mat[i, i])
         # standard deviation of the parameter distribution 
         # from diagonal of the covariance matrix 
         M_std[param_included] = np.sqrt(v_vec) * sigma_res
@@ -430,7 +433,6 @@ def this_filename():
     filename = __file__
     
     return filename
-    
 
 def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dict,
                         result_directory='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
@@ -532,17 +534,20 @@ def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dic
             sample_seqs(strain_yearly, strain_frequency_yearly, seed, B, inf_end)
 
     # calculate -F_host for each sampled strain at each inference time step
-    minus_fhost_yearly = [-simu.fitness_host_list(strain_sample_yearly[t], strain_sample_yearly[:t], 
+    minus_fhost_yearly_all = [-simu.fitness_host_list(strain_sample_yearly[t], strain_sample_yearly[:t],
                                                   strain_sample_frequency_yearly[:t], traj.sigma_h, traj.D0)
-                        for t in range(inf_start, inf_end)]
+                        for t in range(1, inf_end)]
+    minus_fhost_yearly = minus_fhost_yearly_all[inf_start-1:]
 
     # calculate F_int for each sampled strain at each inference time step
-    fint_yearly = [simu.fitness_int_list(strain_sample_yearly[t], traj.N_state, h_model, J_model)
-                        for t in range(inf_start, inf_end)]
+    fint_yearly_all = [simu.fitness_int_list(strain_sample_yearly[t], traj.N_state, h_model, J_model)
+                        for t in range(1, inf_end)]
+    fint_yearly = fint_yearly_all[inf_start-1:]
 
     # calculate F_tot= F_int + F_host for each sampled strain at each inference time step
-    ftot_yearly = [[fint_yearly[t][i] - minus_fhost_yearly[t][i] for i in range(len(minus_fhost_yearly[t]))] 
-                   for t in range(len(minus_fhost_yearly))]
+    ftot_yearly_all = [[fint_yearly_all[t][i] - minus_fhost_yearly_all[t][i] for i in range(len(minus_fhost_yearly_all[t]))]
+                   for t in range(len(minus_fhost_yearly_all))]
+    ftot_yearly = ftot_yearly_all[inf_start-1:]
     
     # process data for inference:
 
@@ -657,6 +662,9 @@ def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dic
         'minus_fhost_yearly': minus_fhost_yearly,
         'fint_yearly': fint_yearly,
         'ftot_yearly': ftot_yearly,
+        'minus_fhost_yearly_all': minus_fhost_yearly_all,
+        'fint_yearly_all': fint_yearly_all,
+        'ftot_yearly_all': ftot_yearly_all,
         'M': M,
         'M_std': M_std,
         'fpr': fpr,
@@ -926,15 +934,14 @@ def exe_multi_simu_analysis_Npop():
     exp_ana_dict = {'B': [10, 100, 10**3, 10**4, 10**5], 'inf_end': [110, 120, 150, 200]}
     exp_ana_dict = cartesian_product(exp_ana_dict)
     
-    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict) 
-    
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)
     
 def exe_multi_simu_analysis_fuji():
-    """ 
+    """
     runs multi_simu_analysis with specified parameters for simulations with varying fields h_0 with hJ_coeffs='constant'
-    
+
     Dependencies:
-    
+
     import pickle
     import numpy as np
     import scipy
@@ -947,12 +954,12 @@ def exe_multi_simu_analysis_fuji():
     """
     simu_name = '2021May06'
     ana_param_dict ={
-        'seed': 20390, 
-        'B': 10**3, 
-        'inf_start': 100, 
-        'inf_end': 200, 
-        'lambda_h': 10**(-4), 
-        'lambda_J': 1, 
+        'seed': 20390,
+        'B': 10**3,
+        'inf_start': 100,
+        'inf_end': 200,
+        'lambda_h': 10**(-4),
+        'lambda_J': 1,
         'lambda_f': 10**(-4),
         'hJ_threshold': -10
     }
@@ -1004,7 +1011,6 @@ def set_plot_settings():
     }
     
     return plt_set
-    
         
 def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index_yearly,
                      fint_yearly, minus_fhost_yearly, ftot_yearly, 
@@ -1076,6 +1082,7 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     
     # plot settings
     plt_set = set_plot_settings()
+    # plt_set['file_extension'] = '.png' # file extension for saving figures, png file is often smaller (if using default dpi)
     
     # plot strain succession
     
@@ -1118,7 +1125,7 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
     ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
     
-    for y in range(len(fint_yearly[1:])):
+    for y in range(len(fint_yearly[:])):
         ax1.plot([y]*len(fint_yearly[y]), fint_yearly[y]-np.mean(fint_yearly[y]), '.',
                  markersize=plt_set['plot_marker_size_dotSmall'], color='black')
     ax1.set_xlabel('simulated season')
@@ -1127,7 +1134,7 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
       fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
-    for y in range(len(minus_fhost_yearly[1:])):
+    for y in range(len(minus_fhost_yearly[:])):
         ax2.plot([y]*len(minus_fhost_yearly[y]), minus_fhost_yearly[y]-np.mean(minus_fhost_yearly[y]), '.',
                  markersize=plt_set['plot_marker_size_dotSmall'], color='black')
     ax2.set_xlabel('simulated season')
@@ -1136,7 +1143,7 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
       fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
-    for y in range(len(ftot_yearly[1:])):
+    for y in range(len(ftot_yearly[:])):
         ax3.plot([y]*len(ftot_yearly[y]), ftot_yearly[y]-np.mean(ftot_yearly[y]), '.',
                  markersize=plt_set['plot_marker_size_dotSmall'], color='black')
     ax3.set_xlabel('simulated season')
@@ -1216,13 +1223,18 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     
-def exe_single_simu_plots_Npop():
+def exe_single_simu_plots_Npop(N_pop_val):
     """
     retrieves info for specific single simu and analysis 
     and runs single_simu_plots for one simulation of the set, where N_pop is varied
     to change which analysis to plot: vary analysis_filename, 
     parameter values that define the exact analysis file
     
+    Parameters:
+
+    N_pop_val: float
+            population size for which single simu plots should be created
+
     Dependencies:
     
     other functions in this module
@@ -1234,7 +1246,7 @@ def exe_single_simu_plots_Npop():
     result_directory = os.path.normpath(result_directory)
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     
-    analysis_filename = 'analysis_2021May04'
+    analysis_filename = 'analysis_2021May24'
     analysis_filepath = os.path.join(temp_folder, analysis_filename + '.data')
     with open(analysis_filepath, 'rb') as f:
         ana_dict = pickle.load(f)
@@ -1253,7 +1265,7 @@ def exe_single_simu_plots_Npop():
     
     B_val = 10**3
     inf_end_val = 200
-    N_pop_val = 10**5
+    # N_pop_val = 10**5
     
     for ind in range(len(exp_ana_dict['B'])):
         if exp_ana_dict['B'][ind]==B_val and exp_ana_dict['inf_end'][ind]==inf_end_val:
@@ -1375,7 +1387,7 @@ def exe_single_simu_plots_fuji(h_0_val):
     result_directory = os.path.normpath(result_directory)
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     
-    analysis_filename = 'analysis_2021May06'
+    analysis_filename = 'analysis_2021May20'
     analysis_filepath = os.path.join(temp_folder, analysis_filename + '.data')
     with open(analysis_filepath, 'rb') as f:
         ana_dict = pickle.load(f)
@@ -1446,11 +1458,11 @@ def exe_single_simu_plots_fuji(h_0_val):
             strain_index_yearly[y][sti]=label # save strain label
     strain_frequency_yearly_transpose=list(map(list, zip(*strain_All_freq_yearly)))
     
-    # extract data for fitness distribution plots
+    # extract data for fitness distribution plots (use ftot_yearly_all etc. if want to plot fitness for all seasons until infend)
     
-    fint_yearly = analysis_results['fint_yearly']
-    minus_fhost_yearly = analysis_results['minus_fhost_yearly']
-    ftot_yearly = analysis_results['ftot_yearly']
+    fint_yearly = analysis_results['fint_yearly_all']
+    minus_fhost_yearly = analysis_results['minus_fhost_yearly_all']
+    ftot_yearly = analysis_results['ftot_yearly_all']
     
     # extract data for plots of inferred vs simulated params and calculated correlations
     
@@ -1600,10 +1612,10 @@ def exe_single_simu_plot_numMutations_fuji(h_0_val):
     plt.errorbar(year_list, mut_mean_yearly, mut_std_yearly, marker='.',  linewidth=0.5, zorder=1, color='blue', markersize=plt_set['plot_marker_size_dotSmall'])
     plt.xlabel('simulated season')
     plt.ylabel('accumulated mutations')
+    plt.title('h_0 = ' + str(h_0_val))
     
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
-   
         
 def exe_plot_param_exploration_sampleSize():
     """
@@ -1631,7 +1643,7 @@ def exe_plot_param_exploration_sampleSize():
     
     # load and process data for plotting
     simu_name = '2021Apr16'
-    analysis_filename = 'analysis_2021May04.data'
+    analysis_filename = 'analysis_2021May24.data'
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
@@ -2092,36 +2104,36 @@ def exe_plot_strainSuccession_HA():
     
 def main():
     ## run analysis/inference, each only once, comment out afterward
-#     exe_multi_simu_analysis_L()
-#     exe_multi_simu_analysis_Npop()
-#     exe_multi_simu_analysis_fuji()
+    # exe_multi_simu_analysis_L()
+    # exe_multi_simu_analysis_Npop()
+    # exe_multi_simu_analysis_fuji()
 
-    ## make single analysis plots   
-#     exe_single_simu_plots_Npop()
+    ## make single analysis plots
+    # N_pop_val_list = [10, 100, 10**3, 10**4, 10**5, 10**6]
+    N_pop_val_list = [10**5]
+    for N_pop_val in N_pop_val_list:
+        exe_single_simu_plots_Npop(N_pop_val)
 
     ## make single analysis plots for each mount fuji simulation
     h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]
-#     for h_0_val in h_0_val_list:
-#       exe_single_simu_plots_fuji(h_0_val)
+    # for h_0_val in h_0_val_list:
+    #   exe_single_simu_plots_fuji(h_0_val)
 
     ## for each mount fuji simulation  
-#     for h_0_val in h_0_val_list:
-#         exe_single_simu_plot_numMutations_fuji(h_0_val)
+    # for h_0_val in h_0_val_list:
+    #     exe_single_simu_plot_numMutations_fuji(h_0_val)
 
     ## plot inference performance as function of sample size (3 panels)
-#     exe_plot_param_exploration_sampleSize()
+    # exe_plot_param_exploration_sampleSize()
 
     ## plot inference performance as function of L and as function of N_pop
 #     exe_plot_param_exploration_L_Npop()
 
     ## plot strain succession for HA protein sequences
-    exe_plot_strainSuccession_HA()
-    
+#     exe_plot_strainSuccession_HA()
 
 
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':
     main()
-        
-        

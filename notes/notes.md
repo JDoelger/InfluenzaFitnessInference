@@ -156,7 +156,7 @@ the inference gives poorer results (correlations) than when using each observed 
 	- Ideally I should run the simus again with corrected values or with even better (or no) scaling of fitness coefficient distribution between different sequence lengths
 
 # log May 25 (check out engaging cluster again for repeat simus)
-- connect to cluster node "eofe5.mit.edu" via putty as described in folder EngagingCluster under README, set up file transfer via securecrt as used before
+- connect to cluster node "eofe5.mit.edu" or eofe7 via putty as described in folder EngagingCluster under README, set up file transfer via securecrt as used before
 
 
 
@@ -164,9 +164,9 @@ the inference gives poorer results (correlations) than when using each observed 
 
 [ ] write abstract
 
-[ ] run correct analysis and plots with correct calc of std (plots for sample size done)
+[ ] run correct simulations with correct fitness landscape replacement of min/max or nor replacement (ideally several runs w. different rng initialization for each parameter combo)
 
-[ ] run correct simulations with correct fitness landscape replacement of min/max (ideally several runs w. different rng initialization for each parameter combo)
+[ ] run correct analysis and plots with correct calc of std (single-simu plots done)
 
 [ ] think about and write down (analytical) justification for selection stringency condition (with use of Mt Fuji model)
 
@@ -193,6 +193,8 @@ even where data are lacking, e.g. by small regularization coeffs for each param 
 [ ] find out, why the strain labels in succession plots seem to increase linearly in simulation and exponentially in data
 
 [ ] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
+
+[x] check sampling size analysis (Arup's comment on Fig. 6). How much does number of seasons matter compared to B?
 
 [x] look up good coding practices for simulations (filenames, log files, retrieving results from simu with specific parameters etc.) -> use pypet
 

@@ -24,6 +24,7 @@ def add_parameters(traj):
     Dependencies:
     
     from pypet import Parameter
+    import numpy as np
     """
     traj.par.N_pop = Parameter('N_pop', 10**5, 'population size')
     traj.par.N_site = Parameter('N_site', 20, 'sequence length')
@@ -35,7 +36,10 @@ def add_parameters(traj):
     traj.par.J_0 = Parameter('J_0', 0, 'typical mutation coupling coefficient')
     traj.par.hJ_coeffs = Parameter('hJ_coeffs', 'p24',
                                    'fitness coefficients')
-    traj.par.seed = Parameter('seed', 123456, 'RNG seed')
+    # traj.par.seed = Parameter('seed', 123456, 'RNG seed')
+    # randomly choose rng seed and save it as parameter
+    seed = np.random.randint(10**6)
+    traj.par.seed = Parameter('seed', seed, 'RNG seed')
     traj.par.N_simu = Parameter('N_simu', 200, 'number of time steps to simulate')
     
 def fitness_coeff_constant(N_site,N_state,h_0,J_0):
@@ -146,11 +150,11 @@ def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Is
     h_list_final = np.array([np.random.choice(h_list_red[i], size=N_state-1)
                             for i in range(len(h_list_red))])
 
-    # replace max and min of coefficients by specific value
-    J_list_final = np.where(J_list_final==np.max(J_list_final), J_max, J_list_final)
-    J_list_final = np.where(J_list_final==np.min(J_list_final), J_min, J_list_final)
-    h_list_final = np.where(h_list_final==np.max(h_list_final), h_max, h_list_final)
-    h_list_final = np.where(h_list_final==np.min(h_list_final), h_min, h_list_final)
+    # # replace max and min of coefficients by specific value, comment out if no modification to sampled coefficients
+    # J_list_final = np.where(J_list_final==np.max(J_list_final), J_max, J_list_final)
+    # J_list_final = np.where(J_list_final==np.min(J_list_final), J_min, J_list_final)
+    # h_list_final = np.where(h_list_final==np.max(h_list_final), h_max, h_list_final)
+    # h_list_final = np.where(h_list_final==np.min(h_list_final), h_min, h_list_final)
     
     return h_list_final, J_list_final
 
@@ -513,6 +517,16 @@ def main():
     from datetime import date
     import pickle
     """
+    # define the parameter exploration for this experiment
+    # exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
+    exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
+    #     exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
+    # if I want to run all parameter combinations, run cartesian product
+    exp_dict = cartesian_product(exp_dict)
+    # the entries in the final dictionary need to all have equal lengths
+    # to tell the simulation which specific param combos to test
+    varied_simu_params = [key for key, val in exp_dict.items()]
+
     # this file, with which simulation is executed 
     simu_code_file = os.path.basename(__file__)
     
@@ -529,17 +543,21 @@ def main():
     result_directory = repository_path
     # result folder:
     folder = os.path.join(result_directory, 'results', 'simulations')
+
     # subfolder to store results
     simu_name1 = strdate_today
+    for p in varied_simu_params:
+        simu_name1 += "_var" + p
+
     simu_name = simu_name1
-    temp_folder = os.path.join(folder, simu_name + '_temp')
+    temp_folder = os.path.join(folder, simu_name)
     if not os.path.isdir(folder):
         os.makedirs(folder)
     simu_num = 1
     while os.path.isdir(temp_folder):
         simu_num += 1
         simu_name = simu_name1 + '_' + str(simu_num)
-        temp_folder = os.path.join(folder, simu_name + '_temp')
+        temp_folder = os.path.join(folder, simu_name)
     os.makedirs(temp_folder)
 
     # filename for final pypet results of the experiment
@@ -575,16 +593,6 @@ def main():
                            N_simu = traj.N_simu
                           )
 
-    # define the parameter exploration for this experiment
-#     exp_dict = {'N_pop' : [10, 100, 10**3, 10**4, 10**5, 10**6]}
-#     exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
-    exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
-    # if I want to run all parameter combinations, run cartesian product
-    exp_dict = cartesian_product(exp_dict) 
-    # the entries in the final dictionary need to all have equal lengths
-    # to tell the simulation which specific param combos to test
-    
-    varied_simu_params = [key for key, val in exp_dict.items()]
     simu_comment = 'simulation with varying'
     for p in varied_simu_params:
         simu_comment += ' ' + p
@@ -593,6 +601,7 @@ def main():
     traj.f_explore(exp_dict)
     
     # store simulation info as dictionary
+
     simu_dict = {}
     # store the various params, which describe the simu, in the dictionary
     simu_dict['simu_name'] = simu_name

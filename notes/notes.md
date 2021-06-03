@@ -158,13 +158,17 @@ the inference gives poorer results (correlations) than when using each observed 
 # log May 25 (check out engaging cluster again for repeat simus)
 - connect to cluster node "eofe5.mit.edu" or eofe7 via putty as described in folder EngagingCluster under README, set up file transfer via securecrt as used before
 
+# log June 2 (rerun simulations and analyses for manuscript)
+- rerun simulations and analyses for manuscript
+
+
 
 
 # To Do :
 
 [ ] write abstract
 
-[ ] run correct simulations with correct fitness landscape replacement of min/max or nor replacement (ideally several runs w. different rng initialization for each parameter combo)
+[ ] run correct simulations with no replacement of min/max of h,J (ideally several runs w. different rng initialization for each parameter combo)
 
 [ ] run correct analysis and plots with correct calc of std (single-simu plots done)
 

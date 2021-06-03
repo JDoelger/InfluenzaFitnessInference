@@ -1,1 +1,105 @@
 2021-06-02 11:00:47,261 pypet.storageservice.HDF5StorageService INFO     I will use the hdf5 file `C:\Users\julia\Documents\Resources\InfluenzaFitnessLandscape\NewApproachFromMarch2021\InfluenzaFitnessInference\results\simulations\2021Jun02_varN_pop.hdf5`.
+2021-06-02 11:00:47,265 pypet.environment.Environment INFO     Environment initialized.
+2021-06-02 11:00:47,267 root INFO     Starting Simulation
+2021-06-02 11:00:47,267 pypet.environment.Environment INFO     I am preparing the Trajectory for the experiment and initialise the store.
+2021-06-02 11:00:47,268 pypet.environment.Environment INFO     Initialising the storage for the trajectory.
+2021-06-02 11:00:47,288 pypet.storageservice.HDF5StorageService INFO     Initialising storage or updating meta data of Trajectory `2021Jun02_varN_pop`.
+2021-06-02 11:00:47,315 pypet.storageservice.HDF5StorageService INFO     Finished init or meta data update for `2021Jun02_varN_pop`.
+2021-06-02 11:00:47,320 pypet.environment.Environment INFO     
+************************************************************
+STARTING runs of trajectory
+`2021Jun02_varN_pop`.
+************************************************************
+
+2021-06-02 11:00:47,320 pypet INFO     PROGRESS: Finished 0/6 runs [                    ]  0.0%
+2021-06-02 11:00:47,321 pypet INFO     
+=========================================
+ Starting single run #0 of 6 
+=========================================
+
+2021-06-02 11:00:48,314 pypet INFO     
+=========================================
+ Finished single run #0 of 6 
+=========================================
+
+2021-06-02 11:00:48,314 pypet INFO     PROGRESS: Finished 1/6 runs [===                 ] 16.7%, remaining: 0:00:04
+2021-06-02 11:00:48,316 pypet INFO     
+=========================================
+ Starting single run #1 of 6 
+=========================================
+
+2021-06-02 11:00:49,538 pypet INFO     
+=========================================
+ Finished single run #1 of 6 
+=========================================
+
+2021-06-02 11:00:49,539 pypet INFO     PROGRESS: Finished 2/6 runs [======              ] 33.3%, remaining: 0:00:04
+2021-06-02 11:00:49,540 pypet INFO     
+=========================================
+ Starting single run #2 of 6 
+=========================================
+
+2021-06-02 11:00:54,806 pypet INFO     
+=========================================
+ Finished single run #2 of 6 
+=========================================
+
+2021-06-02 11:00:54,806 pypet INFO     PROGRESS: Finished 3/6 runs [==========          ] 50.0%, remaining: 0:00:07
+2021-06-02 11:00:54,807 pypet INFO     
+=========================================
+ Starting single run #3 of 6 
+=========================================
+
+2021-06-02 11:01:40,173 pypet INFO     
+=========================================
+ Finished single run #3 of 6 
+=========================================
+
+2021-06-02 11:01:40,173 pypet INFO     PROGRESS: Finished 4/6 runs [=============       ] 66.7%, remaining: 0:00:26
+2021-06-02 11:01:40,175 pypet INFO     
+=========================================
+ Starting single run #4 of 6 
+=========================================
+
+2021-06-02 11:08:35,370 pypet INFO     
+=========================================
+ Finished single run #4 of 6 
+=========================================
+
+2021-06-02 11:08:35,371 pypet INFO     PROGRESS: Finished 5/6 runs [================    ] 83.3%, remaining: 0:01:33
+2021-06-02 11:08:35,371 pypet INFO     
+=========================================
+ Starting single run #5 of 6 
+=========================================
+
+2021-06-02 12:29:21,389 pypet INFO     
+=========================================
+ Finished single run #5 of 6 
+=========================================
+
+2021-06-02 12:29:21,393 pypet INFO     PROGRESS: Finished 6/6 runs [====================]100.0%
+2021-06-02 12:29:21,417 pypet.storageservice.HDF5StorageService INFO     Initialising storage or updating meta data of Trajectory `2021Jun02_varN_pop`.
+2021-06-02 12:29:21,468 pypet.storageservice.HDF5StorageService INFO     Finished init or meta data update for `2021Jun02_varN_pop`.
+2021-06-02 12:29:21,473 pypet.environment.Environment INFO     
+************************************************************
+FINISHED all runs of trajectory
+`2021Jun02_varN_pop`.
+************************************************************
+
+2021-06-02 12:29:21,497 pypet.environment.Environment INFO     
+************************************************************
+STARTING FINAL STORING of trajectory
+`2021Jun02_varN_pop`
+************************************************************
+
+2021-06-02 12:29:21,500 pypet.storageservice.HDF5StorageService INFO     Start storing Trajectory `2021Jun02_varN_pop`.
+2021-06-02 12:29:21,525 pypet.storageservice.HDF5StorageService INFO     Storing branch `config`.
+2021-06-02 12:29:21,974 pypet.storageservice.HDF5StorageService INFO     Storing branch `parameters`.
+2021-06-02 12:29:22,042 pypet.storageservice.HDF5StorageService INFO     Finished storing Trajectory `2021Jun02_varN_pop`.
+2021-06-02 12:29:22,057 pypet.environment.Environment INFO     
+************************************************************
+FINISHED FINAL STORING of trajectory
+`2021Jun02_varN_pop`.
+************************************************************
+
+2021-06-02 12:29:22,109 pypet.environment.Environment INFO     All runs of trajectory `2021Jun02_varN_pop` were completed successfully.

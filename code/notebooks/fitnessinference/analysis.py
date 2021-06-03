@@ -70,7 +70,8 @@ def load_simu_data(single_simu_filename, simu_name, run_num,
     traj.v_idx = run_num
 
     # load data from the pickled files
-    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     test_filepath = os.path.join(temp_folder, single_simu_filename)
 
     with open(test_filepath, 'rb') as f:
@@ -766,7 +767,8 @@ def multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_di
     strdate_today = today.strftime('%Y%b%d')
     analysis_name = 'analysis_' + strdate_today
     result_directory = os.path.normpath(result_directory)
-    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     analysis_info_path = os.path.join(temp_folder, analysis_name + '.data')
     while os.path.exists(analysis_info_path):
         # for several analyses done on same day, add 'i' to name
@@ -886,7 +888,8 @@ def exe_multi_simu_analysis_L():
     import os
     other functions in this module
     """
-    simu_name = '2021Apr16'
+    # simu_name = '2021Apr16'
+    simu_name = '2021Jun02_varN_site'
     ana_param_dict ={
         'seed': 20390, 
         'B': 10**3, 
@@ -919,7 +922,8 @@ def exe_multi_simu_analysis_Npop():
     import os
     other functions in this module
     """
-    simu_name = '2021Apr07'
+    # simu_name = '2021Apr07'
+    simu_name = '2021Jun02_varN_pop'
     ana_param_dict ={
         'seed': 20390, 
         'B': 10**3, 
@@ -1239,14 +1243,16 @@ def exe_single_simu_plots_Npop(N_pop_val):
     
     other functions in this module
     """
-    simu_name = '2021Apr07'
-    
+    # simu_name = '2021Apr07'
+    simu_name = '2021Jun02_varN_pop'
+
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
-    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
-    
-    analysis_filename = 'analysis_2021May24'
+    # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
+
+    analysis_filename = 'analysis_2021Jun03'
     analysis_filepath = os.path.join(temp_folder, analysis_filename + '.data')
     with open(analysis_filepath, 'rb') as f:
         ana_dict = pickle.load(f)
@@ -1642,12 +1648,15 @@ def exe_plot_param_exploration_sampleSize():
     plt_set = set_plot_settings()
     
     # load and process data for plotting
-    simu_name = '2021Apr16'
-    analysis_filename = 'analysis_2021May24.data'
+    # simu_name = '2021Apr16'
+    simu_name = '2021Jun02_varN_site'
+    # analysis_filename = 'analysis_2021May24.data'
+    analysis_filename = 'analysis_2021Jun03.data'
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
-    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     
     figure_directory = temp_folder
     
@@ -1799,13 +1808,16 @@ def exe_plot_param_exploration_L_Npop():
     ax2 = fig.add_axes(plt_set['plot_dim_2pan'][1])
     
     # load data for first plot: r_hJ+-SE_rhJ as function of L for various B
-    simu_name = '2021Apr16'
-    analysis_filename = 'analysis_2021May04.data'
+    # simu_name = '2021Apr16'
+    simu_name = '2021Jun02_varN_site'
+    # analysis_filename = 'analysis_2021May04.data'
+    analysis_filename = 'analysis_2021Jun03.data'
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
-    temp_folder = os.path.join(result_directory, 'results',
-                               'simulations', simu_name + '_temp')
+    # temp_folder = os.path.join(result_directory, 'results',
+    #                            'simulations', simu_name + '_temp')
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     
     figure_directory = os.path.join(result_directory, 'results', 'simulations')
     this_plot_filepath = os.path.join(figure_directory, 'param_exploration_L_Npop' + plt_set['file_extension'])
@@ -1863,13 +1875,16 @@ def exe_plot_param_exploration_L_Npop():
       fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     # load data for second plot: r_hJ+-SE_rhJ as function of Npop for various B
-    simu_name = '2021Apr07'
-    analysis_filename = 'analysis_2021May04.data'
+    # simu_name = '2021Apr07'
+    simu_name = '2021Jun02_varN_pop'
+    # analysis_filename = 'analysis_2021May04.data'
+    analysis_filename = 'analysis_2021Jun03.data'
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
-    temp_folder = os.path.join(result_directory, 'results',
-                               'simulations', simu_name + '_temp')
+    # temp_folder = os.path.join(result_directory, 'results',
+    #                            'simulations', simu_name + '_temp')
+    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     
     analysis_filepath = os.path.join(temp_folder, analysis_filename)
     with open(analysis_filepath, 'rb') as f:
@@ -2104,15 +2119,15 @@ def exe_plot_strainSuccession_HA():
     
 def main():
     ## run analysis/inference, each only once, comment out afterward
-    # exe_multi_simu_analysis_L()
-    # exe_multi_simu_analysis_Npop()
+    exe_multi_simu_analysis_L()
+    exe_multi_simu_analysis_Npop()
     # exe_multi_simu_analysis_fuji()
 
     ## make single analysis plots
     # N_pop_val_list = [10, 100, 10**3, 10**4, 10**5, 10**6]
-    N_pop_val_list = [10**5]
-    for N_pop_val in N_pop_val_list:
-        exe_single_simu_plots_Npop(N_pop_val)
+    # N_pop_val_list = [10**5]
+    # for N_pop_val in N_pop_val_list:
+    #     exe_single_simu_plots_Npop(N_pop_val)
 
     ## make single analysis plots for each mount fuji simulation
     h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]

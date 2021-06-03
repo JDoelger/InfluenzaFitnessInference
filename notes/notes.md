@@ -158,9 +158,10 @@ the inference gives poorer results (correlations) than when using each observed 
 # log May 25 (check out engaging cluster again for repeat simus)
 - connect to cluster node "eofe5.mit.edu" or eofe7 via putty as described in folder EngagingCluster under README, set up file transfer via securecrt as used before
 
-# log June 2 (rerun simulations and analyses for manuscript)
-- rerun simulations and analyses for manuscript
+# log June 2 (rerun simulations for manuscript)
+- rerun simulations for manuscript
 
+# log June 3 (rerun analyses for manuscript)
 
 
 

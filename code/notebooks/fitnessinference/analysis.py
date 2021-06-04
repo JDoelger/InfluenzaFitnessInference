@@ -889,7 +889,8 @@ def exe_multi_simu_analysis_L():
     other functions in this module
     """
     # simu_name = '2021Apr16'
-    simu_name = '2021Jun02_varN_site'
+    # simu_name = '2021Jun02_varN_site'
+    simu_name = '2021Jun04_varN_site'
     ana_param_dict ={
         'seed': 20390, 
         'B': 10**3, 
@@ -923,7 +924,8 @@ def exe_multi_simu_analysis_Npop():
     other functions in this module
     """
     # simu_name = '2021Apr07'
-    simu_name = '2021Jun02_varN_pop'
+    # simu_name = '2021Jun02_varN_pop'
+    simu_name = '2021Jun04_varN_pop'
     ana_param_dict ={
         'seed': 20390, 
         'B': 10**3, 
@@ -1027,7 +1029,7 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
                       '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures'):
     """ 
     create plots for analysis of a single simulation
-    
+
     Parameters:
             year_list: list
             strain_frequency_yearly_transpose: list
@@ -1311,9 +1313,9 @@ def exe_single_simu_plots_Npop(N_pop_val):
     
     # extract data for fitness distribution plots
     
-    fint_yearly = analysis_results['fint_yearly']
-    minus_fhost_yearly = analysis_results['minus_fhost_yearly']
-    ftot_yearly = analysis_results['ftot_yearly']
+    fint_yearly = analysis_results['fint_yearly_all']
+    minus_fhost_yearly = analysis_results['minus_fhost_yearly_all']
+    ftot_yearly = analysis_results['ftot_yearly_all']
     
     # extract data for plots of inferred vs simulated params and calculated correlations
     
@@ -1954,7 +1956,6 @@ def index_list(s, item, i=0):
             break
     return i_list
 
-
 def strain_info(seqs_list):
     """
     calculate strains and frequencies from list of seq.s at different time points
@@ -1995,7 +1996,6 @@ def strain_info(seqs_list):
     strain_All_list=[x for y,x in merge_list]
     return [strains_list, strains_freq_list, total_count_list, strain_All_list,strain_All_freq_list]
 
-    
 def exe_plot_strainSuccession_HA():
     """
     make and save plot of strain succession since 1968 of HA (H3N2) as collected from
@@ -2119,7 +2119,7 @@ def exe_plot_strainSuccession_HA():
     
 def main():
     ## run analysis/inference, each only once, comment out afterward
-    exe_multi_simu_analysis_L()
+    # exe_multi_simu_analysis_L()
     exe_multi_simu_analysis_Npop()
     # exe_multi_simu_analysis_fuji()
 
@@ -2142,7 +2142,7 @@ def main():
     # exe_plot_param_exploration_sampleSize()
 
     ## plot inference performance as function of L and as function of N_pop
-#     exe_plot_param_exploration_L_Npop()
+    # exe_plot_param_exploration_L_Npop()
 
     ## plot strain succession for HA protein sequences
 #     exe_plot_strainSuccession_HA()

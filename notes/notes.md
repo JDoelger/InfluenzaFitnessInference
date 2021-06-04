@@ -162,8 +162,11 @@ the inference gives poorer results (correlations) than when using each observed 
 - rerun simulations for manuscript
 
 # log June 3 (rerun analyses for manuscript)
+- rerun analysis producing analyzed data
 
-
+# log June 4 (make manuscript plots and run new simus)
+- make manuscript plots based on new simus and analyses (sampling size plot looks less convincing)
+- run new simulations with same settings but different random seed for simulation
 
 # To Do :
 

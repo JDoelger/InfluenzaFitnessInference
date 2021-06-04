@@ -518,8 +518,8 @@ def main():
     import pickle
     """
     # define the parameter exploration for this experiment
-    exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
-    # exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
+    # exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
+    exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
     #     exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
     # if I want to run all parameter combinations, run cartesian product
     exp_dict = cartesian_product(exp_dict)

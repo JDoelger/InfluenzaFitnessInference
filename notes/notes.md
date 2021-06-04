@@ -167,6 +167,8 @@ the inference gives poorer results (correlations) than when using each observed 
 # log June 4 (make manuscript plots and run new simus)
 - make manuscript plots based on new simus and analyses (sampling size plot looks less convincing)
 - run new simulations with same settings but different random seed for simulation
+- Arup sent comments on manuscript 
+- meeting w. Arup and Mehran on manuscript comments (see notes in word doc) 
 
 # To Do :
 

@@ -891,6 +891,7 @@ def exe_multi_simu_analysis_L():
     # simu_name = '2021Apr16'
     # simu_name = '2021Jun02_varN_site'
     simu_name = '2021Jun04_varN_site'
+
     ana_param_dict ={
         'seed': 20390, 
         'B': 10**3, 
@@ -926,6 +927,7 @@ def exe_multi_simu_analysis_Npop():
     # simu_name = '2021Apr07'
     # simu_name = '2021Jun02_varN_pop'
     simu_name = '2021Jun04_varN_pop'
+
     ana_param_dict ={
         'seed': 20390, 
         'B': 10**3, 
@@ -997,6 +999,7 @@ def set_plot_settings():
     plotlabel_up_3pan = 1
     plot_marker_size_dot = 5
     plot_marker_size_dotSmall = 3
+    plot_dim_1pan = [[0, 0, 1, 1]]
     plot_dim_2pan = [[0, 0, 0.43, 1],[0.57, 0, 0.43, 1]]
     plot_dim_3pan = [[0, 0, 0.25, 1],[0.375, 0, 0.25, 1],[0.75, 0, 0.25, 1]]
     mpl.rcParams['font.family'] = 'Arial'
@@ -1012,6 +1015,7 @@ def set_plot_settings():
         'plotlabel_up_3pan': plotlabel_up_3pan,
         'plot_marker_size_dot': plot_marker_size_dot,
         'plot_marker_size_dotSmall': plot_marker_size_dotSmall,
+        'plot_dim_1pan' : plot_dim_1pan,
         'plot_dim_2pan': plot_dim_2pan,
         'plot_dim_3pan': plot_dim_3pan
     }
@@ -1066,10 +1070,11 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     Results:
     
     plot files .pdf
-            oneana_strain_succession_fuji
-            oneana_fitness_dists_fuji
-            oneana_infsimu_correlation_fuji
-            oneana_classification_curves_fuji
+            oneana_strain_succession
+            oneana_fitness_dists
+            oneana_MFhost_Fint
+            oneana_infsimu_correlation
+            oneana_classification_curves
     
     Returns:
     
@@ -1160,6 +1165,41 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
+
+    #  plot -Fhost vs Fint
+
+    fig_name = 'oneana_MFhost_Fint' + fig_name_unique + plt_set['file_extension']
+    this_plot_filepath = os.path.join(figure_directory, fig_name)
+    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_2pan'][0])
+    ax2 = fig.add_axes(plt_set['plot_dim_2pan'][1])
+
+    cm = plt.get_cmap('rainbow')
+    colorlist = [cm(1. * i / (len(minus_fhost_yearly[:])))
+                 for i in range(len(minus_fhost_yearly[:]))]
+
+    corr1_line = np.linspace(-15, 15, num=2)
+    for y in range(len(minus_fhost_yearly[:])):
+        ax1.plot(fint_yearly[y]-np.mean(fint_yearly[y]), minus_fhost_yearly[y]-np.mean(minus_fhost_yearly[y]), '.',
+                 markersize=plt_set['plot_marker_size_dotSmall'], color=colorlist[y])
+    ax1.plot(corr1_line, corr1_line, '-', color='black')
+    ax1.set_xlabel('$F_{int}$ - $<F_{int}>(t)$')
+    ax1.set_ylabel('$-F_{host}$ - $<-F_{host}>(t)$')
+    ax1.text(plt_set['plotlabel_shift_2pan'], 1, 'A', transform=ax1.transAxes,
+             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+
+    corr1_line = [np.linspace(-40, -15, num=2), np.linspace(-40 + 70, -15+70, num=2)]
+    for y in range(len(minus_fhost_yearly[:])):
+        ax2.plot(fint_yearly[y], minus_fhost_yearly[y], '.',
+                 markersize=plt_set['plot_marker_size_dotSmall'], color=colorlist[y])
+    ax2.plot(corr1_line[0], corr1_line[1], '-', color='black')
+    ax2.set_xlabel('$F_{int}$ - $F_0$')
+    ax2.set_ylabel('$-F_{host}$')
+    ax2.text(plt_set['plotlabel_shift_2pan'], 1, 'B', transform=ax2.transAxes,
+             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+    plt.close()
     
     # plot correlations between simulated and inferred fitness coefficients
     
@@ -1245,8 +1285,9 @@ def exe_single_simu_plots_Npop(N_pop_val):
     
     other functions in this module
     """
-    # simu_name = '2021Apr07'
-    simu_name = '2021Jun02_varN_pop'
+    simu_name = '2021Apr07_temp'
+    # simu_name = '2021Jun02_varN_pop'
+    # simu_name = '2021Jun04_varN_pop'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
@@ -1254,7 +1295,10 @@ def exe_single_simu_plots_Npop(N_pop_val):
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
 
-    analysis_filename = 'analysis_2021Jun03'
+    analysis_filename = 'analysis_2021May24'
+    # analysis_filename = 'analysis_2021Jun03'
+    # analysis_filename = 'analysis_2021Jun04'
+
     analysis_filepath = os.path.join(temp_folder, analysis_filename + '.data')
     with open(analysis_filepath, 'rb') as f:
         ana_dict = pickle.load(f)
@@ -1312,7 +1356,10 @@ def exe_single_simu_plots_Npop(N_pop_val):
     strain_frequency_yearly_transpose=list(map(list, zip(*strain_All_freq_yearly)))
     
     # extract data for fitness distribution plots
-    
+
+    # fint_yearly = analysis_results['fint_yearly']
+    # minus_fhost_yearly = analysis_results['minus_fhost_yearly']
+    # ftot_yearly = analysis_results['ftot_yearly']
     fint_yearly = analysis_results['fint_yearly_all']
     minus_fhost_yearly = analysis_results['minus_fhost_yearly_all']
     ftot_yearly = analysis_results['ftot_yearly_all']
@@ -1651,9 +1698,13 @@ def exe_plot_param_exploration_sampleSize():
     
     # load and process data for plotting
     # simu_name = '2021Apr16'
-    simu_name = '2021Jun02_varN_site'
+    # simu_name = '2021Jun02_varN_site'
+    simu_name = '2021Jun04_varN_site'
+
     # analysis_filename = 'analysis_2021May24.data'
-    analysis_filename = 'analysis_2021Jun03.data'
+    # analysis_filename = 'analysis_2021Jun03.data'
+    analysis_filename = 'analysis_2021Jun04.data'
+
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
@@ -1811,9 +1862,13 @@ def exe_plot_param_exploration_L_Npop():
     
     # load data for first plot: r_hJ+-SE_rhJ as function of L for various B
     # simu_name = '2021Apr16'
-    simu_name = '2021Jun02_varN_site'
+    # simu_name = '2021Jun02_varN_site'
+    simu_name = '2021Jun04_varN_site'
+
     # analysis_filename = 'analysis_2021May04.data'
     analysis_filename = 'analysis_2021Jun03.data'
+    analysis_filename = 'analysis_2021Jun04.data'
+
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
@@ -1878,9 +1933,13 @@ def exe_plot_param_exploration_L_Npop():
     
     # load data for second plot: r_hJ+-SE_rhJ as function of Npop for various B
     # simu_name = '2021Apr07'
-    simu_name = '2021Jun02_varN_pop'
+    # simu_name = '2021Jun02_varN_pop'
+    simu_name = '2021Jun04_varN_pop'
+
     # analysis_filename = 'analysis_2021May04.data'
-    analysis_filename = 'analysis_2021Jun03.data'
+    # analysis_filename = 'analysis_2021Jun03.data'
+    analysis_filename = 'analysis_2021Jun04.data'
+
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
@@ -1956,176 +2015,15 @@ def index_list(s, item, i=0):
             break
     return i_list
 
-def strain_info(seqs_list):
-    """
-    calculate strains and frequencies from list of seq.s at different time points
-    seqs_list: list of list of sequences for a number of time points
-    returns lists of strains and strain frequencies for each time, total count at each time, 
-    strains and frequencies across all time points 
-    """
-    total_count_list=[len(seqs) for seqs in seqs_list] # total number of sequences at each time
-    strains_list=[[] for seqs in seqs_list]
-    strains_freq_list=[[] for seqs in seqs_list]
-    strain_All_list=[]
-    strain_All_freq_list=[]
-    for y in range(len(seqs_list)): # for each time point
-        ## finding unique seqs in each time point
-        strains_count=[] # counts for each strain before normalization
-        for i in range(len(seqs_list[y])):
-            if seqs_list[y][i] not in strains_list[y]:
-                strains_list[y].append(seqs_list[y][i])
-                strains_count.append(1)
-            else:
-                strains_count[strains_list[y].index(seqs_list[y][i])]+=1
-        # rank strains of this year:
-        merge_list=list(zip(strains_count,strains_list[y]))
-        merge_list.sort(reverse=True) # sort coarse strain list according to count
-        strains_count=[y for y,x in merge_list]
-        strains_list[y]=[x for y,x in merge_list]
-        strains_freq_list[y]=[c/total_count_list[y] for c in strains_count] # calculate strain frequency from count
-        ## finding unique seqs across time points
-        for sti in range(len(strains_list[y])): # for each strain at this time
-            if strains_list[y][sti] not in strain_All_list:
-                strain_All_list.append(strains_list[y][sti])
-                strain_All_freq_list.append(strains_freq_list[y][sti]) # unnormalized (adding yearly freq)
-            else:
-                strain_All_freq_list[strain_All_list.index(strains_list[y][sti])]+=strains_freq_list[y][sti]
-    merge_list=list(zip(strain_All_freq_list,strain_All_list))
-    merge_list.sort(reverse=True) # sort coarse strain list according to count
-    strain_All_freq_list=[y/len(seqs_list) for y,x in merge_list] # normalized by number of time points
-    strain_All_list=[x for y,x in merge_list]
-    return [strains_list, strains_freq_list, total_count_list, strain_All_list,strain_All_freq_list]
-
-def exe_plot_strainSuccession_HA():
-    """
-    make and save plot of strain succession since 1968 of HA (H3N2) as collected from
-    the influenza research database (fludb.org)
-    
-    Results:
-    
-    plot file: .pdf
-                name: HA_strain_succession
- 
-    Returns:
-    
-    None
-    
-    Dependencies:
-    
-    import os
-    import pickle
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    from Bio import SeqIO
-    from Bio.Seq import Seq
-    other functions in this module
-    """  
-    # plot settings
-    plt_set = set_plot_settings()
-    
-    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
-    ax1 = fig.add_axes(plt_set['plot_dim_2pan'][0])
-    ax2 = fig.add_axes(plt_set['plot_dim_2pan'][1])
-    
-    repo_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
-                      'NewApproachFromMarch2021/InfluenzaFitnessInference')
-    repo_directory = os.path.normpath(repo_directory)
-    
-    figure_directory = os.path.join(repo_directory, 'results')
-    this_plot_filepath = os.path.join(figure_directory, 
-                                      'HA_strain_succession' + plt_set['file_extension'])
-    
-    protein_list = list(SeqIO.parse('869893753356-ProteinFastaResults.fasta', 'fasta')) # HA (H3N2) protein records from IRD (fludb.org) for 1968-2020, downloaded on 18th Apr. 2021, only date and season in description
-    protein_BI1619068=list(SeqIO.parse('BI_16190_68_ProteinFasta.fasta','fasta')) # HA (H3N2) protein records from IRD (fludb.org) for strain BI/16190/68 (accession: KC296480)
-    seq_BI68=protein_BI1619068[0].seq # reference sequence for strain BI
-    
-    # use only seqs that are complete with no insertions/deletions
-    complete_list = []
-    for rec in protein_list:
-        if len(rec)==566:
-            complete_list.append(rec)
-            
-    # remove all sequences with ambiguous amino acids
-    amb_aa_list = ['B', 'J', 'Z', 'X']
-    complete_unamb_list = []
-    for rec in complete_list:
-        amb_count = 0
-        for aa in amb_aa_list:
-            if aa in rec.seq:
-                amb_count += 1
-                break
-        if amb_count==0:
-            complete_unamb_list.append(rec)
-            
-    # divide sequences into years:  as list of years, which contain list of sequences
-    year1=1968
-    yearend=2020
-    year_list=list(i for i in range(year1,yearend+1)) # list of years
-    yearly=list([] for i in range(0,yearend-year1+1)) # list of sequences for each year
-    for rec in complete_unamb_list:
-        for year in year_list:
-            if str(year) in rec.id:
-                yearly[year_list.index(year)].append(str(rec.seq)) # append only the sequence, not whole record
-    
-    # divide sequences into strains
-    [strain_yearly, strain_frequency_yearly, tot_count_yearly, 
-     strain_All, strain_frequency_All] = strain_info(yearly)
-    
-    strain_All_timeOrdered=[] # all strains ordered in time (first observed with highest frequency listed first)
-    strain_All_freq_timeOrdered=[] # frequency of all strains ordered in time
-    # order strains
-    for y in range(len(strain_yearly)):
-        for sti in range(len(strain_yearly[y])): # for each strain at this time
-            if strain_yearly[y][sti] not in strain_All_timeOrdered:
-                strain_All_timeOrdered.append(strain_yearly[y][sti])
-                strain_All_freq_timeOrdered.append(strain_frequency_yearly[y][sti]) # unnormalized (adding yearly freq)
-            else:
-                strain_All_freq_timeOrdered[strain_All_timeOrdered.index(strain_yearly[y][sti])]+=strain_frequency_yearly[y][sti]
-    # assign strain label to each strain in each year
-    strain_All_freq_yearly=[[0 for i in range(len(strain_All_timeOrdered))] for y in range(len(strain_yearly))] # frequency of all ever observed strains in each year
-    strain_index_yearly=[[0 for sti in range(len(strain_yearly[y]))] for y in range(len(strain_yearly))] # strain labels for strains that are observed in each year
-    for y in range(len(strain_yearly)):
-        for sti in range(len(strain_yearly[y])):
-            label=strain_All_timeOrdered.index(strain_yearly[y][sti]) # strain label
-            strain_All_freq_yearly[y][label]=strain_frequency_yearly[y][sti] # strain frequency update
-            strain_index_yearly[y][sti]=label # save strain label
-
-    strain_frequency_yearly_transpose=list(map(list, zip(*strain_All_freq_yearly)))
-    
-    cm = plt.get_cmap('rainbow')
-    colorlist = [cm(1.*i/(len(strain_frequency_yearly_transpose))) 
-                 for i in range(len(strain_frequency_yearly_transpose))]
-    
-    for sti in range(len(strain_frequency_yearly_transpose)):
-        ax1.plot(year_list, strain_frequency_yearly_transpose[sti], color=colorlist[sti])
-    ax1.set_xlabel('year')
-    ax1.set_ylabel('strain frequency')
-    ax1.text(plt_set['plotlabel_shift_2pan'], 1, 'A', transform=ax1.transAxes,
-      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-    
-    for y in range(len(strain_index_yearly)):
-        for sti in range(len(strain_index_yearly[y])-1, -1, -1): 
-            ax2.plot(y+year_list[0], strain_index_yearly[y][sti], '.',
-                     markersize=plt_set['plot_marker_size_dot'], color='blue')
-        ax2.plot(y+year_list[0], strain_index_yearly[y][0], '.', 
-                 markersize=plt_set['plot_marker_size_dot'], color='red')
-    ax2.set_xlabel('year')
-    ax2.set_ylabel('strain label')
-    ax2.text(plt_set['plotlabel_shift_2pan'], 1, 'B', transform=ax2.transAxes,
-      fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-    
-    plt.savefig(this_plot_filepath, bbox_inches='tight')
-    plt.close()
-    
 def main():
     ## run analysis/inference, each only once, comment out afterward
     # exe_multi_simu_analysis_L()
-    exe_multi_simu_analysis_Npop()
+    # exe_multi_simu_analysis_Npop()
     # exe_multi_simu_analysis_fuji()
 
     ## make single analysis plots
     # N_pop_val_list = [10, 100, 10**3, 10**4, 10**5, 10**6]
-    # N_pop_val_list = [10**5]
+    N_pop_val_list = [10**5]
     # for N_pop_val in N_pop_val_list:
     #     exe_single_simu_plots_Npop(N_pop_val)
 
@@ -2143,9 +2041,6 @@ def main():
 
     ## plot inference performance as function of L and as function of N_pop
     # exe_plot_param_exploration_L_Npop()
-
-    ## plot strain succession for HA protein sequences
-#     exe_plot_strainSuccession_HA()
 
 
 

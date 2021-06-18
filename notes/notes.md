@@ -170,26 +170,33 @@ the inference gives poorer results (correlations) than when using each observed 
 - Arup sent comments on manuscript 
 - meeting w. Arup and Mehran on manuscript comments (see notes in word doc) 
 
+# log June 16 (infer fitness coefficients for HA based on chosen reference seq, find deep mut scanning data)
+- paper by Lee et al. 2018 (PNAS) measures the mutational fitness effects for each single mutation (to each amino acid) at each HA position, based on a specific H3 reference strain (Perth/2009 HA-G78D-T212I)
+- I did an inference of h with the same reference sequence
+- Lee et al. calculate the preference (=selection probability) for each aa at each position and calculate mutational effects as log(p_mut/p_wt) as the logarithm of the ratio between preference of the mutant and preference of the wildtype aa. This is (with equilibrium assumption) equivalent to h_intrinsic (if we assume that the experimental system is equivalent to the natural selection)  
+- The experimental aa preferences are on jbloom's github and I downloaded them as csv file to soon compare the mutational effects to my inference
+
+# log June 17 (compare inferred fitness coefficients from HA strain succession data
+to deep mut scanning)
+- The comparison of a fitness inference with no couplings and sigmah=1, D0=5 resulted in very low rank correlations between inferred fitness effects and measureed mut effects (rho = 0.13, p=0.15)
+- sigma_h shouldn't matter at all for this type of inference, but D0 can
+- also the number of years used for inference (around the observation year of the reference seq) might matter
+
 # To Do :
 
-[ ] write abstract
+[ ] investigate format of PRE and put ms into that format
+
+[ ] do replicate simulations (with different RNG seeds) to get robust inference performance estimates (see Fig. 2 in Barton paper who did 100 replicate simus and calculated mean AUC)
+
+[ ] do inference on HA head and compare to deep mutational scanning, e.g. using reference strain as Lee et al. PNAS 2018 and getting rank correlation between inferred h and experimental Shannon entropy at each site
+
+[ ] include plot in SI comparing the assumed cross-immunity function to measured HI data
 
 [ ] run correct simulations with no replacement of min/max of h,J (ideally several runs w. different rng initialization for each parameter combo)
 
-[ ] run correct analysis and plots with correct calc of std (single-simu plots done)
-
-[ ] think about and write down (analytical) justification for selection stringency condition (with use of Mt Fuji model)
-
 [ ] write down (and discuss with A and M) derivation of F_host functional form -> I don't understand why [Luksza and Laessig 2014] (eq. 11-14 in their methods) don't discuss validity of their expression 1-sum compared to more correct mean-field expression exp(-sum) (see also [Yan et al. 2019, eq. 3-5] and [Gog and Grenfell 2002, ])
 
-[ ] tidy up code for figures -> write functions
-
 [ ] write up full details of simulation, inference and analysis in Methods or SI
-
-[ ] do replicate simulations (with different RNG seeds) to get robust inference performance (see Fig. 2 in Barton paper who did 100 replicate simus and calculated mean AUC)
-
-[ ] think about/ explore appropriate indicator from sequence data (without additional info from simu) that correlates with selection stringency/inference performance, e.g. something about strain succession (avg./max. lifetime of strains, log(x/x'),...)
-(might have to do few extra simus varying the selection regime like decreasing sigmah 1 to 0 in few steps, if sigmah=0 can I use MPL to infer exp(F)? only if F<<1 -> exp(F) approx 1+F)
 
 [ ] submit simulation to cluster (lymphocyte or engaging), before try out multiprocessing in pypet to make use of parallel computing
 
@@ -197,12 +204,14 @@ the inference gives poorer results (correlations) than when using each observed 
 
 [ ] submit simu to sweep fitness coefficients, 3 diff. h (most del., some neutral, some beneficial), 3 diff. J (few del.,few ben., most neutral), vary ben. J, ben. h, e.g. start with two simus with larger/smaller ben. J, two simus w larger/smaller ben. h
 
-[ ] make sure that I get some inference result for each analysis,
-even where data are lacking, e.g. by small regularization coeffs for each param (corresponds to some wide gaussian prior)
+[x] think about and write down (analytical) justification for selection stringency condition (with use of Mt Fuji model)
 
-[ ] find out, why the strain labels in succession plots seem to increase linearly in simulation and exponentially in data
+[x] think about/ explore appropriate indicator from sequence data (without additional info from simu) that correlates with selection stringency/inference performance, e.g. something about strain succession (avg./max. lifetime of strains, log(x/x'),...)
+(might have to do few extra simus varying the selection regime like decreasing sigmah 1 to 0 in few steps, if sigmah=0 can I use MPL to infer exp(F)? only if F<<1 -> exp(F) approx 1+F)
 
-[ ] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
+[x] run correct analysis and plots with correct calc of std (single-simu plots done)
+
+[x] implement reproducible simulation and analysis pipeline, using pypet mainly (only) for parameter sweep
 
 [x] check sampling size analysis (Arup's comment on Fig. 6). How much does number of seasons matter compared to B?
 
@@ -244,8 +253,22 @@ even where data are lacking, e.g. by small regularization coeffs for each param 
 
 [x] plot number of accumulated mutations as function of time for fuji simulations
 
+[x] review abstract (Mehran's suggestion emphasizing no need for phylogeny in our inference)
 
+[x] look into complexity scaling arguments (see discussion notes, Arup's paper suggestions, and Mehran's email) -> which apply for our system? How does amount of needed data(/comp. time) scale with sequence length/num. inference params?
+for each simulation, where any analysis achieved performance >threshold (e.g. 0.9), take sampling param B (for fixed n_s) at which performance is smallest among the ones that have r>threshold, do same analysis for fixed B and varying n_s<=100
+plot data in plot of B*n_s*mu vs. num_params  
 
+[x] estimate stringency, i.e. how narrow is total fitness distribution of real HA within seasons, based on Luksza and Laessig paper (see specific notes on this))
+
+[x] look into conditions for stringency assumption (see Mehran's comments in notes, e.g. needs small Npop)
+
+[x] tidy up code for figures -> write functions
+
+[x] make sure that I get some inference result for each analysis,
+even where data are lacking, e.g. by small regularization coeffs for each param (corresponds to some wide gaussian prior)
+
+[x] find out, why the strain labels in succession plots seem to increase linearly in simulation and exponentially in data
 
 
 

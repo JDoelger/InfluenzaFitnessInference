@@ -182,6 +182,10 @@ to deep mut scanning)
 - sigma_h shouldn't matter at all for this type of inference, but D0 can
 - also the number of years used for inference (around the observation year of the reference seq) might matter
 
+# log June 18
+- plot average results of different replicate simus
+- I found out that the 2 replicate simulation batches were exactly the same, since the rng seed was accidentally set to the same number
+
 # To Do :
 
 [ ] investigate format of PRE and put ms into that format

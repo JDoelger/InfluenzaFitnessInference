@@ -943,7 +943,60 @@ def exe_multi_simu_analysis_Npop():
     exp_ana_dict = cartesian_product(exp_ana_dict)
     
     multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)
-    
+
+def exe_avg_analysis(var):
+    """
+    create result file, where summary stats of all repeats of each single analysis are averaged
+    for a simulation collection where variable var (as string) is varied
+    var can be 'N_pop' or 'N_site'
+    """
+    today = date.today()
+    strdate_today = today.strftime('%Y%b%d')
+    avg_results_filename = 'avg_analysis_' + var + '_' + strdate_today + '.data'
+
+    result_directory = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
+                                    'NewApproachFromMarch2021/InfluenzaFitnessInference')
+    simu_result_folder = os.path.join(result_directory, 'results', 'simulations')
+    avg_results_filepath = os.path.join(simu_result_folder, avg_results_filename)
+
+    # find all folders that have 'var_Npop' in name
+    contents = os.listdir(simu_result_folder)
+    simuname_list = [] # list of simu names for repeat simulations
+    for name in contents:
+        if ('var' + var in name) and ('.' not in name):
+            simuname_list.append(name)
+
+    ana_dict_list = []
+    for name in simuname_list:
+        result_filedir = os.path.join(simu_result_folder, name)
+        for filename in os.listdir(result_filedir):
+            if ('analysis_' in filename) and (len(filename)==23): # find summary analysis file
+                ana_name = filename
+                break
+        ana_filepath = os.path.join(result_filedir, ana_name)
+        with open(ana_filepath, 'rb') as f:
+            ana_dict = pickle.load(f)
+        ana_dict_list.append(ana_dict)
+
+    avg_ana_dict = ana_dict_list[0] # initialize the new dict with one of the non-averaged results
+    summary_stats_all_avg = {}
+
+    # mean r_hJ
+    summary_stats_all_avg['r_hJ'] = np.mean([ana_dict_list[i]['summary_stats_all']['r_hJ'] for i in range(len(ana_dict_list))], axis=0)
+    # sample std of r_hJ
+    summary_stats_all_avg['std_r_hJ'] = np.std([ana_dict_list[i]['summary_stats_all']['r_hJ'] for i in range(len(ana_dict_list))], axis=0, ddof=1)
+    summary_stats_all_avg['AUC_PRC'] = np.mean([ana_dict_list[i]['summary_stats_all']['AUC_prec_recall'] for i in range(len(ana_dict_list))], axis=0)
+    summary_stats_all_avg['std_AUC_PRC'] = np.std([ana_dict_list[i]['summary_stats_all']['AUC_prec_recall'] for i in range(len(ana_dict_list))], axis=0, ddof=1)
+    summary_stats_all_avg['AUC_ROC'] = np.mean([ana_dict_list[i]['summary_stats_all']['AUC_ROC'] for i in range(len(ana_dict_list))], axis=0)
+    summary_stats_all_avg['std_AUC_ROC'] = np.std([ana_dict_list[i]['summary_stats_all']['AUC_ROC'] for i in range(len(ana_dict_list))], axis=0, ddof=1)
+
+    avg_ana_dict['summary_stats_all'] = summary_stats_all_avg
+    with open(avg_results_filepath, 'wb') as f:
+        pickle.dump(avg_ana_dict, f)
+
+    # print(len(ana_dict_list))
+    print(summary_stats_all_avg['std_r_hJ'])
+
 def exe_multi_simu_analysis_fuji():
     """
     runs multi_simu_analysis with specified parameters for simulations with varying fields h_0 with hJ_coeffs='constant'
@@ -1285,8 +1338,8 @@ def exe_single_simu_plots_Npop(N_pop_val):
     
     other functions in this module
     """
-    simu_name = '2021Apr07_temp'
-    # simu_name = '2021Jun02_varN_pop'
+    # simu_name = '2021Apr07_temp'
+    simu_name = '2021Jun02_varN_pop'
     # simu_name = '2021Jun04_varN_pop'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
@@ -1295,8 +1348,8 @@ def exe_single_simu_plots_Npop(N_pop_val):
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
 
-    analysis_filename = 'analysis_2021May24'
-    # analysis_filename = 'analysis_2021Jun03'
+    # analysis_filename = 'analysis_2021May24'
+    analysis_filename = 'analysis_2021Jun03'
     # analysis_filename = 'analysis_2021Jun04'
 
     analysis_filepath = os.path.join(temp_folder, analysis_filename + '.data')
@@ -1357,12 +1410,12 @@ def exe_single_simu_plots_Npop(N_pop_val):
     
     # extract data for fitness distribution plots
 
-    # fint_yearly = analysis_results['fint_yearly']
-    # minus_fhost_yearly = analysis_results['minus_fhost_yearly']
-    # ftot_yearly = analysis_results['ftot_yearly']
-    fint_yearly = analysis_results['fint_yearly_all']
-    minus_fhost_yearly = analysis_results['minus_fhost_yearly_all']
-    ftot_yearly = analysis_results['ftot_yearly_all']
+    fint_yearly = analysis_results['fint_yearly']
+    minus_fhost_yearly = analysis_results['minus_fhost_yearly']
+    ftot_yearly = analysis_results['ftot_yearly']
+    # fint_yearly = analysis_results['fint_yearly_all']
+    # minus_fhost_yearly = analysis_results['minus_fhost_yearly_all']
+    # ftot_yearly = analysis_results['ftot_yearly_all']
     
     # extract data for plots of inferred vs simulated params and calculated correlations
     
@@ -1402,8 +1455,8 @@ def exe_single_simu_plots_Npop(N_pop_val):
     
     # make and save plots for this single analysis of a single simulation
     
-    figure_dir=('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
-                      '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures')
+    # figure_dir=('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
+    #                   '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures')
     figure_dir = temp_folder
     fig_name_unique = '_Npop_%.e_B_%.e_infend_%d' % (N_pop_val, B_val, inf_end_val)
     single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index_yearly,
@@ -1696,21 +1749,22 @@ def exe_plot_param_exploration_sampleSize():
     # load plot settings
     plt_set = set_plot_settings()
     
-    # load and process data for plotting
+    ## load and process data for plotting
     # simu_name = '2021Apr16'
     # simu_name = '2021Jun02_varN_site'
-    simu_name = '2021Jun04_varN_site'
+    # simu_name = '2021Jun04_varN_site'
 
     # analysis_filename = 'analysis_2021May24.data'
     # analysis_filename = 'analysis_2021Jun03.data'
-    analysis_filename = 'analysis_2021Jun04.data'
+    # analysis_filename = 'analysis_2021Jun04.data'
+    analysis_filename = 'avg_analysis_N_site_2021Jun18.data' # averaged analysis results
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
-    # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
-    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
-    
+    # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
+    temp_folder = os.path.join(result_directory, 'results', 'simulations') # for averaged analysis
+
     figure_directory = temp_folder
     
     analysis_filepath = os.path.join(temp_folder, analysis_filename)
@@ -1742,7 +1796,8 @@ def exe_plot_param_exploration_sampleSize():
     
     # load data for first plot: r_hJ+-SE_rhJ as function of B and n_seasons
     r_hJ_list = summary_stats_all['r_hJ']
-    SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    # SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    SE_r_hJ_list = summary_stats_all['std_r_hJ'] # for averaged analysis
     val_N_site = 20 # sequence length, which defines the specific simulation we want to analyze
     B_list = np.unique(exp_ana_dict['B']).tolist()
     n_seasons_list = list(np.unique(exp_ana_dict['inf_end'])-ana_param_dict['inf_start'])
@@ -1797,12 +1852,17 @@ def exe_plot_param_exploration_sampleSize():
             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
     
     # load data for third plot: classification performance as function of B*n_seasons
-    AUC_PRC_list = summary_stats_all['AUC_prec_recall']
+    # AUC_PRC_list = summary_stats_all['AUC_prec_recall']
+    AUC_PRC_list = summary_stats_all['AUC_PRC']
+    std_AUC_PRC_list = summary_stats_all['std_AUC_PRC']
     AUC_ROC_list = summary_stats_all['AUC_ROC']
+    std_AUC_ROC_list = summary_stats_all['std_AUC_ROC']
     
     num_sample_list = []
     AUC_PRC_collapsed_list = []
     AUC_ROC_collapsed_list = []
+    std_AUC_PRC_collapsed_list = []
+    std_AUC_ROC_collapsed_list = []
     k = 0
     for ananum in ana_list:
         val_B = exp_ana_dict['B'][ananum]
@@ -1811,15 +1871,23 @@ def exe_plot_param_exploration_sampleSize():
             if exp_dict['N_site'][runnum]==val_N_site:
                 AUC_PRC = AUC_PRC_list[k]
                 AUC_ROC = AUC_ROC_list[k]
+                std_AUC_PRC = std_AUC_PRC_list[k]
+                std_AUC_ROC = std_AUC_ROC_list[k]
                 AUC_PRC_collapsed_list.append(AUC_PRC)
                 AUC_ROC_collapsed_list.append(AUC_ROC)
+                std_AUC_PRC_collapsed_list.append(std_AUC_PRC)
+                std_AUC_ROC_collapsed_list.append(std_AUC_ROC)
                 num_sample_list.append(val_B*val_n_seasons)
             k += 1
     # make third plot (panel C)
-    ax3.plot(num_sample_list, AUC_PRC_collapsed_list, marker='o', linestyle='none',
-            color='black', label='AUC PRC')
-    ax3.plot(num_sample_list, AUC_ROC_collapsed_list, marker='o', linestyle='none',
-            color='blue', label='AUC ROC')
+    # ax3.plot(num_sample_list, AUC_PRC_collapsed_list, marker='o', linestyle='none',
+    #         color='black', label='AUC PRC')
+    # ax3.plot(num_sample_list, AUC_ROC_collapsed_list, marker='o', linestyle='none',
+    #         color='blue', label='AUC ROC')
+    ax3.errorbar(num_sample_list, AUC_PRC_collapsed_list, std_AUC_PRC_collapsed_list, marker='o', linestyle='none',
+             zorder=1, color='black', label='AUC PRC')
+    ax3.errorbar(num_sample_list, AUC_ROC_collapsed_list, std_AUC_ROC_collapsed_list, marker='o', linestyle='none',
+             zorder=1, color='blue', label='AUC ROC')
     ax3.legend()
     ax3.set_xscale('log')
     ax3.set_xlabel('$B*n_{seasons}$')
@@ -1863,18 +1931,18 @@ def exe_plot_param_exploration_L_Npop():
     # load data for first plot: r_hJ+-SE_rhJ as function of L for various B
     # simu_name = '2021Apr16'
     # simu_name = '2021Jun02_varN_site'
-    simu_name = '2021Jun04_varN_site'
+    # simu_name = '2021Jun04_varN_site'
 
     # analysis_filename = 'analysis_2021May04.data'
-    analysis_filename = 'analysis_2021Jun03.data'
-    analysis_filename = 'analysis_2021Jun04.data'
+    # analysis_filename = 'analysis_2021Jun03.data'
+    # analysis_filename = 'analysis_2021Jun04.data'
+    analysis_filename = 'avg_analysis_N_site_2021Jun18.data' # for average analysis
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
-    # temp_folder = os.path.join(result_directory, 'results',
-    #                            'simulations', simu_name + '_temp')
-    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
+    # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
+    temp_folder = os.path.join(result_directory, 'results', 'simulations') # for average analysis
     
     figure_directory = os.path.join(result_directory, 'results', 'simulations')
     this_plot_filepath = os.path.join(figure_directory, 'param_exploration_L_Npop' + plt_set['file_extension'])
@@ -1895,7 +1963,8 @@ def exe_plot_param_exploration_L_Npop():
     exp_ana_dict = ana_dict['exp_ana_dict']
     
     r_hJ_list = summary_stats_all['r_hJ']
-    SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    # SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    SE_r_hJ_list = summary_stats_all['std_r_hJ']
     
     val_inf_end = 200
     B_list = np.unique(exp_ana_dict['B']).tolist()
@@ -1934,19 +2003,19 @@ def exe_plot_param_exploration_L_Npop():
     # load data for second plot: r_hJ+-SE_rhJ as function of Npop for various B
     # simu_name = '2021Apr07'
     # simu_name = '2021Jun02_varN_pop'
-    simu_name = '2021Jun04_varN_pop'
+    # simu_name = '2021Jun04_varN_pop'
 
     # analysis_filename = 'analysis_2021May04.data'
     # analysis_filename = 'analysis_2021Jun03.data'
-    analysis_filename = 'analysis_2021Jun04.data'
+    # analysis_filename = 'analysis_2021Jun04.data'
+    analysis_filename = 'avg_analysis_N_pop_2021Jun18.data'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
-    # temp_folder = os.path.join(result_directory, 'results',
-    #                            'simulations', simu_name + '_temp')
-    temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
-    
+    # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
+    temp_folder = os.path.join(result_directory, 'results', 'simulations')
+
     analysis_filepath = os.path.join(temp_folder, analysis_filename)
     with open(analysis_filepath, 'rb') as f:
         ana_dict = pickle.load(f)
@@ -1963,7 +2032,8 @@ def exe_plot_param_exploration_L_Npop():
     exp_ana_dict = ana_dict['exp_ana_dict']
     
     r_hJ_list = summary_stats_all['r_hJ']
-    SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    # SE_r_hJ_list = summary_stats_all['SE_r_hJ']
+    SE_r_hJ_list = summary_stats_all['std_r_hJ'] # for average analysis
     
     val_inf_end = 200
     B_list = np.unique(exp_ana_dict['B']).tolist()
@@ -1989,15 +2059,17 @@ def exe_plot_param_exploration_L_Npop():
     colorlist = [cm(1.*i/num_colors) for i in range(num_colors)]
     
     for ind_B in range(len(B_list)):
-        ax2.errorbar(L_list, r_hJ_arr[ind_B,:], SE_r_hJ_arr[ind_B, :], marker='o',
+        ax2.errorbar([np.log10(Np) for Np in Npop_list], r_hJ_arr[ind_B,:], SE_r_hJ_arr[ind_B, :], marker='o',
                    linestyle='-', zorder=1, color=colorlist[ind_B],
                    label='B=%.e' % B_list[ind_B])
     ax2.legend()
-    ax2.set_xlabel('population size $N_{pop}$')
+    ax2.set_xlabel('population size $log_{10}(N_{pop})$')
     ax2.set_ylabel('correlation $r_{hJ}$')
     ax2.text(plt_set['plotlabel_shift_2pan'], 1, 'B', transform=ax2.transAxes,
       fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
-    
+    # labels = [item.get_text() for item in ax2.get_xticklabels()]
+    # labels[:] = ['%.e' % N_pop for N_pop in Npop_list]
+
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     
 def index_list(s, item, i=0):
@@ -2021,9 +2093,13 @@ def main():
     # exe_multi_simu_analysis_Npop()
     # exe_multi_simu_analysis_fuji()
 
+    ## average over several repeats of simus+analysis
+    exe_avg_analysis('N_pop')
+    # exe_avg_analysis('N_site')
+
     ## make single analysis plots
     # N_pop_val_list = [10, 100, 10**3, 10**4, 10**5, 10**6]
-    N_pop_val_list = [10**5]
+    # N_pop_val_list = [10**5]
     # for N_pop_val in N_pop_val_list:
     #     exe_single_simu_plots_Npop(N_pop_val)
 
@@ -2041,8 +2117,6 @@ def main():
 
     ## plot inference performance as function of L and as function of N_pop
     # exe_plot_param_exploration_L_Npop()
-
-
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

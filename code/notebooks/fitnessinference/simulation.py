@@ -118,7 +118,7 @@ def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Is
         filepath = os.path.join(filefolder, filename)
     else:
         filepath = os.path.join(os.getcwd(), filename)
-    np.random.seed(seed)
+    # np.random.seed(seed)
     # get coefficients from file
     with open(filepath) as f:
         reader = csv.reader(f, delimiter = '\t')
@@ -503,42 +503,29 @@ def flu_antigen_simulation(traj, filepath, varied_simu_params):
     
     return run_name
 
-def main():
+def exe_simu(exp_dict):
     """
-    main function to execute simulation,
-    can be executed by running this file simulation.py as a python script,
-    but will not be executed when just importing the file
-    
-    Dependencies:
-    
-    other functions in this module
-    import logging
-    from pypet import Environment, cartesian_product, progressbar
-    from datetime import date
-    import pickle
+    run flu evolutionary simulation with varying params given in exp_dict
     """
-    # define the parameter exploration for this experiment
-    # exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
-    exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
-    #     exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
     # if I want to run all parameter combinations, run cartesian product
     exp_dict = cartesian_product(exp_dict)
     # the entries in the final dictionary need to all have equal lengths
     # to tell the simulation which specific param combos to test
     varied_simu_params = [key for key, val in exp_dict.items()]
 
-    # this file, with which simulation is executed 
+    # this file, with which simulation is executed
     simu_code_file = os.path.basename(__file__)
-    
+
     today = date.today()
     strdate_today = today.strftime("%Y%b%d")
-    repository_path = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
-                                       'InfluenzaFitnessInference')
-    
+    repository_path = os.path.normpath(
+        'C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
+        'InfluenzaFitnessInference')
+
     # determine directories for storage of results
-    
+
     # (use os-package to make sure it works on linux and windows)
-    current_directory = os.getcwd() # current directory
+    current_directory = os.getcwd()  # current directory
     # result_directory = current_directory # use the current directory for cluster simulations
     result_directory = repository_path
     # result folder:
@@ -561,10 +548,10 @@ def main():
     os.makedirs(temp_folder)
 
     # filename for final pypet results of the experiment
-    simu_file = os.path.join(folder, simu_name +'.hdf5')
+    simu_file = os.path.join(folder, simu_name + '.hdf5')
     # filepath for logs and storage of intermediate files
     filepath = temp_folder
-    
+
     # create environment and run the simulation using pypet
 
     # make use of logging
@@ -572,26 +559,26 @@ def main():
 
     # Create an environment
     env = Environment(trajectory=simu_name,
-                     filename=simu_file)
+                      filename=simu_file)
 
     # Extract the trajectory
     traj = env.traj
 
     # use the add_parameter function to add the default parameters
     add_parameters(traj)
-    
-    simu_param_dict = dict(N_pop = traj.N_pop,
-                          N_site = traj.N_site,
-                          N_state = traj.N_state,
-                          mu = traj.mu,
-                          sigma_h = traj.sigma_h,
-                          D0 = traj.D0,
-                          h_0 = traj.h_0,
-                           J_0 = traj.J_0,
-                           hJ_coeffs = traj.hJ_coeffs,
-                           seed = traj.seed,
-                           N_simu = traj.N_simu
-                          )
+
+    simu_param_dict = dict(N_pop=traj.N_pop,
+                           N_site=traj.N_site,
+                           N_state=traj.N_state,
+                           mu=traj.mu,
+                           sigma_h=traj.sigma_h,
+                           D0=traj.D0,
+                           h_0=traj.h_0,
+                           J_0=traj.J_0,
+                           hJ_coeffs=traj.hJ_coeffs,
+                           seed=traj.seed,
+                           N_simu=traj.N_simu
+                           )
 
     simu_comment = 'simulation with varying'
     for p in varied_simu_params:
@@ -599,7 +586,7 @@ def main():
 
     # add the exploration to the trajectory
     traj.f_explore(exp_dict)
-    
+
     # store simulation info as dictionary
 
     simu_dict = {}
@@ -610,7 +597,7 @@ def main():
     simu_dict['varied_simu_params'] = varied_simu_params
     simu_dict['simu_param_dict'] = simu_param_dict
     simu_dict['exp_dict'] = exp_dict
-    
+
     # save simu info before running simulations
     simu_info_filename = 'simu_info.data'
     simu_info_filepath = os.path.join(temp_folder, simu_info_filename)
@@ -620,15 +607,28 @@ def main():
     # Run the simulation
     logger.info('Starting Simulation')
     run_names = env.run(flu_antigen_simulation, filepath, varied_simu_params)
-    
+
     run_names = dict(run_names)
     run_list = [key for key, val in run_names.items()]
-    
+
     # update simu info with list and names of runs and overwrite prev. simu info file with complete info dict
     simu_dict['run_names'] = run_names
     simu_dict['run_list'] = run_list
     with open(simu_info_filepath, 'wb') as f:
         pickle.dump(simu_dict, f)
+
+def main():
+    """
+    main function to execute simulation,
+    can be executed by running this file simulation.py as a python script,
+    but will not be executed when just importing the file
+    """
+    # define the parameter exploration for this experiment via exp_dict and run simulation batch
+    exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
+    # exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
+    # exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
+    exe_simu(exp_dict)
+
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

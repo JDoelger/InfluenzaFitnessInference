@@ -546,7 +546,7 @@ def exe_simu(exp_dict, t0):
     os.makedirs(temp_folder)
 
     t_makeFile = time.time()
-    print('time until file creation: ', t_makeFile-t0)
+    print('time until file creation: ', t_makeFile-t0, flush=True)
 
     # filename for final pypet results of the experiment
     simu_file = os.path.join(folder, simu_name + '.hdf5')

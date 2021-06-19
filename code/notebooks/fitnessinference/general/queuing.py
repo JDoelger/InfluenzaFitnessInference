@@ -44,7 +44,7 @@ def run_sbatch():
 
 
 class SlurmHeader(object):
-    def __init__(self, simulation_name, simulation_time=10, nodes=1, ppn=1):
+    def __init__(self, simulation_name, simulation_time=1500, nodes=1, ppn=1):
         self.simulation_name = simulation_name
         self.simulation_time = simulation_time
         self.nodes = nodes

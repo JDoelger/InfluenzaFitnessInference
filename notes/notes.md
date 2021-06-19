@@ -188,8 +188,9 @@ to deep mut scanning)
 
 # log June 19 (run several repetitions of same simulation batch)
 - set up automatic creation of slurm file sbatch.sh via Lexi's code with her package general and using class SlurmProtocol
-- now I can run one simulation (with varying N_pop and varying N_site) on the cluster via 
+- now I can run one simulation (with varying N_pop OR varying N_site) on the cluster via 
 'python /home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/run_multiple_simus.py
+- after running wait about 30 seconds until the result directory is created before running the next simu (since a new directory name is created based on the already present dirs)
 
 
 # To Do :

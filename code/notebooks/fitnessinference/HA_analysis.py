@@ -65,6 +65,9 @@ def add_reference_sequences_from_fasta(fastafile, seq_name, results_directory=('
     """
     # load current seq_refs
     results_directory = os.path.normpath(results_directory)
+    if not os.path.exists(results_directory):
+        results_directory = os.path.join(os.getcwd(), 'figures')
+
     seq_ref_file = os.path.join(results_directory, 'reference_sequences.data')
     if os.path.exists(seq_ref_file):
         with open(seq_ref_file, 'rb') as f:
@@ -90,6 +93,9 @@ def print_seq_refs(results_directory=('C:/Users/julia/Documents/Resources/Influe
     print out the names of added reference sequences in the list
     """
     results_directory = os.path.normpath(results_directory)
+    if not os.path.exists(results_directory):
+        results_directory = os.path.join(os.getcwd(), 'figures')
+
     seq_ref_file = os.path.join(results_directory, 'reference_sequences.data')
     if os.path.exists(seq_ref_file):
         with open(seq_ref_file, 'rb') as f:
@@ -171,6 +177,8 @@ def exe_plot_strainSuccession_HA():
     repo_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                       'NewApproachFromMarch2021/InfluenzaFitnessInference')
     repo_directory = os.path.normpath(repo_directory)
+    if not os.path.exists(repo_directory):
+        repo_directory = os.getcwd()
 
     figure_directory = os.path.join(repo_directory, 'figures')
     this_plot_filepath = os.path.join(figure_directory,
@@ -395,6 +403,9 @@ def exe_minus_fhost_yearly(sigma_h, D0, results_directory=('C:/Users/julia/Docum
 
     # save minus_fhost_yearly as pickle file in figures folder
     results_directory = os.path.normpath(results_directory)
+    if not os.path.exists(results_directory):
+        results_directory = os.path.join(os.getcwd(), 'figures')
+
     file_name = 'HA_MinusFhost_yearly' + 'sigma_h_'+ str(sigma_h) + '_D0_' + str(D0) + '.data'
     file_path = os.path.join(results_directory, file_name)
     with open(file_path, 'wb') as f:
@@ -407,12 +418,18 @@ def exe_plot_minus_fhost_yearly(sigma_h, D0,
                         '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures')):
     # load minus_fhost_yearly from pickle file in figures folder
     results_directory = os.path.normpath(results_directory)
+    if not os.path.exists(results_directory):
+        results_directory = os.path.join(os.getcwd(), 'figures')
+
     file_name = 'HA_MinusFhost_yearly' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + '.data'
     file_path = os.path.join(results_directory, file_name)
     with open(file_path, 'rb') as f:
         MinusFhost_yearly = pickle.load(f)
 
     figure_directory = os.path.normpath(figure_directory)
+    if not os.path.exists(figure_directory):
+        figure_directory = os.path.join(os.getcwd(), 'figures')
+
     plt_set = ana.set_plot_settings()
 
     fig_name = 'HA_MFhost_dist' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + plt_set['file_extension']
@@ -643,6 +660,9 @@ def exe_inference_noCouplings(seq_ref_name, sigma_h, D0, res_targeted,
 
     # load minus_fhost_yearly from pickle file based on values of sigma_h and D0
     results_directory = os.path.normpath(results_directory)
+    if not os.path.exists(results_directory):
+        results_directory = os.path.join(os.getcwd(), 'figures')
+
     file_name = 'HA_MinusFhost_yearly' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + '.data'
     file_path = os.path.join(results_directory, file_name)
     with open(file_path, 'rb') as f:
@@ -714,6 +734,8 @@ def eval_inference_noCouplings(seq_ref_name, sigma_h, D0,
     plot inferred param for each Lee HA residue index
     """
     results_directory = os.path.normpath(results_directory)
+    if not os.path.exists(results_directory):
+        results_directory = os.path.join(os.getcwd(), 'figures')
 
     result_filename = 'HA_Inference_noCouplings' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + '.data'
     seqref_results_folder = os.path.join(results_directory, seq_ref_name)
@@ -763,6 +785,9 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
     data_filename = 'github_jbloomlab_Perth2009-DMS-Manuscript_summary_avgprefs.csv'
     data_folder = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
                                    '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures/Perth_16_2009_G78D_T212I')
+    if not os.path.exists(data_folder):
+        data_folder = os.path.join(os.getcwd(), 'figures', 'Perth_16_2009_G78D_T212I')
+
     data_path = os.path.join(data_folder, data_filename)
 
     data = pd.read_csv(data_path)
@@ -772,6 +797,8 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
 
     strain_list_folder = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
                                           '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures')
+    if not os.path.exists(strain_list_folder):
+        strain_list_folder = os.path.join(os.getcwd(), 'figures')
     strain_list_filename = 'reference_sequences.data'
     strain_list_filepath = os.path.join(strain_list_folder, strain_list_filename)
 
@@ -911,7 +938,6 @@ def main():
     # add_reference_sequences_from_fasta('Perth_16_2009_G78D_T212I_ProteinFasta.fasta', 'Perth_16_2009_G78D_T212I')
     # print_seq_refs() # print names of added reference sequences
 
-
     ## run inference
     # seq_ref_name = 'Perth_16_2009_G78D_T212I' # 'BI_16190_68'
     # sigma_h = 1
@@ -926,10 +952,7 @@ def main():
     # res_targeted = res_allepitopes_list
     # # run inference with chosen params:
     # exe_inference_noCouplings(seq_ref_name, sigma_h, D0, res_targeted,
-    #                           lambda_h, lambda_f, inf_start, inf_end,
-    #                           results_directory=('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
-    #                                              '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures')
-    #                           )
+    #                           lambda_h, lambda_f, inf_start, inf_end)
 
     ## evaluate inference: print and plot inferred params
     # seq_ref_name = 'Perth_16_2009_G78D_T212I' # 'BI_16190_68'

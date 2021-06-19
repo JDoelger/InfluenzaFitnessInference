@@ -59,6 +59,9 @@ def load_simu_data(single_simu_filename, simu_name, run_num,
     """
     # make sure that file path is in norm path format:
     result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     # load parameters from the pypet file
     simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name + '.hdf5')
     # only need trajectory, not environment to look at parameters and results:
@@ -457,8 +460,8 @@ def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dic
     ana_param_dict: dict
             parameters for inference/analysis
     result_directory (optional): str
-            path to the directory 
-            where results are stored 
+            path to the directory
+            where results are stored
             (in general: path to the InfluenzaFitnessInference repository)
     
     Results:
@@ -767,6 +770,9 @@ def multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_di
     strdate_today = today.strftime('%Y%b%d')
     analysis_name = 'analysis_' + strdate_today
     result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     analysis_info_path = os.path.join(temp_folder, analysis_name + '.data')
@@ -956,6 +962,9 @@ def exe_avg_analysis(var):
 
     result_directory = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/'
                                     'NewApproachFromMarch2021/InfluenzaFitnessInference')
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     simu_result_folder = os.path.join(result_directory, 'results', 'simulations')
     avg_results_filepath = os.path.join(simu_result_folder, avg_results_filename)
 
@@ -1143,6 +1152,8 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     """
     
     figure_directory = os.path.normpath(figure_directory)
+    if not os.path.exists(figure_directory):
+        figure_directory = os.path.join(os.getcwd(), 'figures')
     
     # plot settings
     plt_set = set_plot_settings()
@@ -1345,6 +1356,9 @@ def exe_single_simu_plots_Npop(N_pop_val):
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
 
@@ -1493,6 +1507,9 @@ def exe_single_simu_plots_fuji(h_0_val):
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     
     analysis_filename = 'analysis_2021May20'
@@ -1657,6 +1674,9 @@ def exe_single_simu_plot_numMutations_fuji(h_0_val):
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     
     analysis_filename = 'analysis_2021May06'
@@ -1762,6 +1782,9 @@ def exe_plot_param_exploration_sampleSize():
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     temp_folder = os.path.join(result_directory, 'results', 'simulations') # for averaged analysis
 
@@ -1941,6 +1964,9 @@ def exe_plot_param_exploration_L_Npop():
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     temp_folder = os.path.join(result_directory, 'results', 'simulations') # for average analysis
     
@@ -2013,6 +2039,9 @@ def exe_plot_param_exploration_L_Npop():
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
     result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
     temp_folder = os.path.join(result_directory, 'results', 'simulations')
 

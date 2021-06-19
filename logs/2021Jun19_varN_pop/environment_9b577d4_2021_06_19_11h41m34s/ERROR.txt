@@ -1,0 +1,11 @@
+2021-06-19 11:41:34,829 pypet ERROR    ERROR occurred during a single run! 
+Traceback (most recent call last):
+  File "C:\Users\julia\Anaconda3\lib\site-packages\pypet\environment.py", line 259, in _sigint_handling_single_run
+    return _single_run(kwargs)
+  File "C:\Users\julia\Anaconda3\lib\site-packages\pypet\environment.py", line 314, in _single_run
+    result = runfunc(traj, *runargs, **kwrunparams)
+  File "C:\Users\julia\Documents\Resources\InfluenzaFitnessLandscape\NewApproachFromMarch2021\InfluenzaFitnessInference\code\notebooks\fitnessinference\simulation.py", line 425, in flu_antigen_simulation
+    h_model, J_model = fitness_coeff_p24(traj.N_site, traj.N_state)
+  File "C:\Users\julia\Documents\Resources\InfluenzaFitnessLandscape\NewApproachFromMarch2021\InfluenzaFitnessInference\code\notebooks\fitnessinference\simulation.py", line 123, in fitness_coeff_p24
+    with open(filepath) as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\julia\\Documents\\Resources\\InfluenzaFitnessLandscape\\NewApproachFromMarch2021\\InfluenzaFitnessInference\\p24-B-S0.90-Ising-reduced-out-learn.j'

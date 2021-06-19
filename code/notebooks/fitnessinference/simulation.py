@@ -76,7 +76,8 @@ def fitness_coeff_constant(N_site,N_state,h_0,J_0):
     
     return h_list, J_list
 
-def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Ising-reduced-out-learn.j', seed=12345, h_min=-9., h_max=-0.5, J_min=-2., J_max=3.):
+def fitness_coeff_p24(N_site, N_state, filepath='C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
+                'InfluenzaFitnessInference/code/notebooks/fitnessinference/p24-B-S0.90-Ising-reduced-out-learn.j', seed=12345, h_min=-9., h_max=-0.5, J_min=-2., J_max=3.):
     """
     creating the mutational fitness coefficients for the simulated sequences in the case
     of fitness coeffs sampled from coefficients inferred for the HIV protein p24
@@ -87,11 +88,8 @@ def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Is
             sequence length (<=105)
     N_state: int
             number of states per site
-    filefolder (optional): str
-            path to directory where coefficient file is located, 
-            if none it is assumed as the current working directory
-    filename (optional): str
-            filename of a .j file that was created by the ACE inference of
+    filepath (optional): str
+            filepath to a .j file that was created by the ACE inference of
             p24 fitness coefficients
     seed (optional): int 
             seed for random sanpling from the given coefficients
@@ -114,10 +112,10 @@ def fitness_coeff_p24(N_site, N_state, filefolder=None, filename='p24-B-S0.90-Is
     import numpy as np
     import csv
     """
-    if filefolder:
-        filepath = os.path.join(filefolder, filename)
-    else:
-        filepath = os.path.join(os.getcwd(), filename)
+    filepath = os.path.normpath(filepath)
+    if not os.path.exists(filepath):
+        filepath = os.path.join(os.getcwd(), 'code', 'notebooks', 'fitnessinference', 'p24-B-S0.90-Ising-reduced-out-learn.j')
+
     # np.random.seed(seed)
     # get coefficients from file
     with open(filepath) as f:
@@ -521,12 +519,12 @@ def exe_simu(exp_dict):
     repository_path = os.path.normpath(
         'C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
         'InfluenzaFitnessInference')
+    # for cluster simus use current working directory (and make sure to run python files from the repository directory)
+    if not os.path.exists(repository_path):
+        repository_path = os.getcwd()
 
     # determine directories for storage of results
 
-    # (use os-package to make sure it works on linux and windows)
-    current_directory = os.getcwd()  # current directory
-    # result_directory = current_directory # use the current directory for cluster simulations
     result_directory = repository_path
     # result folder:
     folder = os.path.join(result_directory, 'results', 'simulations')

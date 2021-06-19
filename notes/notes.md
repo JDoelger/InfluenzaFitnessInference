@@ -190,8 +190,9 @@ to deep mut scanning)
 - set up automatic creation of slurm file sbatch.sh via Lexi's code with her package general and using class SlurmProtocol
 - now I can run one simulation (with varying N_pop OR varying N_site) on the cluster via 
 'python /home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/run_multiple_simus.py
-- after running wait about 30 seconds until the result directory is created before running the next simu (since a new directory name is created based on the already present dirs)
-
+- after running wait some time, e.g. 200 seconds, until the result directory is created before running the next simu (since a new directory name is created based on the already present dirs)
+	- this is now implemented with time.sleep(200) in the python file that runs the batch scripts
+	- another option could be to give each result folder a name with a random number attached, e.g. the simulation 6 digit simu seed, which will make sure that filenames will likely not clash
 
 # To Do :
 

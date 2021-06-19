@@ -6,6 +6,7 @@ import copy
 import pickle
 import logging
 from datetime import date
+import time
 
 def add_parameters(traj):
     """ 
@@ -544,6 +545,9 @@ def exe_simu(exp_dict):
         temp_folder = os.path.join(folder, simu_name)
     os.makedirs(temp_folder)
 
+    t_makeFile = time.time()
+    print('time until file creation: ', t_makeFile-t0)
+
     # filename for final pypet results of the experiment
     simu_file = os.path.join(folder, simu_name + '.hdf5')
     # filepath for logs and storage of intermediate files
@@ -621,14 +625,12 @@ def main():
     can be executed by running this file simulation.py as a python script,
     but will not be executed when just importing the file
     """
+    t0 = time.time() # starting time of simulation
     # define the parameter exploration for this experiment via exp_dict and run simulation batch
-    exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
-    # exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
+    # exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
+    exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
+    # # exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
     exe_simu(exp_dict)
-
-    # # define the parameter exploration for this experiment via exp_dict and run simulation batch
-    # exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
-    # exe_simu(exp_dict)
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

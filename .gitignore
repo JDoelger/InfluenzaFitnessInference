@@ -144,4 +144,5 @@ code/notebooks/logs/
 *.pptx
 *.png
 *.pdf
+*.out # output files created by slurm
 

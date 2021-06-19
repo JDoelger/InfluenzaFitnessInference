@@ -1,0 +1,19 @@
+2021-06-19 14:44:20,209 pypet.storageservice.HDF5StorageService INFO     I will use the hdf5 file `/home/jdoelger/InfluenzaFitnessInference/results/simulations/2021Jun19_varN_site.hdf5`.
+2021-06-19 14:44:20,221 pypet.environment.Environment INFO     Environment initialized.
+2021-06-19 14:44:20,238 root INFO     Starting Simulation
+2021-06-19 14:44:20,238 pypet.environment.Environment INFO     I am preparing the Trajectory for the experiment and initialise the store.
+2021-06-19 14:44:20,239 pypet.environment.Environment INFO     Initialising the storage for the trajectory.
+2021-06-19 14:44:20,253 pypet.storageservice.HDF5StorageService INFO     Initialising storage or updating meta data of Trajectory `2021Jun19_varN_site`.
+2021-06-19 14:44:20,301 pypet.storageservice.HDF5StorageService INFO     Finished init or meta data update for `2021Jun19_varN_site`.
+2021-06-19 14:44:20,309 pypet.environment.Environment INFO     
+************************************************************
+STARTING runs of trajectory
+`2021Jun19_varN_site`.
+************************************************************
+
+2021-06-19 14:44:20,310 pypet INFO     PROGRESS: Finished 0/6 runs [                    ]  0.0%
+2021-06-19 14:44:20,310 pypet INFO     
+=========================================
+ Starting single run #0 of 6 
+=========================================
+

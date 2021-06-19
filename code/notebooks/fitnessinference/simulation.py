@@ -501,7 +501,7 @@ def flu_antigen_simulation(traj, filepath, varied_simu_params):
     
     return run_name
 
-def exe_simu(exp_dict):
+def exe_simu(exp_dict, t0):
     """
     run flu evolutionary simulation with varying params given in exp_dict
     """
@@ -630,7 +630,7 @@ def main():
     # exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
     exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
     # # exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
-    exe_simu(exp_dict)
+    exe_simu(exp_dict, t0)
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

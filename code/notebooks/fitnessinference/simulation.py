@@ -626,8 +626,8 @@ def main():
     exe_simu(exp_dict)
 
     # define the parameter exploration for this experiment via exp_dict and run simulation batch
-    exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
-    exe_simu(exp_dict)
+    # exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
+    # exe_simu(exp_dict)
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

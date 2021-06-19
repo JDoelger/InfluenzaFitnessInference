@@ -1,0 +1,1 @@
+2021-06-19 13:26:59,420 pypet.storageservice.HDF5StorageService ERROR    Failed storing `Trajectory 2021Jun19_varN_pop (len:6): (config: <class 'pypet.naturalnaming.ConfigGroup'>), (parameters: <class 'pypet.naturalnaming.ParameterGroup'>)`

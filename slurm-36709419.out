@@ -1,0 +1,33 @@
+MainProcess pypet.storageservice.HDF5StorageService INFO     I will use the hdf5 file `/home/jdoelger/InfluenzaFitnessInference/results/simulations/2021Jun19_varN_pop_2.hdf5`.
+MainProcess pypet.environment.Environment INFO     Environment initialized.
+MainProcess root INFO     Starting Simulation
+MainProcess pypet.environment.Environment INFO     I am preparing the Trajectory for the experiment and initialise the store.
+MainProcess pypet.environment.Environment INFO     Initialising the storage for the trajectory.
+MainProcess pypet.storageservice.HDF5StorageService INFO     Initialising storage or updating meta data of Trajectory `2021Jun19_varN_pop_2`.
+MainProcess pypet.storageservice.HDF5StorageService ERROR    Failed storing `Trajectory 2021Jun19_varN_pop_2 (len:6): (config: <class 'pypet.naturalnaming.ConfigGroup'>), (parameters: <class 'pypet.naturalnaming.ParameterGroup'>)`
+Traceback (most recent call last):
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py", line 634, in <module>
+    main()
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py", line 626, in main
+    exe_simu(exp_dict)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py", line 606, in exe_simu
+    run_names = env.run(flu_antigen_simulation, filepath, varied_simu_params)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/environment.py", line 1806, in run
+    return self._execute_runs(pipeline)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/environment.py", line 2321, in _execute_runs
+    self._prepare_runs(pipeline)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/environment.py", line 2102, in _prepare_runs
+    self._traj.f_store(only_init=True)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/utils/decorators.py", line 163, in new_func
+    return func(*args, **kwargs)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/utils/decorators.py", line 163, in new_func
+    return func(*args, **kwargs)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/utils/decorators.py", line 121, in new_func
+    return func(*args, **kwargs)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/trajectory.py", line 2876, in f_store
+    max_depth=max_depth)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/storageservice.py", line 1291, in store
+    self._trj_store_trajectory(stuff_to_store, *args, **kwargs)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/storageservice.py", line 2476, in _trj_store_trajectory
+    (traj.v_name, self._filename))
+RuntimeError: You want to store a completely new trajectory with name `2021Jun19_varN_pop_2` but this trajectory is already found in file `/home/jdoelger/InfluenzaFitnessInference/results/simulations/2021Jun19_varN_pop_2.hdf5`.Did you try to accidentally overwrite existing data? If you DO want to override existing data, use `overwrite_file=True`.Note that this deletes the whole HDF5 file not just the particular trajectroy therein! 

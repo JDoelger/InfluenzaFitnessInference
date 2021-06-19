@@ -186,6 +186,12 @@ to deep mut scanning)
 - plot average results of different replicate simus
 - I found out that the 2 replicate simulation batches were exactly the same, since the rng seed was accidentally set to the same number
 
+# log June 19 (run several repetitions of same simulation batch)
+- set up automatic creation of slurm file sbatch.sh via Lexi's code with her package general and using class SlurmProtocol
+- now I can run one simulation (with varying N_pop and varying N_site) on the cluster via 
+'python /home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/run_multiple_simus.py
+
+
 # To Do :
 
 [ ] investigate format of PRE and put ms into that format

@@ -556,7 +556,8 @@ def exe_simu(exp_dict):
 
     # Create an environment
     env = Environment(trajectory=simu_name,
-                      filename=simu_file)
+                      filename=simu_file,
+                      overwrite_file=True)
 
     # Extract the trajectory
     traj = env.traj
@@ -625,7 +626,8 @@ def main():
     # exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
     exe_simu(exp_dict)
 
-    # define the parameter exploration for this experiment via exp_dict and run simulation batch
+
+    # # define the parameter exploration for this experiment via exp_dict and run simulation batch
     # exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
     # exe_simu(exp_dict)
 

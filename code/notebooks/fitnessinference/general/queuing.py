@@ -44,11 +44,12 @@ def run_sbatch():
 
 
 class SlurmHeader(object):
-    def __init__(self, simulation_name, simulation_time=1500, nodes=1, ppn=1):
+    def __init__(self, simulation_name, simulation_time=1500, nodes=1, ppn=1, mem_gb=1):
         self.simulation_name = simulation_name
         self.simulation_time = simulation_time
         self.nodes = nodes
         self.ppn = ppn
+        self.mem_gb = mem_gb
 
     def set_header(self, q):
         q.write("#!/bin/bash\n")
@@ -64,4 +65,4 @@ class SlurmHeader(object):
             test_str = "#SBATCH --time={0}-{1}\n".format(day_num, datetime.timedelta(minutes=minutes_left))
         q.write(test_str) # set time in correct format as recommended by engaging admin
         q.write("#SBATCH --partition=sched_mit_arupc_long\n\n")
-        # q.write("#SBATCH --mem-per-cpu=10gb\n\n")
+        q.write("#SBATCH --mem-per-cpu={0}gb\n\n".format(self.mem_gb)) # set memory limit

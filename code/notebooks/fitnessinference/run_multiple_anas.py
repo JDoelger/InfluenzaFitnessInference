@@ -20,9 +20,9 @@ import time
 
 # Writes Slurm files to be run on the cluster
 class SlurmProtocol(object):
-    def __init__(self, simulation_time=2000, nodes=1, ppn=1):
+    def __init__(self, simulation_time=2000, nodes=1, ppn=1, mem_gb=10):
         self.header = SlurmHeader(simulation_name="fluSimulation", simulation_time=simulation_time,
-                                  nodes=nodes, ppn=ppn)
+                                  nodes=nodes, ppn=ppn, mem_gb=mem_gb)
 
     def set_python_script(self, q):
         pypath = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py')

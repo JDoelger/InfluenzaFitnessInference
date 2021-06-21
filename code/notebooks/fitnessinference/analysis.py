@@ -62,15 +62,24 @@ def load_simu_data(single_simu_filename, simu_name, run_num,
     if not os.path.exists(result_directory):
         result_directory = os.getcwd()
 
-    # load parameters from the pypet file
-    simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name + '.hdf5')
-    # only need trajectory, not environment to look at parameters and results:
-    traj = Trajectory(simu_name, add_time=False)
-    # load the trajectory from the file with only parameters but not results loaded
-    traj.f_load(filename=simu_file, load_parameters=2,
-                load_results=2, load_derived_parameters=0, force=True)
-    # load the parameter values of this specific run
-    traj.v_idx = run_num
+    # # load parameters from the pypet file
+    # simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name + '.hdf5')
+    # # only need trajectory, not environment to look at parameters and results:
+    # traj = Trajectory(simu_name, add_time=False)
+    # # load the trajectory from the file with only parameters but not results loaded
+    # traj.f_load(filename=simu_file, load_parameters=2,
+    #             load_results=2, load_derived_parameters=0, force=True)
+    # # load the parameter values of this specific run
+    # traj.v_idx = run_num
+    ## load parameters from simu_info file
+    simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name, 'simu_info.data')
+    with open(simu_file, 'rb') as f:
+        simu_dict = pickle.load(f)
+    params = simu_dict['simu_param_dict']
+    # load the parameter values for this specific run
+    exp_dict = simu_dict['exp_dict']
+    for key in exp_dict.keys():
+        params[key] = exp_dict[key][run_num]
 
     # load data from the pickled files
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
@@ -84,7 +93,7 @@ def load_simu_data(single_simu_filename, simu_name, run_num,
     strain_yearly = resulting_data['strain_yearly']
     strain_frequency_yearly = resulting_data['strain_frequency_yearly']
                    
-    return strain_yearly, strain_frequency_yearly, traj
+    return strain_yearly, strain_frequency_yearly, params
 
 def sample_seqs(strain_yearly, strain_freq_yearly, seed, B, inf_end):
     """
@@ -523,14 +532,14 @@ def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dic
     
     # load data from the simulation
     
-    strain_yearly, strain_frequency_yearly, traj =\
+    strain_yearly, strain_frequency_yearly, params =\
             load_simu_data(single_simu_filename, simu_name, run_num, result_directory=result_directory)
 
     # fitness landscape (model input):
-    # if traj.hJ_coeffs=='constant':
-    #     h_model, J_model = simu.fitness_coeff_constant(traj.N_site, traj.N_state, traj.h_0, traj.J_0)
-    # elif traj.hJ_coeffs=='p24':
-    h_model, J_model = simu.fitness_coeff_p24(traj.N_site, traj.N_state)
+    if params['hJ_coeffs']=='constant':
+        h_model, J_model = simu.fitness_coeff_constant(params['N_site'], params['N_state'], params['h_0'], params['J_0'])
+    elif params['hJ_coeffs']=='p24':
+        h_model, J_model = simu.fitness_coeff_p24(params['N_site'], params['N_state'])
         
     
     # take random samples from each time step up to inf_end:
@@ -539,12 +548,12 @@ def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dic
 
     # calculate -F_host for each sampled strain at each inference time step
     minus_fhost_yearly_all = [-simu.fitness_host_list(strain_sample_yearly[t], strain_sample_yearly[:t],
-                                                  strain_sample_frequency_yearly[:t], traj.sigma_h, traj.D0)
+                                                  strain_sample_frequency_yearly[:t], params['sigma_h'], params['D0'])
                         for t in range(1, inf_end)]
     minus_fhost_yearly = minus_fhost_yearly_all[inf_start-1:]
 
     # calculate F_int for each sampled strain at each inference time step
-    fint_yearly_all = [simu.fitness_int_list(strain_sample_yearly[t], traj.N_state, h_model, J_model)
+    fint_yearly_all = [simu.fitness_int_list(strain_sample_yearly[t], params['N_state'], h_model, J_model)
                         for t in range(1, inf_end)]
     fint_yearly = fint_yearly_all[inf_start-1:]
 
@@ -583,9 +592,9 @@ def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dic
     # model coefficients
     h_model_list, J_model_list, hJ_model_list = hJ_model_lists(h_model, J_model)
     # inferred coefficients
-    h_inf_list, J_inf_list, hJ_inf_list = hJ_inf_lists(M, traj.N_site)
+    h_inf_list, J_inf_list, hJ_inf_list = hJ_inf_lists(M, params['N_site'])
     # std of inferred coefficients
-    std_h_inf_list, std_J_inf_list, std_hJ_inf_list = hJ_inf_std_lists(M_std, traj.N_site)
+    std_h_inf_list, std_J_inf_list, std_hJ_inf_list = hJ_inf_std_lists(M_std, params['N_site'])
     
     # pearson linear correlations:
     

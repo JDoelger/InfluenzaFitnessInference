@@ -1,8 +1,18 @@
 import numpy as np
-import csv
-import os
 import copy
+import os
+from pypet import Trajectory, cartesian_product
 import pickle
+import scipy
+try:
+    import simulation as simu
+except ModuleNotFoundError:
+    from fitnessinference import simulation as simu
+from sklearn.metrics import precision_recall_curve, auc, roc_auc_score, roc_curve
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from Bio import SeqIO
+from Bio.Seq import Seq
 import logging
 from datetime import date
 from general.queuing import QsubHeader, SlurmHeader, run_sbatch

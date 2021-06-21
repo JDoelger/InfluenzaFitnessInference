@@ -56,6 +56,6 @@ class SlurmHeader(object):
         q.write("#SBATCH --nodes {0}\n".format(self.nodes))
         q.write("#SBATCH --ntasks-per-node {0}\n".format(self.ppn))
         # q.write("#SBATCH --time={0}\n".format(datetime.timedelta(minutes=self.simulation_time)))
-        q.write("#SBATCH --time=1-09:20:00") # set time in format as recommended by engaging admin
+        q.write("#SBATCH --time=1-09:20:00\n") # set time in format as recommended by engaging admin
         q.write("#SBATCH --partition=sched_mit_arupc_long\n\n")
         # q.write("#SBATCH --mem-per-cpu=10gb\n\n")

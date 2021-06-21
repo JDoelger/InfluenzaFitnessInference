@@ -1,0 +1,74 @@
+2021-06-21 11:45:07,308 pypet.storageservice.HDF5StorageService INFO     I will use the hdf5 file `/home/jdoelger/InfluenzaFitnessInference/results/simulations/2021Jun21_varN_pop.hdf5`.
+2021-06-21 11:45:07,312 pypet.environment.Environment INFO     Environment initialized.
+2021-06-21 11:45:07,337 root INFO     Starting Simulation
+2021-06-21 11:45:07,338 pypet.environment.Environment INFO     I am preparing the Trajectory for the experiment and initialise the store.
+2021-06-21 11:45:07,338 pypet.environment.Environment INFO     Initialising the storage for the trajectory.
+2021-06-21 11:45:07,381 pypet.storageservice.HDF5StorageService INFO     Initialising storage or updating meta data of Trajectory `2021Jun21_varN_pop`.
+2021-06-21 11:45:07,404 pypet.storageservice.HDF5StorageService INFO     Finished init or meta data update for `2021Jun21_varN_pop`.
+2021-06-21 11:45:07,411 pypet.environment.Environment INFO     
+************************************************************
+STARTING runs of trajectory
+`2021Jun21_varN_pop`.
+************************************************************
+
+2021-06-21 11:45:07,411 pypet INFO     PROGRESS: Finished 0/6 runs [                    ]  0.0%
+2021-06-21 11:45:07,411 pypet INFO     
+=========================================
+ Starting single run #0 of 6 
+=========================================
+
+2021-06-21 11:45:11,320 pypet INFO     
+=========================================
+ Finished single run #0 of 6 
+=========================================
+
+2021-06-21 11:45:11,320 pypet INFO     PROGRESS: Finished 1/6 runs [===                 ] 16.7%, remaining: 0:00:19
+2021-06-21 11:45:11,321 pypet INFO     
+=========================================
+ Starting single run #1 of 6 
+=========================================
+
+2021-06-21 11:45:15,071 pypet INFO     
+=========================================
+ Finished single run #1 of 6 
+=========================================
+
+2021-06-21 11:45:15,072 pypet INFO     PROGRESS: Finished 2/6 runs [======              ] 33.3%, remaining: 0:00:15
+2021-06-21 11:45:15,072 pypet INFO     
+=========================================
+ Starting single run #2 of 6 
+=========================================
+
+2021-06-21 11:45:24,409 pypet INFO     
+=========================================
+ Finished single run #2 of 6 
+=========================================
+
+2021-06-21 11:45:24,409 pypet INFO     PROGRESS: Finished 3/6 runs [==========          ] 50.0%, remaining: 0:00:16
+2021-06-21 11:45:24,409 pypet INFO     
+=========================================
+ Starting single run #3 of 6 
+=========================================
+
+2021-06-21 11:46:16,454 pypet INFO     
+=========================================
+ Finished single run #3 of 6 
+=========================================
+
+2021-06-21 11:46:16,455 pypet INFO     PROGRESS: Finished 4/6 runs [=============       ] 66.7%, remaining: 0:00:34
+2021-06-21 11:46:16,455 pypet INFO     
+=========================================
+ Starting single run #4 of 6 
+=========================================
+
+2021-06-21 11:52:47,194 pypet INFO     
+=========================================
+ Finished single run #4 of 6 
+=========================================
+
+2021-06-21 11:52:47,196 pypet INFO     PROGRESS: Finished 5/6 runs [================    ] 83.3%, remaining: 0:01:31
+2021-06-21 11:52:47,196 pypet INFO     
+=========================================
+ Starting single run #5 of 6 
+=========================================
+

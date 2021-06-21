@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py", line 637, in <module>
-    main()
-  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py", line 633, in main
-    exe_simu(exp_dict)
-  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py", line 549, in exe_simu
-    print('time until file creation: ', t_makeFile-t0)
-NameError: name 't0' is not defined

@@ -627,8 +627,8 @@ def main():
     """
     t0 = time.time() # starting time of simulation
     # define the parameter exploration for this experiment via exp_dict and run simulation batch
-    exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
-    # exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
+    # exp_dict = {'N_pop': [10, 100, 10**3, 10**4, 10**5, 10**6]}
+    exp_dict = {'N_site': [5, 10, 20, 30, 50, 100]}
     # # exp_dict = {'hJ_coeffs': ['constant'], 'h_0': [-15, -10, -7, -5, -1, 0, 1, 5]}
     exe_simu(exp_dict, t0)
 

@@ -73,3 +73,34 @@ MainProcess pypet INFO
  Starting single run #5 of 6 
 =========================================
 
+MainProcess pypet INFO     
+=========================================
+ Finished single run #5 of 6 
+=========================================
+
+MainProcess pypet INFO     PROGRESS: Finished 6/6 runs [====================]100.0%
+MainProcess pypet.storageservice.HDF5StorageService INFO     Initialising storage or updating meta data of Trajectory `2021Jun21_varN_pop`.
+MainProcess pypet.storageservice.HDF5StorageService INFO     Finished init or meta data update for `2021Jun21_varN_pop`.
+MainProcess pypet.environment.Environment INFO     
+************************************************************
+FINISHED all runs of trajectory
+`2021Jun21_varN_pop`.
+************************************************************
+
+MainProcess pypet.environment.Environment INFO     
+************************************************************
+STARTING FINAL STORING of trajectory
+`2021Jun21_varN_pop`
+************************************************************
+
+MainProcess pypet.storageservice.HDF5StorageService INFO     Start storing Trajectory `2021Jun21_varN_pop`.
+MainProcess pypet.storageservice.HDF5StorageService INFO     Storing branch `config`.
+MainProcess pypet.storageservice.HDF5StorageService INFO     Storing branch `parameters`.
+MainProcess pypet.storageservice.HDF5StorageService INFO     Finished storing Trajectory `2021Jun21_varN_pop`.
+MainProcess pypet.environment.Environment INFO     
+************************************************************
+FINISHED FINAL STORING of trajectory
+`2021Jun21_varN_pop`.
+************************************************************
+
+MainProcess pypet.environment.Environment INFO     All runs of trajectory `2021Jun21_varN_pop` were completed successfully.

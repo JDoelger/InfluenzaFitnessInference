@@ -57,7 +57,7 @@ class SlurmHeader(object):
         q.write("#SBATCH --ntasks-per-node {0}\n".format(self.ppn))
         # q.write("#SBATCH --time={0}\n".format(datetime.timedelta(minutes=self.simulation_time)))
         test_time = datetime.timedelta(minutes=self.simulation_time)
-        test_str = "#SBATCH --time={0}".format(test)
+        test_str = "#SBATCH --time={0}".format(test_time)
         if 'day' in test_str:
             day_num = int(self.simulation_time / 1440)
             minutes_left = int(self.simulation_time % 1440)

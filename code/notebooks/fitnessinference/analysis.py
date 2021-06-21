@@ -785,8 +785,12 @@ def multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_di
     for p in varied_ana_params:
         ana_comment += ' ' + p
     simu_info_filename = 'simu_info.data'
-    simu_info_filepath = os.path.join(temp_folder, simu_info_filename)
-    
+
+    temp_folder_backup = os.path.join(result_directory, 'results', 'simulations', '2021Jun21_varN_site')
+    if 'N_site' in simu_name:
+        simu_info_filepath = os.path.join(temp_folder_backup, simu_info_filename) # use temp folder backup if simulation is for N_site, since simu_info.data didn't save full info in some cases
+    else:
+        simu_info_filepath = os.path.join(temp_folder, simu_info_filename)
     # load info about simulation
     
     with open(simu_info_filepath, 'rb') as f:

@@ -68,7 +68,7 @@ def load_simu_data(single_simu_filename, simu_name, run_num,
     traj = Trajectory(simu_name, add_time=False)
     # load the trajectory from the file with only parameters but not results loaded
     traj.f_load(filename=simu_file, load_parameters=2,
-                load_results=2, load_derived_parameters=0, force=True)
+                load_results=2, load_derived_parameters=0)
     # load the parameter values of this specific run
     traj.v_idx = run_num
 

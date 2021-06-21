@@ -197,6 +197,10 @@ to deep mut scanning)
 - PROBLEM: simulations get cancelled quickly after short time with slurm error "cancelled due to time limit", although the set time limit is very high and the partition also has a very long time limit
 - I asked engaging admins via email to help me
 
+# log June 21 (produce average result plots and fix cluster issues)
+- after asking the engaging admins via email about my time limit issues with the engaging simulations, I found out that the time limit had been formatted wrongly so that the simulations were submitted to the wrong partition, which has a 15 min time limit only
+- I fixed the formatting and it now works, this should also fix my issues with LExi's LAT cluster simus
+
 # To Do :
 
 [ ] investigate format of PRE and put ms into that format

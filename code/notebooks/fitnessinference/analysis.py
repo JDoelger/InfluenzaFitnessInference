@@ -982,8 +982,9 @@ def exe_avg_analysis(var):
     contents = os.listdir(simu_result_folder)
     simuname_list = [] # list of simu names for repeat simulations
     for name in contents:
-        if ('var' + var in name) and ('.' not in name):
-            simuname_list.append(name)
+        if ('var' + var in name) and ('.' not in name) and ('_5' not in name) and ('Jun21' not in name):
+            if var=='N_pop' or (var=='N_site' and ('Jun19' not in name)):
+                simuname_list.append(name)
 
     ana_dict_list = []
     for name in simuname_list:
@@ -991,6 +992,7 @@ def exe_avg_analysis(var):
         for filename in os.listdir(result_filedir):
             if ('analysis_' in filename) and (len(filename)==23): # find summary analysis file
                 ana_name = filename
+                print('include ', name + '/', filename)
                 break
         ana_filepath = os.path.join(result_filedir, ana_name)
         with open(ana_filepath, 'rb') as f:
@@ -1343,7 +1345,7 @@ def single_simu_plots(year_list, strain_frequency_yearly_transpose, strain_index
     
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     
-def exe_single_simu_plots_Npop(N_pop_val):
+def exe_single_simu_plots_Npop(N_pop_val, simu_name):
     """
     retrieves info for specific single simu and analysis 
     and runs single_simu_plots for one simulation of the set, where N_pop is varied
@@ -1354,13 +1356,14 @@ def exe_single_simu_plots_Npop(N_pop_val):
 
     N_pop_val: float
             population size for which single simu plots should be created
+    simu_name: str
 
     Dependencies:
     
     other functions in this module
     """
     # simu_name = '2021Apr07_temp'
-    simu_name = '2021Jun02_varN_pop'
+    # simu_name = '2021Jun02_varN_pop'
     # simu_name = '2021Jun04_varN_pop'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
@@ -1372,11 +1375,20 @@ def exe_single_simu_plots_Npop(N_pop_val):
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
     temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name)
 
-    # analysis_filename = 'analysis_2021May24'
-    analysis_filename = 'analysis_2021Jun03'
-    # analysis_filename = 'analysis_2021Jun04'
+    # analysis_filename = 'analysis_2021May24.data'
+    # analysis_filename = 'analysis_2021Jun03.data'
+    # analysis_filename = 'analysis_2021Jun04.data'
 
-    analysis_filepath = os.path.join(temp_folder, analysis_filename + '.data')
+    # find analysis name, assuming there is only one
+    contents = os.listdir(temp_folder)
+    simuname_list = []  # list of simu names for repeat simulations
+    len_ext = len('.data')
+    for filename in contents:
+        if ('analysis_' in filename) and (len(filename) == 23):  # find summary analysis file
+            analysis_filename = filename
+            break
+
+    analysis_filepath = os.path.join(temp_folder, analysis_filename)
     with open(analysis_filepath, 'rb') as f:
         ana_dict = pickle.load(f)
     simu_info_filepath = ana_dict['simu_info_filepath']
@@ -1406,7 +1418,7 @@ def exe_single_simu_plots_Npop(N_pop_val):
             break
     
     
-    ana_name = analysis_filename + '_' + str(ana_num) + 'run_' + str(run_num) 
+    ana_name = analysis_filename[:-len_ext] + '_' + str(ana_num) + 'run_' + str(run_num)
     ana_file_path = os.path.join(temp_folder, ana_name + '.data')
     with open(ana_file_path, 'rb') as f:
         analysis_results = pickle.load(f)
@@ -1787,7 +1799,8 @@ def exe_plot_param_exploration_sampleSize():
     # analysis_filename = 'analysis_2021May24.data'
     # analysis_filename = 'analysis_2021Jun03.data'
     # analysis_filename = 'analysis_2021Jun04.data'
-    analysis_filename = 'avg_analysis_N_site_2021Jun18.data' # averaged analysis results
+    # analysis_filename = 'avg_analysis_N_site_2021Jun18.data' # averaged analysis results
+    analysis_filename = 'avg_analysis_N_site_2021Jun21.data'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
@@ -1969,7 +1982,8 @@ def exe_plot_param_exploration_L_Npop():
     # analysis_filename = 'analysis_2021May04.data'
     # analysis_filename = 'analysis_2021Jun03.data'
     # analysis_filename = 'analysis_2021Jun04.data'
-    analysis_filename = 'avg_analysis_N_site_2021Jun18.data' # for average analysis
+    # analysis_filename = 'avg_analysis_N_site_2021Jun18.data' # for average analysis
+    analysis_filename = 'avg_analysis_N_site_2021Jun21.data'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
@@ -2044,7 +2058,8 @@ def exe_plot_param_exploration_L_Npop():
     # analysis_filename = 'analysis_2021May04.data'
     # analysis_filename = 'analysis_2021Jun03.data'
     # analysis_filename = 'analysis_2021Jun04.data'
-    analysis_filename = 'avg_analysis_N_pop_2021Jun18.data'
+    # analysis_filename = 'avg_analysis_N_pop_2021Jun18.data' # for average analysis
+    analysis_filename = 'avg_analysis_N_pop_2021Jun21.data'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
@@ -2128,22 +2143,24 @@ def index_list(s, item, i=0):
 
 def main():
     ## run analysis/inference, each only once, comment out afterward
-    simu_name_gen = '2021Jun19_var'
-    simu_name = simu_name_gen + 'N_pop_5'
-    exe_multi_simu_analysis_L(simu_name)
-    simu_name = simu_name_gen + 'N_site_5'
-    exe_multi_simu_analysis_Npop(simu_name)
+    # simu_name_gen = '2021Jun19_var'
+    # simu_name = simu_name_gen + 'N_pop_5'
+    # exe_multi_simu_analysis_L(simu_name)
+    # simu_name = simu_name_gen + 'N_site_5'
+    # exe_multi_simu_analysis_Npop(simu_name)
+
     # exe_multi_simu_analysis_fuji()
 
     ## average over several repeats of simus+analysis
-    # exe_avg_analysis('N_pop')
-    # exe_avg_analysis('N_site')
+    exe_avg_analysis('N_pop')
+    exe_avg_analysis('N_site')
 
     ## make single analysis plots
     # N_pop_val_list = [10, 100, 10**3, 10**4, 10**5, 10**6]
     # N_pop_val_list = [10**5]
+    # simu_name = '2021Jun19_varN_pop_5'
     # for N_pop_val in N_pop_val_list:
-    #     exe_single_simu_plots_Npop(N_pop_val)
+    #     exe_single_simu_plots_Npop(N_pop_val, simu_name)
 
     ## make single analysis plots for each mount fuji simulation
     h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]
@@ -2155,10 +2172,10 @@ def main():
     #     exe_single_simu_plot_numMutations_fuji(h_0_val)
 
     ## plot inference performance as function of sample size (3 panels)
-    # exe_plot_param_exploration_sampleSize()
+    exe_plot_param_exploration_sampleSize()
 
     ## plot inference performance as function of L and as function of N_pop
-    # exe_plot_param_exploration_L_Npop()
+    exe_plot_param_exploration_L_Npop()
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

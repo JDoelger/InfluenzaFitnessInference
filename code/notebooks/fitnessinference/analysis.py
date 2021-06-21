@@ -1,6 +1,8 @@
 import numpy as np
 import copy
-import os 
+import os
+import pkg_resources
+pkg_resources.require("pypet==0.5.1")
 from pypet import Trajectory, cartesian_product
 import pickle
 import scipy

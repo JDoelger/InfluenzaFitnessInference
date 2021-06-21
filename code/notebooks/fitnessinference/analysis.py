@@ -62,15 +62,15 @@ def load_simu_data(single_simu_filename, simu_name, run_num,
     if not os.path.exists(result_directory):
         result_directory = os.getcwd()
 
-    # # load parameters from the pypet file
-    # simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name + '.hdf5')
-    # # only need trajectory, not environment to look at parameters and results:
-    # traj = Trajectory(simu_name, add_time=False)
-    # # load the trajectory from the file with only parameters but not results loaded
-    # traj.f_load(filename=simu_file, load_parameters=2,
-    #             load_results=2, load_derived_parameters=0)
-    # # load the parameter values of this specific run
-    # traj.v_idx = run_num
+    # load parameters from the pypet file
+    simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name + '.hdf5')
+    # only need trajectory, not environment to look at parameters and results:
+    traj = Trajectory(simu_name, add_time=False)
+    # load the trajectory from the file with only parameters but not results loaded
+    traj.f_load(filename=simu_file, load_parameters=2,
+                load_results=2, load_derived_parameters=0, force=True)
+    # load the parameter values of this specific run
+    traj.v_idx = run_num
 
     # load data from the pickled files
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')
@@ -527,10 +527,10 @@ def single_simu_analysis(single_simu_filename, simu_name, run_num, ana_param_dic
             load_simu_data(single_simu_filename, simu_name, run_num, result_directory=result_directory)
 
     # fitness landscape (model input):
-    if traj.hJ_coeffs=='constant':
-        h_model, J_model = simu.fitness_coeff_constant(traj.N_site, traj.N_state, traj.h_0, traj.J_0)
-    elif traj.hJ_coeffs=='p24':
-        h_model, J_model = simu.fitness_coeff_p24(traj.N_site, traj.N_state)
+    # if traj.hJ_coeffs=='constant':
+    #     h_model, J_model = simu.fitness_coeff_constant(traj.N_site, traj.N_state, traj.h_0, traj.J_0)
+    # elif traj.hJ_coeffs=='p24':
+    h_model, J_model = simu.fitness_coeff_p24(traj.N_site, traj.N_state)
         
     
     # take random samples from each time step up to inf_end:

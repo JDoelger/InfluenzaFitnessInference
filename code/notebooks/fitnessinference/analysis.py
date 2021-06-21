@@ -1,8 +1,6 @@
 import numpy as np
 import copy
 import os
-import pkg_resources
-pkg_resources.require("pypet==0.5.1")
 from pypet import Trajectory, cartesian_product
 import pickle
 import scipy
@@ -64,15 +62,15 @@ def load_simu_data(single_simu_filename, simu_name, run_num,
     if not os.path.exists(result_directory):
         result_directory = os.getcwd()
 
-    # load parameters from the pypet file
-    simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name + '.hdf5')
-    # only need trajectory, not environment to look at parameters and results:
-    traj = Trajectory(simu_name, add_time=False)
-    # load the trajectory from the file with only parameters but not results loaded
-    traj.f_load(filename=simu_file, load_parameters=2,
-                load_results=2, load_derived_parameters=0)
-    # load the parameter values of this specific run
-    traj.v_idx = run_num
+    # # load parameters from the pypet file
+    # simu_file = os.path.join(result_directory, 'results', 'simulations', simu_name + '.hdf5')
+    # # only need trajectory, not environment to look at parameters and results:
+    # traj = Trajectory(simu_name, add_time=False)
+    # # load the trajectory from the file with only parameters but not results loaded
+    # traj.f_load(filename=simu_file, load_parameters=2,
+    #             load_results=2, load_derived_parameters=0)
+    # # load the parameter values of this specific run
+    # traj.v_idx = run_num
 
     # load data from the pickled files
     # temp_folder = os.path.join(result_directory, 'results', 'simulations', simu_name + '_temp')

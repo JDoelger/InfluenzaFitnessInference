@@ -31,7 +31,7 @@ class SlurmProtocol(object):
 
 def main():
     # run batch of simulations several times with different rng
-    reps = 10 # number of repetitions
+    reps = 1 # number of repetitions
     for rep in range(reps):
         slurm = SlurmProtocol()
         slurm.generate_slurm()

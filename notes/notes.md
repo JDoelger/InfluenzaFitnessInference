@@ -194,6 +194,8 @@ to deep mut scanning)
 	- this is now implemented with time.sleep(200) in the python file that runs the batch scripts
 	- another option could be to give each result folder a name with a random number attached, e.g. the simulation 6 digit simu seed, which will make sure that filenames will likely not clash
 - 10 simus each for varying N_pop and varying N_site started
+- PROBLEM: simulations get cancelled quickly after short time with slurm error "cancelled due to time limit", although the set time limit is very high and the partition also has a very long time limit
+- I asked engaging admins via email to help me
 
 # To Do :
 

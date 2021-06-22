@@ -7,4 +7,4 @@
 
 #SBATCH --mem-per-cpu=10gb
 
-python /home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py
+python C:\Users\julia\Documents\Resources\InfluenzaFitnessLandscape\NewApproachFromMarch2021\InfluenzaFitnessInference\code\notebooks\fitnessinference\analysis.py

@@ -1,2 +1,2 @@
-stdout = b'Submitted batch job 36751184\n'
+stdout = b''
 stderr = None

@@ -143,8 +143,15 @@ def sample_seqs(strain_yearly, strain_freq_yearly, seed, B, inf_end):
     for t in range(inf_end):
         
         # randomly sample strain indices
-        sampled_ids = np.random.choice(len(strain_yearly[t]), size=B, replace=True, p=strain_freq_yearly[t])
-        
+        try:
+            sampled_ids = np.random.choice(len(strain_yearly[t]), size=B, replace=True, p=strain_freq_yearly[t])
+        except IndexError:
+            print('t: ', t)
+            print('inf_end: ', inf_end)
+            print('B: ', B)
+            print('len(strain_yearly): ', len(strain_yearly))
+            print('len(strain_freq_yearly): ', len(strain_freq_yearly))
+
         # create new strain list with corresponding frequencies
         seqs = strain_yearly[t][sampled_ids]
         strain_samp_current, strain_samp_count_current =\

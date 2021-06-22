@@ -25,7 +25,8 @@ class SlurmProtocol(object):
                                   nodes=nodes, ppn=ppn, mem_gb=mem_gb)
 
     def set_python_script(self, q):
-        pypath = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py')
+        pypath = os.path.normpath('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
+                                  'InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py')
         if not os.path.exists(pypath):
             pypath = os.path.join(os.getcwd(), 'code', 'notebooks', 'fitnessinference', 'analysis.py')
         command_string = 'python ' + pypath + '\n'

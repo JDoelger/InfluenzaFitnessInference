@@ -1,4 +1,0 @@
-  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py", line 632
-    print(simulation started)
-                           ^
-SyntaxError: invalid syntax

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 5, in <module>
+    pkg_resources.require("pypet==0.5.1")
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pkg_resources/__init__.py", line 901, in require
+    needed = self.resolve(parse_requirements(requirements))
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pkg_resources/__init__.py", line 792, in resolve
+    raise VersionConflict(dist, req).with_context(dependent_req)
+pkg_resources.VersionConflict: (pypet 0.5.2 (/home/jdoelger/anaconda3/lib/python3.7/site-packages), Requirement.parse('pypet==0.5.1'))

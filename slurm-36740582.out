@@ -1,0 +1,36 @@
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py:296: RuntimeWarning: invalid value encountered in sqrt
+  sigma_res = np.sqrt(len(Y)/(len(Y) - len(M_inf))*np.mean([(Y - np.matmul(X_inf, M_inf))**2]))
+Traceback (most recent call last):
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 2195, in <module>
+    main()
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 2163, in main
+    exe_multi_simu_analysis_L(simu_name)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 933, in exe_multi_simu_analysis_L
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 864, in multi_simu_analysis
+    analysis_results = single_simu_analysis(single_simu_filename, simu_name, run, ana_param_dict)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 547, in single_simu_analysis
+    sample_seqs(strain_yearly, strain_frequency_yearly, seed, B, inf_end)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 146, in sample_seqs
+    sampled_ids = np.random.choice(len(strain_yearly[t]), size=B, replace=True, p=strain_freq_yearly[t])
+IndexError: list index out of range

@@ -1,0 +1,17 @@
+Current pypet version is 0.5.2 with python 3.7.6 but your trajectory was created with version 0.5.1 under python 3.8.5. Yet, you enforced the load, so I will handle the trajectory despite the version mismatch.
+Traceback (most recent call last):
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 2186, in <module>
+    main()
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 2154, in main
+    exe_multi_simu_analysis_L(simu_name)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 924, in exe_multi_simu_analysis_L
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 855, in multi_simu_analysis
+    analysis_results = single_simu_analysis(single_simu_filename, simu_name, run, ana_param_dict)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 530, in single_simu_analysis
+    if traj.hJ_coeffs=='constant':
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/naturalnaming.py", line 2995, in __getattr__
+    with_links=self.v_root.v_with_links)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/naturalnaming.py", line 2306, in _get
+    str('.'.join(split_name)))
+AttributeError: hJ_coeffs is not part of your trajectory or it's tree. 

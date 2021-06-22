@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 2182, in <module>
+    main()
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 2150, in main
+    exe_multi_simu_analysis_L(simu_name)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 920, in exe_multi_simu_analysis_L
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 795, in multi_simu_analysis
+    run_list = simu_dict['run_list']
+KeyError: 'run_list'

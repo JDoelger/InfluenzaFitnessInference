@@ -1,0 +1,31 @@
+Failed loading  `Trajectory 2021Jun19_varN_site (len:1): (config: <class 'pypet.naturalnaming.ConfigGroup'>)`
+Traceback (most recent call last):
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 2186, in <module>
+    main()
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 2154, in main
+    exe_multi_simu_analysis_L(simu_name)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 924, in exe_multi_simu_analysis_L
+    multi_simu_analysis(simu_name, ana_param_dict, varied_ana_params, exp_ana_dict)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 855, in multi_simu_analysis
+    analysis_results = single_simu_analysis(single_simu_filename, simu_name, run, ana_param_dict)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 527, in single_simu_analysis
+    load_simu_data(single_simu_filename, simu_name, run_num, result_directory=result_directory)
+  File "/home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py", line 71, in load_simu_data
+    load_results=2, load_derived_parameters=0)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/utils/decorators.py", line 188, in new_func
+    return func(self, *args, **kwargs)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/utils/decorators.py", line 163, in new_func
+    return func(*args, **kwargs)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/utils/decorators.py", line 163, in new_func
+    return func(*args, **kwargs)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/trajectory.py", line 1689, in f_load
+    force=force)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/storageservice.py", line 939, in load
+    self._trj_load_trajectory(stuff_to_load, *args, **kwargs)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/storageservice.py", line 1865, in _trj_load_trajectory
+    self._trj_load_meta_data(traj, load_data, as_new, with_run_information, force)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/storageservice.py", line 1953, in _trj_load_meta_data
+    self._trj_check_version(version, python, force)
+  File "/home/jdoelger/anaconda3/lib/python3.7/site-packages/pypet/storageservice.py", line 2165, in _trj_check_version
+    (VERSION, curr_python, version, python))
+pypet.pypetexceptions.VersionMismatchError: Current pypet version is 0.5.2 used under python 3.7.6   but your trajectory was created with version 0.5.1 and python 3.8.5. Use >>force=True<< to perform your load regardless of version mismatch.

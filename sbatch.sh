@@ -5,4 +5,4 @@
 #SBATCH --time=1-9:20:00
 #SBATCH --partition=sched_mit_arupc_long
 
-python /home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/simulation.py
+python /home/jdoelger/InfluenzaFitnessInference/code/notebooks/fitnessinference/analysis.py

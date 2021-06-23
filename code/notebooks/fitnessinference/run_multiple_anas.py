@@ -44,7 +44,7 @@ def main():
     slurm = SlurmProtocol()
     slurm.generate_slurm()
     run_sbatch()
-    # time.sleep(1) # wait for 100 seconds so that result file gets created before next simu is run
+    # time.sleep(1) # wait for x seconds so that result file gets created before next simu is run
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

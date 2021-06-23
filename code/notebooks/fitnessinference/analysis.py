@@ -2166,17 +2166,17 @@ def index_list(s, item, i=0):
 
 def main():
     ## run analysis/inference, each only once, comment out afterward
-    simu_name_gen = '2021Jun04_var'
+    simu_name_gen = '2021Jun22_var'
     # simu_name = simu_name_gen + 'N_pop_5'
     # exe_multi_simu_analysis_Npop(simu_name)
-    # simu_name = simu_name_gen + 'N_site_test'
-    # exe_multi_simu_analysis_L(simu_name)
+    simu_name = simu_name_gen + 'N_site'
+    exe_multi_simu_analysis_L(simu_name)
 
     # exe_multi_simu_analysis_fuji()
 
     ## average over several repeats of simus+analysis
     # exe_avg_analysis('N_pop')
-    exe_avg_analysis('N_site')
+    # exe_avg_analysis('N_site')
 
     ## make single analysis plots
     # N_pop_val_list = [10, 100, 10**3, 10**4, 10**5, 10**6]
@@ -2195,7 +2195,7 @@ def main():
     #     exe_single_simu_plot_numMutations_fuji(h_0_val)
 
     ## plot inference performance as function of sample size (3 panels)
-    exe_plot_param_exploration_sampleSize()
+    # exe_plot_param_exploration_sampleSize()
 
     ## plot inference performance as function of L and as function of N_pop
     # exe_plot_param_exploration_L_Npop()

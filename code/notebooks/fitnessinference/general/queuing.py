@@ -64,5 +64,5 @@ class SlurmHeader(object):
             minutes_left = int(self.simulation_time % 1440)
             test_str = "#SBATCH --time={0}-{1}\n".format(day_num, datetime.timedelta(minutes=minutes_left))
         q.write(test_str) # set time in correct format as recommended by engaging admin
-        q.write("#SBATCH --partition=sched_mit_arupc_long\n\n")
+        q.write("#SBATCH --partition=sched_mit_arupc_long\n")
         q.write("#SBATCH --mem-per-cpu={0}gb\n\n".format(self.mem_gb)) # set memory limit

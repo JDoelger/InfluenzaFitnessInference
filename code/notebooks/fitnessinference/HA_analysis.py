@@ -17,12 +17,16 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from math import log10, floor
 import pandas as pd
+import os
 
 def retrieve_seqs(fastafile='HA(H3N2)1968-2020_Accessed210418.fasta'):
     """
     extract yearly sequences from fasta file
     """
-    protein_list = list(SeqIO.parse(fastafile,
+    repo_path = os.getcwd()
+    fastafilepath = os.path.join(repo_path, 'figures', fastafile)
+
+    protein_list = list(SeqIO.parse(fastafilepath,
                                     'fasta'))  # HA (H3N2) protein records from IRD (fludb.org) for 1968-2020, downloaded on 18th Apr. 2021, only date and season in description
     # protein_BI1619068 = list(SeqIO.parse('BI_16190_68_ProteinFasta.fasta',
     #                                      'fasta'))  # HA (H3N2) protein records from IRD (fludb.org) for strain BI/16190/68 (accession: KC296480)
@@ -223,8 +227,8 @@ def exe_plot_strainSuccession_HA():
         ax1.plot(year_list, strain_frequency_yearly_transpose[sti], color=colorlist[sti])
     ax1.set_xlabel('year')
     ax1.set_ylabel('strain frequency')
-    ax1.text(plt_set['plotlabel_shift_2pan'], 1, 'A', transform=ax1.transAxes,
-             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    ax1.text(plt_set['plotlabel_shift_2pan'], 1, '(a)', transform=ax1.transAxes,
+             fontsize=plt_set['label_font_size'], va='top', ha='right')
 
     for y in range(len(strain_index_yearly)):
         for sti in range(len(strain_index_yearly[y]) - 1, -1, -1):
@@ -234,8 +238,8 @@ def exe_plot_strainSuccession_HA():
                  markersize=plt_set['plot_marker_size_dot'], color='red')
     ax2.set_xlabel('year')
     ax2.set_ylabel('strain label')
-    ax2.text(plt_set['plotlabel_shift_2pan'], 1, 'B', transform=ax2.transAxes,
-             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    ax2.text(plt_set['plotlabel_shift_2pan'], 1, '(b)', transform=ax2.transAxes,
+             fontsize=plt_set['label_font_size'], va='top', ha='right')
 
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
@@ -434,7 +438,7 @@ def exe_plot_minus_fhost_yearly(sigma_h, D0,
 
     fig_name = 'HA_MFhost_dist' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + plt_set['file_extension']
     this_plot_filepath = os.path.join(figure_directory, fig_name)
-    fig = plt.figure(figsize=(plt_set['full_page_width'] / 2, 3))
+    fig = plt.figure(figsize=(plt_set['full_page_width']/2, 3))
     ax1 = fig.add_axes(plt_set['plot_dim_1pan'][0])
 
     # retrieve HA sequences in order to get year_list
@@ -896,23 +900,23 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
     ax1.set_xlabel('measured max log aa preference ratios')
     ax1.set_ylabel('inferred $h$')
     ax1.set_ylim(-1.5, 1.5)
-    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'A', transform=ax1.transAxes,
-             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(a)', transform=ax1.transAxes,
+             fontsize=plt_set['label_font_size'], va='top', ha='right')
 
     # inferred vs avg. mutational effects
     ax2.errorbar(avg_mut_effect_list, h_inf_list, h_inf_std_list, marker='o', linestyle='none', zorder=1)
     ax2.set_xlabel('measured avg. log aa preference ratios')
     ax2.set_ylabel('inferred $h$')
     ax2.set_ylim(-1.5, 1.5)
-    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'B', transform=ax2.transAxes,
-             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(b)', transform=ax2.transAxes,
+             fontsize=plt_set['label_font_size'], va='top', ha='right')
 
     ax3.errorbar(shannon_e_list, h_inf_list, h_inf_std_list, marker='o', linestyle='none', zorder=1)
     ax3.set_xlabel('Shannon entropy of measured aa preferences')
     ax3.set_ylabel('inferred $h$')
     ax3.set_ylim(-1.5, 1.5)
-    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], 'C', transform=ax3.transAxes,
-             fontsize=plt_set['label_font_size'], fontweight='bold', va='top', ha='right')
+    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(c)', transform=ax3.transAxes,
+             fontsize=plt_set['label_font_size'], va='top', ha='right')
 
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
@@ -920,7 +924,7 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
 
 def main():
     ## plot HA strain succession from 1968 to 2020
-    # exe_plot_strainSuccession_HA()
+    exe_plot_strainSuccession_HA()
 
     ## calculate and save minus_f_host_yearly
     # sigma_h = 1
@@ -963,9 +967,9 @@ def main():
     ## compare inferred fitness coefficients to mutational fitness effects
     ## measured by Lee et al. 2018 (PNAS)
     ## save comparison figure and print/save rank correlations
-    sigma_h = 1
-    D0 = 5
-    comparison_inference_LeeDeepMutScanning(sigma_h, D0)
+    # sigma_h = 1
+    # D0 = 5
+    # comparison_inference_LeeDeepMutScanning(sigma_h, D0)
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

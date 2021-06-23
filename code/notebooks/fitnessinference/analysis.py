@@ -1816,12 +1816,7 @@ def exe_plot_param_exploration_sampleSize():
     # simu_name = '2021Jun02_varN_site'
     # simu_name = '2021Jun04_varN_site'
 
-    # analysis_filename = 'analysis_2021May24.data'
-    # analysis_filename = 'analysis_2021Jun03.data'
-    # analysis_filename = 'analysis_2021Jun04.data'
-    # analysis_filename = 'avg_analysis_N_site_2021Jun18.data' # averaged analysis results
-    # analysis_filename = 'avg_analysis_N_site_2021Jun21.data'
-    analysis_filename = 'avg_analysis_N_site_2021Jun22.data'
+    analysis_filename = 'avg_analysis_N_site.data'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
@@ -2004,7 +1999,8 @@ def exe_plot_param_exploration_L_Npop():
     # analysis_filename = 'analysis_2021Jun03.data'
     # analysis_filename = 'analysis_2021Jun04.data'
     # analysis_filename = 'avg_analysis_N_site_2021Jun18.data' # for average analysis
-    analysis_filename = 'avg_analysis_N_site_2021Jun21.data'
+    # analysis_filename = 'avg_analysis_N_site_2021Jun21.data'
+    analysis_filename = 'avg_analysis_N_site.data'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
@@ -2080,7 +2076,8 @@ def exe_plot_param_exploration_L_Npop():
     # analysis_filename = 'analysis_2021Jun03.data'
     # analysis_filename = 'analysis_2021Jun04.data'
     # analysis_filename = 'avg_analysis_N_pop_2021Jun18.data' # for average analysis
-    analysis_filename = 'avg_analysis_N_pop_2021Jun21.data'
+    # analysis_filename = 'avg_analysis_N_pop_2021Jun21.data'
+    analysis_filename = 'avg_analysis_N_pop.data'
 
     result_directory = ('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape/NewApproachFromMarch2021/'
                     'InfluenzaFitnessInference')
@@ -2170,33 +2167,35 @@ def main():
     # simu_name = simu_name_gen + 'N_site'
     # exe_multi_simu_analysis_L(simu_name)
 
-    # exe_multi_simu_analysis_fuji()
-
     ## average over several repeats of simus+analysis
     exe_avg_analysis('N_pop')
     exe_avg_analysis('N_site')
 
     ## make single analysis plots
-    # N_pop_val_list = [10, 100, 10**3, 10**4, 10**5, 10**6]
-    # N_pop_val_list = [10**5]
+    ## N_pop_val_list = [10, 100, 10**3, 10**4, 10**5, 10**6]
+    N_pop_val_list = [10**5]
     simu_name = '2021Jun19_varN_pop'
     for N_pop_val in N_pop_val_list:
         exe_single_simu_plots_Npop(N_pop_val, simu_name)
 
-    ## make single analysis plots for each mount fuji simulation
-    h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]
-    # for h_0_val in h_0_val_list:
-    #   exe_single_simu_plots_fuji(h_0_val)
-
-    ## for each mount fuji simulation  
-    # for h_0_val in h_0_val_list:
-    #     exe_single_simu_plot_numMutations_fuji(h_0_val)
-
     ## plot inference performance as function of sample size (3 panels)
-    # exe_plot_param_exploration_sampleSize()
+    exe_plot_param_exploration_sampleSize()
 
     ## plot inference performance as function of L and as function of N_pop
-    # exe_plot_param_exploration_L_Npop()
+    exe_plot_param_exploration_L_Npop()
+
+    #########################
+    ############################
+    ### additional analyses
+    ## analyses of fuji simulations
+    # exe_multi_simu_analysis_fuji()
+    ## make single analysis plots for each mount fuji simulation
+    # h_0_val_list = [-15, -10, -7, -5, -1, 0, 1, 5]
+    # for h_0_val in h_0_val_list:
+    #   exe_single_simu_plots_fuji(h_0_val)
+    ## for each mount fuji simulation
+    # for h_0_val in h_0_val_list:
+    #     exe_single_simu_plot_numMutations_fuji(h_0_val)
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

@@ -20,7 +20,7 @@ import time
 
 # Writes Slurm files to be run on the cluster
 class SlurmProtocol(object):
-    def __init__(self, simulation_time=2000, nodes=1, ppn=4, mem_gb=10):
+    def __init__(self, simulation_time=2000, nodes=1, ppn=1, mem_gb=10):
         self.header = SlurmHeader(simulation_name="fluSimulation", simulation_time=simulation_time,
                                   nodes=nodes, ppn=ppn, mem_gb=mem_gb)
 

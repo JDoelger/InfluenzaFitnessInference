@@ -2169,7 +2169,7 @@ def main():
     simu_name_gen = '2021Jun22_var'
     # simu_name = simu_name_gen + 'N_pop_5'
     # exe_multi_simu_analysis_Npop(simu_name)
-    simu_name = simu_name_gen + 'N_site'
+    simu_name = simu_name_gen + 'N_site_5'
     exe_multi_simu_analysis_L(simu_name)
 
     # exe_multi_simu_analysis_fuji()

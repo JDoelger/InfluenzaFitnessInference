@@ -900,6 +900,8 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
     ax1.set_xlabel('measured max log aa preference ratios')
     ax1.set_ylabel('inferred $h$')
     ax1.set_ylim(-1.5, 1.5)
+    text = '$r_{spearman}$ = %.2f, p = %.e' % (rhoMaxEffect, prho_MaxEffect)
+    ax1.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax1.transAxes)
     ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(a)', transform=ax1.transAxes,
              fontsize=plt_set['label_font_size'], va='top', ha='right')
 
@@ -908,6 +910,8 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
     ax2.set_xlabel('measured avg. log aa preference ratios')
     ax2.set_ylabel('inferred $h$')
     ax2.set_ylim(-1.5, 1.5)
+    text = '$r_{spearman}$ = %.2f, p = %.e' % (rhoAvgEffect, prho_AvgEffect)
+    ax2.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax2.transAxes)
     ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(b)', transform=ax2.transAxes,
              fontsize=plt_set['label_font_size'], va='top', ha='right')
 
@@ -915,6 +919,8 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
     ax3.set_xlabel('Shannon entropy of measured aa preferences')
     ax3.set_ylabel('inferred $h$')
     ax3.set_ylim(-1.5, 1.5)
+    text = '$r_{spearman}$ = %.2f, p = %.e' % (rho_shannon, prho_shannon)
+    ax3.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax3.transAxes)
     ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(c)', transform=ax3.transAxes,
              fontsize=plt_set['label_font_size'], va='top', ha='right')
 
@@ -967,9 +973,9 @@ def main():
     ## compare inferred fitness coefficients to mutational fitness effects
     ## measured by Lee et al. 2018 (PNAS)
     ## save comparison figure and print/save rank correlations
-    # sigma_h = 1
-    # D0 = 5
-    # comparison_inference_LeeDeepMutScanning(sigma_h, D0)
+    sigma_h = 1
+    D0 = 5
+    comparison_inference_LeeDeepMutScanning(sigma_h, D0)
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

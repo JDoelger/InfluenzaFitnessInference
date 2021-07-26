@@ -623,7 +623,6 @@ def main():
     """
     main function to execute simulation,
     can be executed by running this file simulation.py as a python script,
-    but will not be executed when just importing the file
     """
     t0 = time.time() # starting time of simulation
     # define the parameter exploration for this experiment via exp_dict and run simulation batch

@@ -1,7 +1,0 @@
-2021-06-19 13:02:31,996 pypet.storageservice.HDF5StorageService INFO     I will use the hdf5 file `/home/jdoelger/InfluenzaFitnessInference/results/simulations/2021Jun19_varN_pop.hdf5`.
-2021-06-19 13:02:32,007 pypet.environment.Environment INFO     Environment initialized.
-2021-06-19 13:02:32,021 root INFO     Starting Simulation
-2021-06-19 13:02:32,022 pypet.environment.Environment INFO     I am preparing the Trajectory for the experiment and initialise the store.
-2021-06-19 13:02:32,022 pypet.environment.Environment INFO     Initialising the storage for the trajectory.
-2021-06-19 13:02:32,074 pypet.storageservice.HDF5StorageService INFO     Initialising storage or updating meta data of Trajectory `2021Jun19_varN_pop`.
-2021-06-19 13:02:32,074 pypet.storageservice.HDF5StorageService ERROR    Failed storing `Trajectory 2021Jun19_varN_pop (len:6): (config: <class 'pypet.naturalnaming.ConfigGroup'>), (parameters: <class 'pypet.naturalnaming.ParameterGroup'>)`

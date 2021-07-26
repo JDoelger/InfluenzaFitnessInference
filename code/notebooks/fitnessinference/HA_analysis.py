@@ -973,9 +973,9 @@ def main():
     ## compare inferred fitness coefficients to mutational fitness effects
     ## measured by Lee et al. 2018 (PNAS)
     ## save comparison figure and print/save rank correlations
-    sigma_h = 1
-    D0 = 5
-    comparison_inference_LeeDeepMutScanning(sigma_h, D0)
+    # sigma_h = 1
+    # D0 = 5
+    # comparison_inference_LeeDeepMutScanning(sigma_h, D0)
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

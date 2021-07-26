@@ -128,12 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-## figure directory
-# figures/
-
-## results directory
-# results/
-
 # directory for trying out packages and various code, relatively unstructured
 code/miscellaneous_code_experiments/
 
@@ -141,8 +135,5 @@ code/miscellaneous_code_experiments/
 code/notebooks/logs/
 
 # certain filetypes
-*.pptx
-*.png
-*.pdf
 *.out
 

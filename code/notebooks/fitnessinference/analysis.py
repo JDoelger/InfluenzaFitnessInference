@@ -1087,6 +1087,7 @@ def set_plot_settings():
     # plot settings
     file_extension = '.pdf'
     full_page_width = 6.8 # in inches
+    single_pan_width = full_page_width*1/2
     label_font_size = 14
     plotlabel_shift_2pan = -0.13
     plotlabel_shift_3pan = -0.2
@@ -1103,6 +1104,7 @@ def set_plot_settings():
     plt_set = {
         'file_extension': file_extension,
         'full_page_width': full_page_width,
+        'single_pan_width': single_pan_width,
         'label_font_size': label_font_size,
         'plotlabel_shift_2pan': plotlabel_shift_2pan,
         'plotlabel_shift_3pan': plotlabel_shift_3pan,
@@ -2159,6 +2161,63 @@ def index_list(s, item, i=0):
             break
     return i_list
 
+def calc_and_plot_crossImmunity(D0=5):
+    """
+    run this from specific result folder with raw simulation results in which N_site is varied
+    """
+    # load plot settings
+    plt_set = set_plot_settings()
+
+    ## calculate and plot the
+    with open('N_site_20.data', 'rb') as f:
+    # with open('N_site_1e+02.data', 'rb') as f:
+        resulting_data = pickle.load(f)
+    strain_yearly = resulting_data['strain_yearly']
+    strain_frequency_yearly = resulting_data['strain_frequency_yearly']
+    ref_strains = strain_yearly[-1][:20] # choose strain for which to calculate cross-immunity
+    cross_imms = [[] for ref_strain in ref_strains]
+    for y in range(len(strain_yearly)-1):
+        cross_imm_now = []
+        strains = strain_yearly[y]
+        # create array of same dimension as strain list at t
+        for i in range(len(ref_strains)):
+            seq_arr = np.repeat([ref_strains[i]], len(strains), axis=0)
+            # calculate mutational distances between seq_arr and strains
+            mut_dist = np.sum(seq_arr != strains, axis=1)
+            cross_imm_weighted = np.dot(strain_frequency_yearly[y], np.exp(-mut_dist / D0))
+            cross_imms[i].append(cross_imm_weighted)
+
+    fig = plt.figure(figsize=(plt_set['full_page_width']/2, 3))
+    ax1 = fig.add_axes(plt_set['plot_dim_1pan'][0])
+    # ax2 = fig.add_axes(plt_set['plot_dim_2pan'][1])
+
+    result_directory = (r'C:\Users\julia\Documents\Resources\InfluenzaFitnessLandscape\NewApproachFromMarch2021\InfluenzaFitnessInference\figures')
+    result_directory = os.path.normpath(result_directory)
+    if not os.path.exists(result_directory):
+        result_directory = os.getcwd()
+
+    cm = plt.get_cmap('rainbow')
+    colorlist = [cm(1. * i / (len(ref_strains)))
+                 for i in range(len(ref_strains))]
+
+    figure_directory = result_directory
+    this_plot_filepath = os.path.join(figure_directory, 'cross_immunity_decay' + plt_set['file_extension'])
+
+    year_list = [y for y in range(len(strain_yearly))]
+    cumcross_imms = [np.cumsum(cross_imms[i]) for i in range(len(cross_imms))]
+    # ax1.plot(year_list[100:-1], cross_imms[100:], '.-')
+    # ax1.plot(year_list[100:-1], prop_fhost[100:], '.-')
+    for i in range(len(ref_strains)):
+        # ax1.plot(year_list[:-1], cumcross_imms[i][:], '.-', color=colorlist[i])
+        ax1.plot(year_list[100:-1], cross_imms[i][100:],'.-', color=colorlist[i])
+    ax1.set_xlabel('simulated season')
+    ax1.set_ylabel('weighted cross-immunity for recent strains')
+
+    plt.savefig(this_plot_filepath, bbox_inches='tight')
+    plt.close()
+
+
+
 def main():
     ## run analysis/inference, each only once, comment out afterward
     # simu_name_gen = '2021Jun22_var'
@@ -2197,6 +2256,15 @@ def main():
     # for h_0_val in h_0_val_list:
     #     exe_single_simu_plot_numMutations_fuji(h_0_val)
 
-# if this file is run from the console, the function main will be executed
+def main2():
+    """
+    run this from specific result folder with raw simulation results in which N_site is varied
+    """
+    ## calculate and plot cross-immunity of some recent strains with strains at past times
+    calc_and_plot_crossImmunity(D0=5)
+
+
+# if this file is run from the console, the function main (or main2) will be executed
 if __name__ == '__main__':
     main()
+    # main2()

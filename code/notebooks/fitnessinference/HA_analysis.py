@@ -514,6 +514,45 @@ def inference_features_Ising_noCouplings(strain_samp_yearly):
     Returns:
 
     X: numpy.ndarray
+            feature matrix for inference of {h,f} from -F_host
+
+    Dependencies:
+
+    import numpy as np
+    """
+    X = []
+    for t in range(len(strain_samp_yearly)):
+        strains_next = strain_samp_yearly[t]
+        # features (for time-dependent coefficient f)
+        gen_features = [0] * (len(strain_samp_yearly))
+        gen_features[t] = 1
+        # sequence features (for h and J)
+        X_next = []
+        for strain in strains_next:
+            # X_sample = strain.tolist()
+            X_sample = strain
+            X_sample = np.concatenate((X_sample, gen_features))
+            X_next.append(X_sample)
+        if len(X) != 0:
+            X = np.concatenate((X, X_next), axis=0)
+        else:
+            X = copy.deepcopy(X_next)
+    X = np.array(X)
+
+    return X
+
+def inference_features_Ising_WithCouplings(strain_samp_yearly):
+    """
+    calculate the feature matrix for inference (for Ising strains)
+
+    Parameters:
+
+    strain_samp_yearly: list
+            list of strains for each inference time step (between inf_start and inf_end)
+
+    Returns:
+
+    X: numpy.ndarray
             feature matrix for inference of {h,J,f} from -F_host
 
     Dependencies:
@@ -531,6 +570,9 @@ def inference_features_Ising_noCouplings(strain_samp_yearly):
         for strain in strains_next:
             # X_sample = strain.tolist()
             X_sample = strain
+            for i in range(len(strain)):
+                for j in range(i):
+                    X_sample = np.concatenate((X_sample, np.array([strain[i]*strain[j]])))
             X_sample = np.concatenate((X_sample, gen_features))
             X_next.append(X_sample)
         if len(X) != 0:
@@ -645,6 +687,85 @@ def infer_ridge_noCouplings(X, Y, lambda_h, lambda_f, inf_start, inf_end):
 
     return M_full, M_std
 
+def infer_ridge_WithCouplings(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end):
+    """
+        infer the parameters {h,J,f} with ridge regression (Gaussian prior for regularized params)
+
+        Parameters:
+
+        X: numpy.ndarray
+                feature matrix
+        Y: numpy.ndarray
+                response vector
+        lambda_h, lambda_J, lambda_f: int (or float)
+                regularization coefficients, if 0 no regularization
+        inf_start, inf_end: start and end generation for inference
+
+        Returns:
+
+        M: numpy.ndarray
+                list of inferred coefficients
+        M_std: numpy.ndarray
+                list of standard deviation for inferred coefficients
+
+        Dependencies:
+
+        import numpy as np
+        import copy
+        """
+    # number of features
+    num_param = len(X[0])
+    num_f = int(inf_end - inf_start - 1)
+    num_h = int(-1/2 + np.sqrt(1/4 + 2*(num_param - num_f))) # calculate num_h from num_hJ = num_h*(num_h + 1)/2
+    num_J = num_param - (num_f + num_h)
+    # regularization matrix
+    reg_mat = np.zeros((num_param, num_param))
+    for i in range(num_h):
+        reg_mat[i, i] = lambda_h
+    for i in range(num_h, num_h + num_J):
+        reg_mat[i,i] = lambda_J
+    for i in range(num_h + num_J, num_param):
+        reg_mat[i, i] = lambda_f
+
+    # standard deviation of features
+    X_std = np.std(X, axis=0)
+    std_nonzero = np.where(X_std != 0)[0]  # use only features where std is nonzero
+    param_included = std_nonzero
+    X_inf = copy.deepcopy(X[:, param_included])
+    reg_mat_reduced = reg_mat[param_included, :]
+    reg_mat_reduced = reg_mat_reduced[:, param_included]
+
+    # inference by solving X*M = Y for M
+    XT = np.transpose(X_inf)
+    XTX = np.matmul(XT, X_inf)  # covariance
+    try:
+        XTX_reg_inv = np.linalg.inv(XTX + reg_mat_reduced)
+        XTY = np.matmul(XT, Y)
+        M_inf = np.matmul(XTX_reg_inv, XTY)
+
+        M_full = np.zeros(num_param)
+        M_full[param_included] = M_inf
+
+        # unbiased estimator of variance
+        sigma_res = np.sqrt(len(Y) / (len(Y) - len(M_inf)) * np.mean([(Y - np.matmul(X_inf, M_inf)) ** 2]))
+        v_vec = np.diag(XTX_reg_inv)
+        # use std of prior distribution (if <infinity, else use 0)
+        # for parameters that are not informed by model
+        # M_var_inv = copy.deepcopy(np.diag(reg_mat))
+        M_std = np.zeros(M_full.shape)
+        for i in range(len(M_std)):
+            if reg_mat[i, i] != 0:
+                M_std[i] = np.sqrt(1 / reg_mat[i, i])
+        # standard deviation of the parameter distribution
+        # from diagonal of the covariance matrix
+        M_std[param_included] = np.sqrt(v_vec) * sigma_res
+    except:
+        print('exception error')
+        M_full = np.zeros(num_param)
+        M_std = np.zeros(num_param)
+
+    return M_full, M_std
+
 
 def exe_inference_noCouplings(seq_ref_name, sigma_h, D0, res_targeted,
                               lambda_h, lambda_f, inf_start, inf_end,
@@ -658,6 +779,7 @@ def exe_inference_noCouplings(seq_ref_name, sigma_h, D0, res_targeted,
     ## retrieve st_yearly and st_freq_yearly from collected HA strains (before dim reduction)
     # retrieve HA protein sequences from fasta file
     year_list, yearly = retrieve_seqs()
+    print('start: ', year_list[inf_start], 'end: ', year_list[inf_end-1])
     # divide sequences into strains
     [st_yearly, st_freq_yearly, tot_count_yearly,
      strain_All, strain_frequency_All] = strain_info(yearly)
@@ -692,6 +814,10 @@ def exe_inference_noCouplings(seq_ref_name, sigma_h, D0, res_targeted,
     h_inf_list = M[:num_h]
     h_inf_std_list = M_std[:num_h]
 
+    # print basic results:
+    print('inferred h: ', h_inf_list)
+    print('number of sites: ', len(h_inf_list))
+
     # save results from inference and used parameters in dictionary
     ana_result_dict = {
         'seq_ref_name': seq_ref_name,
@@ -711,6 +837,83 @@ def exe_inference_noCouplings(seq_ref_name, sigma_h, D0, res_targeted,
         'M_std': M_std
     }
     result_filename = 'HA_Inference_noCouplings' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + '.data'
+    # switch to results folder for specific reference seq
+    seqref_results_folder = os.path.join(results_directory, seq_ref_name)
+    if not os.path.exists(seqref_results_folder):
+        os.mkdir(seqref_results_folder)
+    result_filepath = os.path.join(seqref_results_folder, result_filename)
+    with open(result_filepath, 'wb') as f:
+        pickle.dump(ana_result_dict, f)
+
+def exe_inference_WithCouplings(seq_ref_name, sigma_h, D0, res_targeted,
+                              lambda_h, lambda_J, lambda_f, inf_start, inf_end,
+                              results_directory=('C:/Users/julia/Documents/Resources/InfluenzaFitnessLandscape'
+                                                 '/NewApproachFromMarch2021/InfluenzaFitnessInference/figures')
+                              ):
+    """
+    infer single-mutation intrinsic fitness coefficients h and J, together with temporal params F*
+    based on specific reference sequence, from which other strains are mutated within the head epitope regions (given by res_targeted)
+    """
+    ## retrieve st_yearly and st_freq_yearly from collected HA strains (before dim reduction)
+    # retrieve HA protein sequences from fasta file
+    year_list, yearly = retrieve_seqs()
+    # divide sequences into strains
+    [st_yearly, st_freq_yearly, tot_count_yearly,
+     strain_All, strain_frequency_All] = strain_info(yearly)
+
+    # load minus_fhost_yearly from pickle file based on values of sigma_h and D0
+    results_directory = os.path.normpath(results_directory)
+    if not os.path.exists(results_directory):
+        results_directory = os.path.join(os.getcwd(), 'figures')
+
+    file_name = 'HA_MinusFhost_yearly' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + '.data'
+    file_path = os.path.join(results_directory, file_name)
+    with open(file_path, 'rb') as f:
+        minus_f_host_yearly = pickle.load(f)
+
+    seq_ref_file = os.path.join(results_directory, 'reference_sequences.data')
+    with open(seq_ref_file, 'rb') as f:
+        seq_ref_dict = pickle.load(f)
+    seq_ref = seq_ref_dict[seq_ref_name]
+    # calculate binary strain rep. and update minus_f_host_yearly respectively
+    st_bin_yearly_new, st_bin_freq_yearly, minus_f_host_yearly_new =\
+        binary_strains(seq_ref, st_yearly, st_freq_yearly, minus_f_host_yearly, res_targeted)
+
+    # calculate feature matrix and response vector
+    strain_samp_yearly = st_bin_yearly_new[inf_start+1:inf_end]
+    minus_f_host_yearly = minus_f_host_yearly_new[inf_start:inf_end-1]
+    X = inference_features_Ising_WithCouplings(strain_samp_yearly)
+    Y = inference_response_FhostPrediction(minus_f_host_yearly)
+
+    # do inference and extract h and h_std from inference
+    M, M_std = infer_ridge_WithCouplings(X, Y, lambda_h, lambda_J, lambda_f, inf_start, inf_end)
+    num_h = int(-1/2 + np.sqrt(1/4 + 2*(len(M) - (inf_end - inf_start - 1)))) # calculate num_h from num_hJ=num_params-num_f
+    h_inf_list = M[:num_h]
+    h_inf_std_list = M_std[:num_h]
+
+    # print basic results:
+    print('inferred h: ', h_inf_list)
+    print('number of sites: ', len(h_inf_list))
+
+    # save results from inference and used parameters in dictionary
+    ana_result_dict = {
+        'seq_ref_name': seq_ref_name,
+        'seq_ref': seq_ref,
+        'st_yearly': st_yearly,
+        'st_freq_yearly': st_freq_yearly,
+        'inf_start': inf_start,
+        'inf_end': inf_end,
+        'sigma_h': sigma_h,
+        'D0': D0,
+        'res_targeted': res_targeted,
+        'lambda_h': lambda_h,
+        'lambda_f': lambda_f,
+        'h_inf_list': h_inf_list,
+        'h_inf_std_list': h_inf_std_list,
+        'M': M,
+        'M_std': M_std
+    }
+    result_filename = 'HA_Inference_WithCouplings' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + '.data'
     # switch to results folder for specific reference seq
     seqref_results_folder = os.path.join(results_directory, seq_ref_name)
     if not os.path.exists(seqref_results_folder):
@@ -779,7 +982,7 @@ def eval_inference_noCouplings(seq_ref_name, sigma_h, D0,
     ax1.set_ylabel('inferred $h$')
     plt.savefig(this_plot_filepath, bbox_inches='tight')
 
-def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
+def comparison_inference_LeeDeepMutScanning(sigma_h, D0, inf_scheme = 'noCouplings'):
     """
     plot inferred params, inferred w specific sigma_h and D0
     against mutational effects measured by Lee et al.
@@ -856,7 +1059,7 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
 
     ## get the inferred fitness coefficients for this reference sequence
     ## and the specified coefficients sigma_h, D0
-    result_filename = 'HA_Inference_noCouplings' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + '.data'
+    result_filename = 'HA_Inference_' + inf_scheme + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + '.data'
     seqref_results_folder = data_folder
     result_filepath = os.path.join(seqref_results_folder, result_filename)
     with open(result_filepath, 'rb') as f:
@@ -867,11 +1070,13 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
     h_inf_std_list = ana_result_dict['h_inf_std_list']
 
     ## calculate the rank correlation between inferred and measured mutational effects and with measured shannon entropy
+    rhoMaxEffect_pears, prho_MaxEffect_pears = scipy.stats.pearsonr(max_mut_effect_list, h_inf_list)
     rhoMaxEffect, prho_MaxEffect = scipy.stats.spearmanr(max_mut_effect_list, h_inf_list)
     rhoAvgEffect, prho_AvgEffect = scipy.stats.spearmanr(avg_mut_effect_list, h_inf_list)
     rho_shannon, prho_shannon = scipy.stats.spearmanr(shannon_e_list, h_inf_list)
 
     print('rhoMaxEffect=', rhoMaxEffect, 'p=', prho_MaxEffect)
+    print('rhoMaxEffect_pears=', rhoMaxEffect_pears, 'p=', prho_MaxEffect_pears)
     print('rhoAvgEffect=', rhoAvgEffect, 'p=', prho_AvgEffect)
     print('rho_shannon=', rho_shannon, 'p=', prho_shannon)
 
@@ -888,41 +1093,42 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
     # plot comparison inferred vs measured coefficients
     plt_set = ana.set_plot_settings()
 
-    fig_name = 'hInferred_vs_Exp_' + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + plt_set['file_extension']
+    fig_name = 'hInferred_vs_Exp_' + inf_scheme + 'sigma_h_' + str(sigma_h) + '_D0_' + str(D0) + plt_set['file_extension']
     this_plot_filepath = os.path.join(data_folder, fig_name)
-    fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
-    ax1= fig.add_axes(plt_set['plot_dim_3pan'][0])
-    ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
-    ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
+    # fig = plt.figure(figsize=(plt_set['full_page_width'], 3))
+    fig = plt.figure(figsize=(plt_set['single_pan_width'], 3))
+    ax1= fig.add_axes(plt_set['plot_dim_1pan'][0])
+    # ax2 = fig.add_axes(plt_set['plot_dim_3pan'][1])
+    # ax3 = fig.add_axes(plt_set['plot_dim_3pan'][2])
 
     # inferred vs max mutational effects
     ax1.errorbar(max_mut_effect_list, h_inf_list, h_inf_std_list, marker='o', linestyle='none', zorder=1)
-    ax1.set_xlabel('measured max log aa preference ratios')
+    ax1.set_xlabel('measured log preference ratios')
     ax1.set_ylabel('inferred $h$')
     ax1.set_ylim(-1.5, 1.5)
-    text = '$r_{spearman}$ = %.2f, p = %.e' % (rhoMaxEffect, prho_MaxEffect)
+    text = '$r_{h}$ = %.2f, p = %.e' % (rhoMaxEffect_pears, prho_MaxEffect_pears)
     ax1.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax1.transAxes)
-    ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(a)', transform=ax1.transAxes,
-             fontsize=plt_set['label_font_size'], va='top', ha='right')
+    # ax1.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(a)', transform=ax1.transAxes,
+    #          fontsize=plt_set['label_font_size'], va='top', ha='right')
 
-    # inferred vs avg. mutational effects
-    ax2.errorbar(avg_mut_effect_list, h_inf_list, h_inf_std_list, marker='o', linestyle='none', zorder=1)
-    ax2.set_xlabel('measured avg. log aa preference ratios')
-    ax2.set_ylabel('inferred $h$')
-    ax2.set_ylim(-1.5, 1.5)
-    text = '$r_{spearman}$ = %.2f, p = %.e' % (rhoAvgEffect, prho_AvgEffect)
-    ax2.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax2.transAxes)
-    ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(b)', transform=ax2.transAxes,
-             fontsize=plt_set['label_font_size'], va='top', ha='right')
-
-    ax3.errorbar(shannon_e_list, h_inf_list, h_inf_std_list, marker='o', linestyle='none', zorder=1)
-    ax3.set_xlabel('Shannon entropy of measured aa preferences')
-    ax3.set_ylabel('inferred $h$')
-    ax3.set_ylim(-1.5, 1.5)
-    text = '$r_{spearman}$ = %.2f, p = %.e' % (rho_shannon, prho_shannon)
-    ax3.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax3.transAxes)
-    ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(c)', transform=ax3.transAxes,
-             fontsize=plt_set['label_font_size'], va='top', ha='right')
+    # # inferred vs avg. mutational effects
+    # ax2.errorbar(avg_mut_effect_list, h_inf_list, h_inf_std_list, marker='o', linestyle='none', zorder=1)
+    # ax2.set_xlabel('measured avg. log aa preference ratios')
+    # ax2.set_ylabel('inferred $h$')
+    # ax2.set_ylim(-1.5, 1.5)
+    # text = '$r_{spearman}$ = %.2f, p = %.e' % (rhoAvgEffect, prho_AvgEffect)
+    # ax2.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax2.transAxes)
+    # ax2.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(b)', transform=ax2.transAxes,
+    #          fontsize=plt_set['label_font_size'], va='top', ha='right')
+    #
+    # ax3.errorbar(shannon_e_list, h_inf_list, h_inf_std_list, marker='o', linestyle='none', zorder=1)
+    # ax3.set_xlabel('Shannon entropy of measured aa preferences')
+    # ax3.set_ylabel('inferred $h$')
+    # ax3.set_ylim(-1.5, 1.5)
+    # text = '$r_{spearman}$ = %.2f, p = %.e' % (rho_shannon, prho_shannon)
+    # ax3.text(0.05, 0.95, text, ha='left', va='top', fontsize=12, transform=ax3.transAxes)
+    # ax3.text(plt_set['plotlabel_shift_3pan'], plt_set['plotlabel_up_3pan'], '(c)', transform=ax3.transAxes,
+    #          fontsize=plt_set['label_font_size'], va='top', ha='right')
 
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
@@ -930,7 +1136,7 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0):
 
 def main():
     ## plot HA strain succession from 1968 to 2020
-    exe_plot_strainSuccession_HA()
+    # exe_plot_strainSuccession_HA()
 
     ## calculate and save minus_f_host_yearly
     # sigma_h = 1
@@ -953,16 +1159,19 @@ def main():
     # sigma_h = 1
     # D0 = 5
     # # fixed params:
-    # lambda_h = 10 ** (-4)
+    # lambda_h = 10 ** (-4) # 10**(-4)
+    # lambda_J = 1 # only needed for inference with couplings
     # lambda_f = 10 ** (-4)
     # inf_start = 0
-    # inf_end = 53
+    # inf_end = 43 # 53 (53 is length of year_list, 43 is 2010 as last year)
     # res_epitope_list = def_res_epitope_list()
     # res_allepitopes_list = [res for res_list in res_epitope_list for res in res_list]
     # res_targeted = res_allepitopes_list
     # # run inference with chosen params:
     # exe_inference_noCouplings(seq_ref_name, sigma_h, D0, res_targeted,
     #                           lambda_h, lambda_f, inf_start, inf_end)
+    # exe_inference_WithCouplings(seq_ref_name, sigma_h, D0, res_targeted,
+    #                             lambda_h, lambda_J, lambda_f, inf_start, inf_end)
 
     ## evaluate inference: print and plot inferred params
     # seq_ref_name = 'Perth_16_2009_G78D_T212I' # 'BI_16190_68'
@@ -970,12 +1179,13 @@ def main():
     # D0 = 5
     # eval_inference_noCouplings(seq_ref_name, sigma_h, D0)
 
-    ## compare inferred fitness coefficients to mutational fitness effects
-    ## measured by Lee et al. 2018 (PNAS)
-    ## save comparison figure and print/save rank correlations
-    # sigma_h = 1
-    # D0 = 5
-    # comparison_inference_LeeDeepMutScanning(sigma_h, D0)
+    # compare inferred fitness coefficients to mutational fitness effects
+    # measured by Lee et al. 2018 (PNAS)
+    # save comparison figure and print/save rank correlations
+    sigma_h = 1
+    D0 = 5
+    comparison_inference_LeeDeepMutScanning(sigma_h, D0, inf_scheme='noCouplings')
+    # comparison_inference_LeeDeepMutScanning(sigma_h, D0, inf_scheme='WithCouplings')
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

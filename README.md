@@ -3,7 +3,7 @@
 "Inferring the intrinsic mutational fitness landscape of influenza-like evolving antigens from temporally ordered sequence data".
 Study by Julia Doelger, Mehran Kardar, and Arup K. Chakraborty
 
-A pre-print describing this study is available at ...
+A pre-print describing this study is available on BioRxiv https://doi.org/10.1101/2021.07.28.454153
 
 ## Organization
 

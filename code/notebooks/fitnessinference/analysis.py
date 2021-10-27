@@ -2168,12 +2168,11 @@ def calc_and_plot_crossImmunity(D0=5):
     # load plot settings
     plt_set = set_plot_settings()
 
-    ## calculate and plot the
-    with open('N_site_20.data', 'rb') as f:
-    # with open('N_site_1e+02.data', 'rb') as f:
+    ## calculate and plot
+    with open('analysis_2021Jun04_15run_5.data', 'rb') as f: # run 2 means L=20, run 5 means L=100
         resulting_data = pickle.load(f)
-    strain_yearly = resulting_data['strain_yearly']
-    strain_frequency_yearly = resulting_data['strain_frequency_yearly']
+    strain_yearly = resulting_data['strain_sample_yearly']
+    strain_frequency_yearly = resulting_data['strain_sample_frequency_yearly']
     ref_strains = strain_yearly[-1][:20] # choose strain for which to calculate cross-immunity
     cross_imms = [[] for ref_strain in ref_strains]
     for y in range(len(strain_yearly)-1):
@@ -2216,7 +2215,12 @@ def calc_and_plot_crossImmunity(D0=5):
     plt.savefig(this_plot_filepath, bbox_inches='tight')
     plt.close()
 
-
+# def main2():
+#     """
+#     run this from specific result folder with raw simulation results in which N_site is varied
+#     """
+#     ## calculate and plot cross-immunity of some recent strains with strains at past times
+#     calc_and_plot_crossImmunity(D0=5)
 
 def main():
     ## run analysis/inference, each only once, comment out afterward
@@ -2255,13 +2259,6 @@ def main():
     ## for each mount fuji simulation
     # for h_0_val in h_0_val_list:
     #     exe_single_simu_plot_numMutations_fuji(h_0_val)
-
-def main2():
-    """
-    run this from specific result folder with raw simulation results in which N_site is varied
-    """
-    ## calculate and plot cross-immunity of some recent strains with strains at past times
-    calc_and_plot_crossImmunity(D0=5)
 
 
 # if this file is run from the console, the function main (or main2) will be executed

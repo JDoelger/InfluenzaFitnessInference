@@ -1136,17 +1136,17 @@ def comparison_inference_LeeDeepMutScanning(sigma_h, D0, inf_scheme = 'noCouplin
 
 def main():
     ## plot HA strain succession from 1968 to 2020
-    # exe_plot_strainSuccession_HA()
+    exe_plot_strainSuccession_HA()
 
     ## calculate and save minus_f_host_yearly
-    # sigma_h = 1
-    # D0 = 5
-    # exe_minus_fhost_yearly(sigma_h, D0)
+    sigma_h = 1
+    D0 = 5
+    exe_minus_fhost_yearly(sigma_h, D0)
 
     ## plot distribution of minus_f_host_yearly
-    # sigma_h = 1
-    # D0 = 5
-    # exe_plot_minus_fhost_yearly(sigma_h, D0)
+    sigma_h = 1
+    D0 = 5
+    exe_plot_minus_fhost_yearly(sigma_h, D0)
 
     ## add reference sequence to dictionary
     # add_reference_sequences_from_fasta('BI_16190_68_ProteinFasta.fasta', 'BI_16190_68')
@@ -1154,7 +1154,7 @@ def main():
     # add_reference_sequences_from_fasta('Perth_16_2009_G78D_T212I_ProteinFasta.fasta', 'Perth_16_2009_G78D_T212I')
     # print_seq_refs() # print names of added reference sequences
 
-    ## run inference
+    # ## run trial inference on HA data
     # seq_ref_name = 'Perth_16_2009_G78D_T212I' # 'BI_16190_68'
     # sigma_h = 1
     # D0 = 5
@@ -1163,29 +1163,29 @@ def main():
     # lambda_J = 1 # only needed for inference with couplings
     # lambda_f = 10 ** (-4)
     # inf_start = 0
-    # inf_end = 43 # 53 (53 is length of year_list, 43 is 2010 as last year)
+    # inf_end = 53 # 53 (53 is length of year_list, 43 is 2010 as last year)
     # res_epitope_list = def_res_epitope_list()
     # res_allepitopes_list = [res for res_list in res_epitope_list for res in res_list]
     # res_targeted = res_allepitopes_list
     # # run inference with chosen params:
     # exe_inference_noCouplings(seq_ref_name, sigma_h, D0, res_targeted,
     #                           lambda_h, lambda_f, inf_start, inf_end)
-    # exe_inference_WithCouplings(seq_ref_name, sigma_h, D0, res_targeted,
-    #                             lambda_h, lambda_J, lambda_f, inf_start, inf_end)
-
-    ## evaluate inference: print and plot inferred params
+    # # exe_inference_WithCouplings(seq_ref_name, sigma_h, D0, res_targeted,
+    # #                             lambda_h, lambda_J, lambda_f, inf_start, inf_end)
+    #
+    # ## evaluate inference: print and plot inferred params
     # seq_ref_name = 'Perth_16_2009_G78D_T212I' # 'BI_16190_68'
     # sigma_h = 1
     # D0 = 5
     # eval_inference_noCouplings(seq_ref_name, sigma_h, D0)
-
-    # compare inferred fitness coefficients to mutational fitness effects
-    # measured by Lee et al. 2018 (PNAS)
-    # save comparison figure and print/save rank correlations
-    sigma_h = 1
-    D0 = 5
-    comparison_inference_LeeDeepMutScanning(sigma_h, D0, inf_scheme='noCouplings')
-    # comparison_inference_LeeDeepMutScanning(sigma_h, D0, inf_scheme='WithCouplings')
+    #
+    # # compare inferred fitness coefficients to mutational fitness effects
+    # # measured by Lee et al. 2018 (PNAS)
+    # # save comparison figure and print/save rank correlations
+    # sigma_h = 1
+    # D0 = 5
+    # comparison_inference_LeeDeepMutScanning(sigma_h, D0, inf_scheme='noCouplings')
+    # # comparison_inference_LeeDeepMutScanning(sigma_h, D0, inf_scheme='WithCouplings')
 
 # if this file is run from the console, the function main will be executed
 if __name__ == '__main__':

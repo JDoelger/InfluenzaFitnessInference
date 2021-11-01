@@ -1160,7 +1160,7 @@ def main():
     # D0 = 5
     # # fixed params:
     # lambda_h = 10 ** (-4) # 10**(-4)
-    # lambda_J = 1 # only needed for inference with couplings
+    # # lambda_J = 1 # only needed for inference with couplings
     # lambda_f = 10 ** (-4)
     # inf_start = 0
     # inf_end = 53 # 53 (53 is length of year_list, 43 is 2010 as last year)
